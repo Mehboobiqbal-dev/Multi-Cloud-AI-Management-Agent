@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import { AuthProvider, GoogleLoginButton } from './auth';
 
 const cloudIcons = {
   aws: '🟧',
@@ -8,12 +9,78 @@ const cloudIcons = {
 };
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [knowledge, setKnowledge] = useState('');
   const [errorExplanation, setErrorExplanation] = useState('');
   const [history, setHistory] = useState([]);
+  const [creds, setCreds] = useState([]);
+  const [showCreds, setShowCreds] = useState(false);
+  const [credForm, setCredForm] = useState({ provider: 'aws', access_key: '', secret_key: '', azure_subscription_id: '', azure_client_id: '', azure_client_secret: '', azure_tenant_id: '', gcp_project_id: '', gcp_credentials_json: '' });
+
+  useEffect(() => {
+    if (token) {
+      fetch('/me', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(u => setUser(u))
+        .catch(() => setUser(null));
+      fetch('/credentials', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(setCreds);
+    }
+  }, [token]);
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    // Send credential to backend for session
+    const res = await fetch('/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: credentialResponse.credential })
+    });
+    const data = await res.json();
+    if (data.token) {
+      setToken(data.token);
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+    }
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('token');
+  };
+
+  const handleCredFormChange = (e) => {
+    setCredForm({ ...credForm, [e.target.name]: e.target.value });
+  };
+
+  const handleCredSave = async (e) => {
+    e.preventDefault();
+    await fetch('/credentials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(credForm)
+    });
+    setShowCreds(false);
+    fetch('/credentials', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(setCreds);
+  };
+
+  if (!token || !user) {
+    return (
+      <AuthProvider>
+        <div className="App">
+          <h1>Multi-Cloud Agent</h1>
+          <GoogleLoginButton onSuccess={handleGoogleLogin} onError={() => alert('Login failed')} />
+        </div>
+      </AuthProvider>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,6 +149,42 @@ function App() {
   return (
     <div className="App">
       <h1>Multi-Cloud Agent</h1>
+      <div style={{ float: 'right' }}>
+        <span>{user.email}</span>
+        <button onClick={handleLogout} style={{ marginLeft: '10px' }}>Logout</button>
+        <button onClick={() => setShowCreds(!showCreds)} style={{ marginLeft: '10px' }}>Cloud Credentials</button>
+      </div>
+      {showCreds && (
+        <form onSubmit={handleCredSave} style={{ background: '#f8f8fa', padding: '16px', borderRadius: '8px', margin: '24px auto', maxWidth: '600px' }}>
+          <h3>Manage Cloud Credentials</h3>
+          <select name="provider" value={credForm.provider} onChange={handleCredFormChange}>
+            <option value="aws">AWS</option>
+            <option value="azure">Azure</option>
+            <option value="gcp">GCP</option>
+          </select>
+          {credForm.provider === 'aws' && (
+            <>
+              <input name="access_key" placeholder="AWS Access Key" value={credForm.access_key} onChange={handleCredFormChange} />
+              <input name="secret_key" placeholder="AWS Secret Key" value={credForm.secret_key} onChange={handleCredFormChange} />
+            </>
+          )}
+          {credForm.provider === 'azure' && (
+            <>
+              <input name="azure_subscription_id" placeholder="Azure Subscription ID" value={credForm.azure_subscription_id} onChange={handleCredFormChange} />
+              <input name="azure_client_id" placeholder="Azure Client ID" value={credForm.azure_client_id} onChange={handleCredFormChange} />
+              <input name="azure_client_secret" placeholder="Azure Client Secret" value={credForm.azure_client_secret} onChange={handleCredFormChange} />
+              <input name="azure_tenant_id" placeholder="Azure Tenant ID" value={credForm.azure_tenant_id} onChange={handleCredFormChange} />
+            </>
+          )}
+          {credForm.provider === 'gcp' && (
+            <>
+              <input name="gcp_project_id" placeholder="GCP Project ID" value={credForm.gcp_project_id} onChange={handleCredFormChange} />
+              <textarea name="gcp_credentials_json" placeholder="GCP Credentials JSON" value={credForm.gcp_credentials_json} onChange={handleCredFormChange} />
+            </>
+          )}
+          <button type="submit">Save</button>
+        </form>
+      )}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
