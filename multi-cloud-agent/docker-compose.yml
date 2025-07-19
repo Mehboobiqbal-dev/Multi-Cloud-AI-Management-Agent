@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: multicloud
+      POSTGRES_USER: multicloud
+      POSTGRES_PASSWORD: multicloudpass
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    command: gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+    environment:
+      DATABASE_URL: postgresql://multicloud:multicloudpass@db:5432/multicloud
+      SESSION_SECRET: ${SESSION_SECRET}
+      FERNET_KEY: ${FERNET_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    environment:
+      REACT_APP_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  db_data:
