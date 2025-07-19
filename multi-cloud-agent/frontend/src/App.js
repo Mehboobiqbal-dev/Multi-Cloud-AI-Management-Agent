@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import './App.css';
 
+const cloudIcons = {
+  aws: '🟧',
+  azure: '🟦',
+  gcp: '🟨',
+};
+
 function App() {
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [knowledge, setKnowledge] = useState('');
   const [errorExplanation, setErrorExplanation] = useState('');
+  const [history, setHistory] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +29,7 @@ function App() {
       });
       const data = await res.json();
       setResponse(data);
+      setHistory([{ prompt, response: data }, ...history.slice(0, 9)]);
       // Try to get knowledge base doc if intent is detected
       if (data.steps && data.steps.length > 1 && data.steps[1].details && Array.isArray(data.steps[1].details)) {
         // Multi-cloud: show docs for first intent
@@ -62,6 +70,15 @@ function App() {
     setLoading(false);
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  // Helper to extract per-cloud results from steps
+  const getCloudResults = (steps) => {
+    return steps.filter(s => s.action && s.action.startsWith('Execute'));
+  };
+
   return (
     <div className="App">
       <h1>Multi-Cloud Agent</h1>
@@ -77,11 +94,42 @@ function App() {
           {loading ? 'Processing...' : 'Submit'}
         </button>
       </form>
+      {/* History Panel */}
+      {history.length > 0 && (
+        <div style={{ margin: '32px auto', maxWidth: '700px', textAlign: 'left', background: '#f8f8fa', borderRadius: '8px', padding: '16px' }}>
+          <h3>History</h3>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {history.map((h, idx) => (
+              <li key={idx} style={{ marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+                <b>Prompt:</b> {h.prompt}
+                <button style={{ marginLeft: '10px', fontSize: '0.9em' }} onClick={() => setResponse(h.response)}>View</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {response && (
         <div style={{ marginTop: '32px', textAlign: 'left', maxWidth: '700px', margin: '32px auto' }}>
           <h2>Status: {response.status}</h2>
           <p>{response.message}</p>
-          <h3>Workflow Steps:</h3>
+          {/* Per-cloud result cards */}
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '24px' }}>
+            {getCloudResults(response.steps).map((step, idx) => {
+              const cloud = (step.action.match(/on (\w+)/) || [])[1];
+              return (
+                <div key={idx} style={{ background: '#fff', border: '1px solid #eee', borderRadius: '8px', padding: '16px', minWidth: '220px', boxShadow: '0 2px 8px #f0f0f0' }}>
+                  <div style={{ fontSize: '2em' }}>{cloudIcons[cloud] || '☁️'} {cloud && cloud.toUpperCase()}</div>
+                  <div style={{ marginTop: '8px', fontWeight: 'bold' }}>{step.action}</div>
+                  <div style={{ marginTop: '8px', color: step.status === 'error' ? '#d32f2f' : '#388e3c' }}>{step.status}</div>
+                  <pre style={{ background: '#f4f4f4', padding: '8px', borderRadius: '4px', marginTop: '8px', fontSize: '0.95em' }}>
+                    {typeof step.details === 'object' ? JSON.stringify(step.details, null, 2) : step.details}
+                  </pre>
+                  <button style={{ marginTop: '8px', fontSize: '0.9em' }} onClick={() => copyToClipboard(typeof step.details === 'object' ? JSON.stringify(step.details, null, 2) : String(step.details))}>Copy Result</button>
+                </div>
+              );
+            })}
+          </div>
+          <h3 style={{ marginTop: '32px' }}>Workflow Steps:</h3>
           <ol>
             {response.steps.map((step, idx) => (
               <li key={idx} style={{ marginBottom: '12px' }}>
