@@ -6,12 +6,14 @@ function App() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [knowledge, setKnowledge] = useState('');
+  const [errorExplanation, setErrorExplanation] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResponse(null);
     setKnowledge('');
+    setErrorExplanation('');
     try {
       const res = await fetch('http://localhost:8000/prompt', {
         method: 'POST',
@@ -21,20 +23,37 @@ function App() {
       const data = await res.json();
       setResponse(data);
       // Try to get knowledge base doc if intent is detected
-      if (data.steps && data.steps.length > 1 && data.steps[1].details) {
-        const intent = data.steps[1].details;
-        if (intent.cloud && intent.resource !== 'unknown' && intent.operation !== 'unknown') {
+      if (data.steps && data.steps.length > 1 && data.steps[1].details && Array.isArray(data.steps[1].details)) {
+        // Multi-cloud: show docs for first intent
+        const firstIntent = data.steps[1].details[0];
+        if (firstIntent && firstIntent.cloud && firstIntent.resource !== 'unknown' && firstIntent.operation !== 'unknown') {
           const kres = await fetch('http://localhost:8000/knowledge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              cloud: intent.cloud,
-              resource: intent.resource,
-              operation: intent.operation
+              cloud: firstIntent.cloud,
+              resource: firstIntent.resource,
+              operation: firstIntent.operation
             })
           });
           const kdata = await kres.json();
           setKnowledge(kdata.documentation);
+        }
+      }
+      // Show error explanation if error
+      if (data.status === 'error' && data.steps) {
+        const errorStep = data.steps.find(s => s.status === 'error');
+        if (errorStep && errorStep.details && errorStep.details.error) {
+          let errorType = 'unknown';
+          if (errorStep.details.error.includes('credentials')) errorType = 'credentials';
+          if (errorStep.details.error.includes('not implemented')) errorType = 'not_implemented';
+          const expRes = await fetch('http://localhost:8000/knowledge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cloud: '', resource: '', operation: errorType })
+          });
+          const expData = await expRes.json();
+          setErrorExplanation(expData.documentation);
         }
       }
     } catch (err) {
@@ -79,6 +98,12 @@ function App() {
             <div style={{ background: '#e9f5ff', padding: '16px', borderRadius: '6px', marginTop: '24px' }}>
               <h3>Knowledge Base</h3>
               <p>{knowledge}</p>
+            </div>
+          )}
+          {errorExplanation && (
+            <div style={{ background: '#ffe9e9', padding: '16px', borderRadius: '6px', marginTop: '24px' }}>
+              <h3>Error Explanation</h3>
+              <p>{errorExplanation}</p>
             </div>
           )}
         </div>

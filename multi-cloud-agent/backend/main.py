@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from intent_extractor import extract_intent
-from cloud_handlers import handle_cloud
+from intent_extractor import extract_intents
+from cloud_handlers import handle_clouds
 from knowledge_base import get_operation_doc
 
 app = FastAPI()
@@ -25,20 +25,28 @@ class KnowledgeResponse(BaseModel):
 @app.post("/prompt", response_model=PromptResponse)
 async def handle_prompt(request: PromptRequest):
     steps = []
-    # Step 1: Parse prompt and extract intent
+    # Step 1: Parse prompt and extract intents
     steps.append({"step": 1, "action": "Parse prompt", "status": "done", "details": request.prompt})
-    intent = extract_intent(request.prompt)
-    steps.append({"step": 2, "action": "Extract intent", "status": "done", "details": intent})
-    # Step 2: Select handler and execute
-    if intent['cloud'] and intent['operation'] != 'unknown' and intent['resource'] != 'unknown':
-        result = handle_cloud(intent['cloud'], intent['operation'], intent['resource'])
-        steps.append({"step": 3, "action": f"Execute {intent['operation']} {intent['resource']} on {intent['cloud']}", "status": "done", "details": result})
+    intents = extract_intents(request.prompt)
+    steps.append({"step": 2, "action": "Extract intents", "status": "done", "details": intents})
+    # Step 2: Execute for each cloud
+    results = handle_clouds(intents)
+    for idx, res in enumerate(results):
+        details = res['result']
+        status = 'done' if 'result' in details and not details.get('error') else 'error'
+        steps.append({
+            "step": 3 + idx,
+            "action": f"Execute {res['operation']} {res['resource']} on {res['cloud']}",
+            "status": status,
+            "details": details
+        })
+    # Aggregate status and message
+    if all('result' in r['result'] and not r['result'].get('error') for r in results):
         status = "success"
-        message = result['result']
+        message = "; ".join(r['result']['result'] for r in results)
     else:
-        steps.append({"step": 3, "action": "Execution", "status": "error", "details": "Could not determine intent or operation"})
         status = "error"
-        message = "Could not determine intent or operation from prompt."
+        message = "; ".join(r['result'].get('error', r['result'].get('result', 'Unknown error')) for r in results)
     return PromptResponse(
         status=status,
         message=message,
