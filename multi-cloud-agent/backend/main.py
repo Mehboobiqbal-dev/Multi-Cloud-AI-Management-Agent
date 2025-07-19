@@ -11,6 +11,13 @@ import os
 from secure import encrypt, decrypt
 from intent_extractor import extract_intents
 from cloud_handlers import handle_clouds
+from audit import log_audit, AuditLog
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from fastapi import status
+from slowapi.errors import RateLimitExceeded
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get('SESSION_SECRET', 'devsecret'))
@@ -87,6 +94,7 @@ async def get_credentials(user: User = Depends(get_current_user), db: Session = 
     ]
 
 @app.post('/credentials')
+@limiter.limit("10/minute")
 async def save_credentials(data: dict, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     provider = data.get('provider')
     cred = db.query(CloudCredential).filter_by(user_id=user.id, provider=provider).first()
@@ -106,11 +114,13 @@ async def save_credentials(data: dict, user: User = Depends(get_current_user), d
         cred.gcp_credentials_json = encrypt(data.get('gcp_credentials_json', ''))
     db.add(cred)
     db.commit()
+    log_audit(db, user.id, f'update_{provider}_credentials', 'Credentials updated')
     return {'status': 'ok'}
 
 # ... cloud operation endpoints will be refactored next ...
 
 @app.post('/prompt')
+@limiter.limit("10/minute")
 async def prompt(data: dict, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     prompt_text = data.get('prompt', '')
     steps = []
@@ -139,6 +149,7 @@ async def prompt(data: dict, user: User = Depends(get_current_user), db: Session
                 'gcp_credentials_json': decrypt(c.gcp_credentials_json)
             }
     results = handle_clouds(intents, user_creds)
+    log_audit(db, user.id, 'cloud_operation', f'Prompt: {prompt_text} | Intents: {intents}')
     for idx, res in enumerate(results):
         details = res['result']
         status = 'done' if 'result' in details and not details.get('error') else 'error'
@@ -155,3 +166,30 @@ async def prompt(data: dict, user: User = Depends(get_current_user), db: Session
         status = "error"
         message = "; ".join(r['result'].get('error', r['result'].get('result', 'Unknown error')) for r in results)
     return {"status": status, "message": message, "steps": steps}
+
+# CORS and HTTPS enforcement
+origins = [
+    "http://localhost:3000",
+    "https://your-production-domain.com"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+if os.environ.get('FORCE_HTTPS', '0') == '1':
+    app.add_middleware(HTTPSRedirectMiddleware)
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.get('/healthz')
+def healthz():
+    return {"status": "ok"}
+
+@app.get('/readyz')
+def readyz():
+    return {"status": "ready"}

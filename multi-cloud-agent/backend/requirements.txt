@@ -8,3 +8,5 @@ google-cloud-storage
 authlib
 sqlalchemy
 sqlite3
+slowapi
+cryptography
