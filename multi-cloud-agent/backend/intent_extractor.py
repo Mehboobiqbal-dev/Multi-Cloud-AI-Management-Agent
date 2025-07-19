@@ -1,19 +1,22 @@
 import re
-from typing import Dict
+from typing import Dict, List
 
 # Optionally, you can integrate OpenAI or HuggingFace here
 # For now, use a simple rule-based parser for demo
 
-def extract_intent(prompt: str) -> Dict:
+def extract_intents(prompt: str) -> List[Dict]:
     prompt = prompt.lower()
-    cloud = None
+    clouds = []
     if 'aws' in prompt or 'amazon' in prompt:
-        cloud = 'aws'
-    elif 'azure' in prompt:
-        cloud = 'azure'
-    elif 'gcp' in prompt or 'google' in prompt:
-        cloud = 'gcp'
-    
+        clouds.append('aws')
+    if 'azure' in prompt:
+        clouds.append('azure')
+    if 'gcp' in prompt or 'google' in prompt:
+        clouds.append('gcp')
+    if not clouds:
+        # Try to infer all if not specified
+        clouds = ['aws', 'azure', 'gcp']
+
     # Simple resource and operation extraction
     if 'create' in prompt:
         operation = 'create'
@@ -38,8 +41,7 @@ def extract_intent(prompt: str) -> Dict:
     else:
         resource = 'unknown'
 
-    return {
-        'cloud': cloud,
-        'operation': operation,
-        'resource': resource
-    }
+    return [
+        {'cloud': cloud, 'operation': operation, 'resource': resource}
+        for cloud in clouds
+    ]

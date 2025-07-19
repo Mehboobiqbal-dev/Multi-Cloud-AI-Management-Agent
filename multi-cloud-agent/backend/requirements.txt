@@ -1,2 +1,7 @@
 fastapi
 uvicorn
+boto3
+azure-mgmt-compute
+azure-mgmt-storage
+google-cloud-compute
+google-cloud-storage
