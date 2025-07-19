@@ -8,6 +8,9 @@ from starlette.middleware.sessions import SessionMiddleware
 from db import SessionLocal, init_db
 from models import User, CloudCredential
 import os
+from secure import encrypt, decrypt
+from intent_extractor import extract_intents
+from cloud_handlers import handle_clouds
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get('SESSION_SECRET', 'devsecret'))
@@ -77,9 +80,9 @@ async def get_credentials(user: User = Depends(get_current_user), db: Session = 
     return [
         {
             'provider': c.provider,
-            'access_key': c.access_key,
-            'azure_subscription_id': c.azure_subscription_id,
-            'gcp_project_id': c.gcp_project_id
+            'access_key': decrypt(c.access_key) if c.access_key else '',
+            'azure_subscription_id': decrypt(c.azure_subscription_id) if c.azure_subscription_id else '',
+            'gcp_project_id': decrypt(c.gcp_project_id) if c.gcp_project_id else ''
         } for c in creds
     ]
 
@@ -91,16 +94,64 @@ async def save_credentials(data: dict, user: User = Depends(get_current_user), d
         cred = CloudCredential(user_id=user.id, provider=provider)
     # Update fields based on provider
     if provider == 'aws':
-        cred.access_key = data.get('access_key')
-        cred.secret_key = data.get('secret_key')
+        cred.access_key = encrypt(data.get('access_key', ''))
+        cred.secret_key = encrypt(data.get('secret_key', ''))
     elif provider == 'azure':
-        cred.azure_subscription_id = data.get('azure_subscription_id')
-        cred.azure_client_id = data.get('azure_client_id')
-        cred.azure_client_secret = data.get('azure_client_secret')
-        cred.azure_tenant_id = data.get('azure_tenant_id')
+        cred.azure_subscription_id = encrypt(data.get('azure_subscription_id', ''))
+        cred.azure_client_id = encrypt(data.get('azure_client_id', ''))
+        cred.azure_client_secret = encrypt(data.get('azure_client_secret', ''))
+        cred.azure_tenant_id = encrypt(data.get('azure_tenant_id', ''))
     elif provider == 'gcp':
-        cred.gcp_project_id = data.get('gcp_project_id')
-        cred.gcp_credentials_json = data.get('gcp_credentials_json')
+        cred.gcp_project_id = encrypt(data.get('gcp_project_id', ''))
+        cred.gcp_credentials_json = encrypt(data.get('gcp_credentials_json', ''))
     db.add(cred)
     db.commit()
     return {'status': 'ok'}
+
+# ... cloud operation endpoints will be refactored next ...
+
+@app.post('/prompt')
+async def prompt(data: dict, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    prompt_text = data.get('prompt', '')
+    steps = []
+    steps.append({"step": 1, "action": "Parse prompt", "status": "done", "details": prompt_text})
+    intents = extract_intents(prompt_text)
+    steps.append({"step": 2, "action": "Extract intents", "status": "done", "details": intents})
+    # Aggregate user credentials
+    creds = db.query(CloudCredential).filter_by(user_id=user.id).all()
+    user_creds = {}
+    for c in creds:
+        if c.provider == 'aws':
+            user_creds['aws'] = {
+                'access_key': decrypt(c.access_key),
+                'secret_key': decrypt(c.secret_key)
+            }
+        elif c.provider == 'azure':
+            user_creds['azure'] = {
+                'azure_subscription_id': decrypt(c.azure_subscription_id),
+                'azure_client_id': decrypt(c.azure_client_id),
+                'azure_client_secret': decrypt(c.azure_client_secret),
+                'azure_tenant_id': decrypt(c.azure_tenant_id)
+            }
+        elif c.provider == 'gcp':
+            user_creds['gcp'] = {
+                'gcp_project_id': decrypt(c.gcp_project_id),
+                'gcp_credentials_json': decrypt(c.gcp_credentials_json)
+            }
+    results = handle_clouds(intents, user_creds)
+    for idx, res in enumerate(results):
+        details = res['result']
+        status = 'done' if 'result' in details and not details.get('error') else 'error'
+        steps.append({
+            "step": 3 + idx,
+            "action": f"Execute {res['operation']} {res['resource']} on {res['cloud']}",
+            "status": status,
+            "details": details
+        })
+    if all('result' in r['result'] and not r['result'].get('error') for r in results):
+        status = "success"
+        message = "; ".join(r['result']['result'] for r in results)
+    else:
+        status = "error"
+        message = "; ".join(r['result'].get('error', r['result'].get('result', 'Unknown error')) for r in results)
+    return {"status": status, "message": message, "steps": steps}
