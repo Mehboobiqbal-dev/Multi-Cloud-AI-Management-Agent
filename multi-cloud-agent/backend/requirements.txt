@@ -10,3 +10,4 @@ sqlalchemy
 slowapi
 cryptography
 httpx
+itsdangerous
