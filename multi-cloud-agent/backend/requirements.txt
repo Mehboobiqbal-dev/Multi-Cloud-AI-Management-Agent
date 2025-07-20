@@ -3,7 +3,10 @@ uvicorn[standard]
 boto3
 azure-mgmt-compute
 azure-mgmt-storage
+<<<<<<< HEAD
 azure-identity
+=======
+>>>>>>> 7ff0246737b430c27cbcaf82f365a8e84606a58f
 google-cloud-compute
 google-cloud-storage
 authlib
@@ -15,4 +18,9 @@ httpx
 itsdangerous
 python-dotenv
 python-multipart
+<<<<<<< HEAD
 starlette
+=======
+starlette
+azure-identity
+>>>>>>> 7ff0246737b430c27cbcaf82f365a8e84606a58f
