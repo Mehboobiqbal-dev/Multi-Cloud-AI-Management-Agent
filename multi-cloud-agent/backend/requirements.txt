@@ -11,3 +11,4 @@ slowapi
 cryptography
 httpx
 itsdangerous
+psycopg2-binary
