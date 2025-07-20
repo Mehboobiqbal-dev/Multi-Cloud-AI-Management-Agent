@@ -9,3 +9,4 @@ authlib
 sqlalchemy
 slowapi
 cryptography
+httpx
