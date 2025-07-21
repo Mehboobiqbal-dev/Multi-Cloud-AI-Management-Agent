@@ -1,19 +1,17 @@
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { createClient } from '@supabase/supabase-js';
 
-export function AuthProvider({ children }) {
-  return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      {children}
-    </GoogleOAuthProvider>
-  );
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export async function signUp({ email, password }) {
+  const { user, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  return user;
 }
 
-export function GoogleLoginButton({ onSuccess, onError }) {
-  return (
-    <GoogleLogin
-      onSuccess={onSuccess}
-      onError={onError}
-      useOneTap
-    />
-  );
+export async function signIn({ email, password }) {
+  const { user, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return user;
 }

@@ -1,12 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { AuthProvider, GoogleLoginButton } from './auth';
+import { AuthProvider, GoogleLoginButton, signUp, signIn, supabase } from './auth';
 
 const cloudIcons = {
   aws: '🟧',
   azure: '🟦',
   gcp: '🟨',
 };
+
+function AuthForms() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
+  const [mode, setMode] = useState('signin');
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const user = await signUp({ email, password });
+      setUser(user);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const user = await signIn({ email, password });
+      setUser(user);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  if (user) {
+    return (
+      <div>
+        <h2>Welcome, {user.email}</h2>
+        <button onClick={async () => { await supabase.auth.signOut(); setUser(null); }}>Sign Out</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 400, margin: 'auto', padding: 20 }}>
+      <h2>{mode === 'signin' ? 'Sign In' : 'Sign Up'}</h2>
+      <form onSubmit={mode === 'signin' ? handleSignIn : handleSignUp}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+          style={{ width: '100%', marginBottom: 10 }}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          style={{ width: '100%', marginBottom: 10 }}
+        />
+        <button type="submit" style={{ width: '100%' }}>
+          {mode === 'signin' ? 'Sign In' : 'Sign Up'}
+        </button>
+      </form>
+      <button onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')} style={{ marginTop: 10, width: '100%' }}>
+        {mode === 'signin' ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
+      </button>
+      {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
+    </div>
+  );
+}
 
 function App() {
   const [user, setUser] = useState(null);
@@ -77,6 +147,7 @@ function App() {
         <div className="App">
           <h1>Multi-Cloud Agent</h1>
           <GoogleLoginButton onSuccess={handleGoogleLogin} onError={() => alert('Login failed')} />
+          <AuthForms />
         </div>
       </AuthProvider>
     );
