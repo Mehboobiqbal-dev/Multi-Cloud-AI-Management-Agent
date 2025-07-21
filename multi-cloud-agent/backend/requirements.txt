@@ -8,6 +8,7 @@ google-cloud-compute
 google-cloud-storage
 authlib
 sqlalchemy
+<<<<<<< HEAD
 psycopg2-binary
 slowapi
 cryptography
@@ -16,3 +17,8 @@ itsdangerous
 python-dotenv
 python-multipart
 starlette
+=======
+slowapi
+cryptography
+passlib
+>>>>>>> d9c8b08 (Add username/password authentication with signup and signin routes)

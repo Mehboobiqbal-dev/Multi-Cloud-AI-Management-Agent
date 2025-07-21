@@ -18,6 +18,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from fastapi import status
 from slowapi.errors import RateLimitExceeded
+from passlib.hash import bcrypt
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get('SESSION_SECRET', 'devsecret'))
@@ -166,6 +167,33 @@ async def prompt(data: dict, user: User = Depends(get_current_user), db: Session
         status = "error"
         message = "; ".join(r['result'].get('error', r['result'].get('result', 'Unknown error')) for r in results)
     return {"status": status, "message": message, "steps": steps}
+
+@app.post('/signup')
+async def signup(data: dict, db: Session = Depends(get_db)):
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        raise HTTPException(status_code=400, detail='Username and password required')
+    if db.query(User).filter_by(username=username).first():
+        raise HTTPException(status_code=400, detail='Username already exists')
+    hashed_password = bcrypt.hash(password)
+    user = User(username=username, password=hashed_password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {'message': 'User registered successfully'}
+
+@app.post('/signin')
+async def signin(data: dict, request: Request, db: Session = Depends(get_db)):
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        raise HTTPException(status_code=400, detail='Username and password required')
+    user = db.query(User).filter_by(username=username).first()
+    if not user or not user.password or not bcrypt.verify(password, user.password):
+        raise HTTPException(status_code=401, detail='Invalid credentials')
+    request.session['user_id'] = user.id
+    return {'message': 'Signed in successfully'}
 
 # CORS and HTTPS enforcement
 origins = [
