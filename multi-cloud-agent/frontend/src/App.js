@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { AuthProvider, GoogleLoginButton, signUp, signIn, supabase } from './auth';
+import { signUp, signIn, supabase } from './auth';
 
 const cloudIcons = {
   aws: '🟧',
@@ -143,13 +143,7 @@ function App() {
 
   if (!token || !user) {
     return (
-      <AuthProvider>
-        <div className="App">
-          <h1>Multi-Cloud Agent</h1>
-          <GoogleLoginButton onSuccess={handleGoogleLogin} onError={() => alert('Login failed')} />
-          <AuthForms />
-        </div>
-      </AuthProvider>
+      <AuthForms />
     );
   }
 
