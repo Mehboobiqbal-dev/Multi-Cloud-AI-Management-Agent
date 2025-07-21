@@ -9,7 +9,7 @@ const cloudIcons = {
 };
 
 function AuthForms() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ function AuthForms() {
     e.preventDefault();
     setError('');
     try {
-      const user = await signUp({ email, password });
+      const user = await signUp({ username, password });
       setUser(user);
     } catch (err) {
       setError(err.message);
@@ -30,7 +30,7 @@ function AuthForms() {
     e.preventDefault();
     setError('');
     try {
-      const user = await signIn({ email, password });
+      const user = await signIn({ username, password });
       setUser(user);
     } catch (err) {
       setError(err.message);
@@ -40,7 +40,7 @@ function AuthForms() {
   if (user) {
     return (
       <div>
-        <h2>Welcome, {user.email}</h2>
+        <h2>Welcome, {user.user_metadata?.username || user.email}</h2>
         <button onClick={async () => { await supabase.auth.signOut(); setUser(null); }}>Sign Out</button>
       </div>
     );
@@ -51,10 +51,10 @@ function AuthForms() {
       <h2>{mode === 'signin' ? 'Sign In' : 'Sign Up'}</h2>
       <form onSubmit={mode === 'signin' ? handleSignIn : handleSignUp}>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
           required
           style={{ width: '100%', marginBottom: 10 }}
         />
