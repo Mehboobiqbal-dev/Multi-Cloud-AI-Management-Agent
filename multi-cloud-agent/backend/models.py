@@ -10,6 +10,8 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     name = Column(String)
     google_id = Column(String, unique=True)
+    username = Column(String, unique=True, nullable=True)  # For username/password auth
+    password = Column(String, nullable=True)  # Hashed password for username/password auth
     credentials = relationship('CloudCredential', back_populates='user')
 
 class CloudCredential(Base):
