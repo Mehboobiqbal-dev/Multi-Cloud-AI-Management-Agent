@@ -1,0 +1,10 @@
+providers = ["python", "node"]
+
+[phases.setup]
+nixPkgs = ["python311", "pip", "gcc"]
+
+[phases.build]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "uvicorn main:app --host 0.0.0.0 --port 8000"
