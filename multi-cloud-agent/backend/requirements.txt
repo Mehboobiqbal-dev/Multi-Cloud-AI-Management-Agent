@@ -16,6 +16,7 @@ google-generativeai
 annoy
 requests
 Pillow
+pydantic[email]
 pydantic-settings
 boto3
 azure-mgmt-compute
@@ -24,4 +25,4 @@ azure-identity
 google-cloud-compute
 google-cloud-storage
 numpy
-
+pipreqs
