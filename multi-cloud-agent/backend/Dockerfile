@@ -4,7 +4,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y libgomp1
+RUN apt-get update && apt-get install -y libgomp1 build-essential
 
 # Copy backend source
 COPY . .
