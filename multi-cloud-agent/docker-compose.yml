@@ -15,14 +15,11 @@ services:
 
   backend:
     build: ./backend
+    working_dir: /app/backend
+    env_file:
+      - .env.example
     environment:
       DATABASE_URL: postgresql://multicloud:multicloudpass@db:5432/multicloud
-      SESSION_SECRET: ${SESSION_SECRET}
-      ALGORITHM: ${ALGORITHM}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
       - db
     ports:
