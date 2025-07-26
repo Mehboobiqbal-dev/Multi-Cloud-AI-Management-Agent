@@ -19,8 +19,8 @@ starlette
 passlib[bcrypt]
 python-jose[cryptography]
 google-generativeai
-# faiss-cpu
-# sentence-transformers
+faiss-cpu
+sentence-transformers
 requests
 Pillow
 pydantic-settings
