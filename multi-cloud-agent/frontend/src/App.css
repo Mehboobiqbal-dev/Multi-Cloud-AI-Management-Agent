@@ -1,78 +1,212 @@
+:root {
+  --primary-color: #4a90e2;
+  --background-color: #f4f7f9;
+  --text-color: #333;
+  --card-background: #ffffff;
+  --border-color: #e0e0e0;
+  --success-color: #4caf50;
+  --error-color: #f44336;
+}
+
 body {
-  background: #f6f8fa;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+  text-align: center;
 }
 
 .App {
-  text-align: center;
-  margin-top: 60px;
-}
-
-input[type="text"] {
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  background: #0078d4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-button:disabled {
-  background: #b0b0b0;
-  cursor: not-allowed;
+  max-width: 900px;
+  margin: auto;
 }
 
 h1 {
-  color: #22223b;
-  margin-bottom: 32px;
+  color: var(--primary-color);
+  margin-bottom: 40px;
 }
 
-h2 {
-  color: #0078d4;
+/* Auth Component */
+.auth-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 40px;
+  background: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-ol {
+.login-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.login-button:hover {
+  background-color: #357abd;
+}
+
+/* Dashboard */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Prompt Form */
+.prompt-form {
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.prompt-form input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px 0 0 5px;
+  font-size: 16px;
+}
+
+.prompt-form button {
+  padding: 12px 20px;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Results Display */
+.results-display {
+  text-align: left;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.result-card {
+  background: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.cloud-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-body pre {
+  background-color: #f4f7f9;
+  padding: 10px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.status-success { color: var(--success-color); }
+.status-error { color: var(--error-color); }
+.status-done { color: var(--primary-color); }
+
+/* Workflow Steps */
+.workflow-steps {
+  margin-top: 30px;
+  background: var(--card-background);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.workflow-steps ol {
   padding-left: 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Plan Display */
+.plan-display {
+  margin: 30px 0;
+  padding: 20px;
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  text-align: left;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.plan-steps {
+  list-style-type: none;
+  padding: 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.plan-steps li {
+  margin-bottom: 15px;
+}
+
+.plan-steps pre {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.confirm-button {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.modal {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
 }

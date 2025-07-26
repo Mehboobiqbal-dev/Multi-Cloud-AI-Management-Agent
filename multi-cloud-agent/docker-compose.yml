@@ -14,11 +14,13 @@ services:
 
   backend:
     build: ./backend
-    command: gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql://multicloud:multicloudpass@db:5432/multicloud
       SESSION_SECRET: ${SESSION_SECRET}
-      FERNET_KEY: ${FERNET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
@@ -29,6 +31,9 @@ services:
   frontend:
     build: ./frontend
     environment:
+      REACT_APP_API_URL: http://localhost:8000
+      REACT_APP_SUPABASE_URL: ${REACT_APP_SUPABASE_URL}
+      REACT_APP_SUPABASE_ANON_KEY: ${REACT_APP_SUPABASE_ANON_KEY}
       REACT_APP_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     depends_on:
       - backend

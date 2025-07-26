@@ -1,47 +1,120 @@
 import re
-from typing import Dict, List
+import json
+from typing import Dict, List, Any
+import google.generativeai as genai
+from config import settings
 
-# Optionally, you can integrate OpenAI or HuggingFace here
-# For now, use a simple rule-based parser for demo
+# --- Keyword Mapping (Fallback) ---
+CLOUD_KEYWORDS = {
+    'aws': ['aws', 'amazon'],
+    'azure': ['azure'],
+    'gcp': ['gcp', 'google'],
+}
 
-def extract_intents(prompt: str) -> List[Dict]:
-    prompt = prompt.lower()
+OPERATION_KEYWORDS = {
+    'create': ['create', 'make', 'build', 'provision'],
+    'delete': ['delete', 'remove', 'terminate', 'destroy'],
+    'list': ['list', 'show', 'get', 'find'],
+    'start': ['start', 'power on', 'turn on'],
+    'stop': ['stop', 'power off', 'turn off'],
+}
+
+RESOURCE_KEYWORDS = {
+    'vm': ['vm', 'virtual machine', 'instance', 'ec2', 'compute engine'],
+    'storage': ['storage', 'bucket', 's3', 'blob'],
+    'database': ['database', 'rds', 'sql'],
+}
+
+def extract_intents_keyword(prompt: str) -> List[Dict[str, Any]]:
+    prompt_lower = prompt.lower()
+    
+    # --- Cloud Extraction ---
     clouds = []
-    if 'aws' in prompt or 'amazon' in prompt:
-        clouds.append('aws')
-    if 'azure' in prompt:
-        clouds.append('azure')
-    if 'gcp' in prompt or 'google' in prompt:
-        clouds.append('gcp')
+    for cloud, keywords in CLOUD_KEYWORDS.items():
+        if any(keyword in prompt_lower for keyword in keywords):
+            clouds.append(cloud)
     if not clouds:
-        # Try to infer all if not specified
-        clouds = ['aws', 'azure', 'gcp']
+        clouds = ['aws', 'azure', 'gcp']  # Default to all if none specified
 
-    # Simple resource and operation extraction
-    if 'create' in prompt:
-        operation = 'create'
-    elif 'delete' in prompt:
-        operation = 'delete'
-    elif 'list' in prompt:
-        operation = 'list'
-    elif 'start' in prompt:
-        operation = 'start'
-    elif 'stop' in prompt:
-        operation = 'stop'
-    else:
-        operation = 'unknown'
+    # --- Operation and Resource Extraction ---
+    operation = 'unknown'
+    resource = 'unknown'
 
-    # Resource extraction (very basic)
-    if 'vm' in prompt or 'ec2' in prompt or 'virtual machine' in prompt:
-        resource = 'vm'
-    elif 'bucket' in prompt or 'storage' in prompt:
-        resource = 'storage'
-    elif 'database' in prompt:
-        resource = 'database'
-    else:
-        resource = 'unknown'
+    for op, keywords in OPERATION_KEYWORDS.items():
+        if any(keyword in prompt_lower for keyword in keywords):
+            operation = op
+            break
+
+    for res, keywords in RESOURCE_KEYWORDS.items():
+        if any(keyword in prompt_lower for keyword in keywords):
+            resource = res
+            break
+            
+    # --- Parameter Extraction (e.g., names, regions) ---
+    params = {}
+    name_match = re.search(r'(?:named|called)\s+["\']?([a-zA-Z0-9_-]+)["\']?', prompt_lower)
+    if name_match:
+        params['name'] = name_match.group(1)
+
+    region_match = re.search(r'in\s+(?:region\s+)?([a-z0-9-]+)', prompt_lower)
+    if region_match:
+        params['region'] = region_match.group(1)
 
     return [
-        {'cloud': cloud, 'operation': operation, 'resource': resource}
+        {
+            'cloud': cloud,
+            'operation': operation,
+            'resource': resource,
+            'params': params,
+        }
         for cloud in clouds
     ]
+
+def extract_intents(prompt: str) -> List[Dict[str, Any]]:
+    if not settings.LLM_API_KEY:
+        return extract_intents_keyword(prompt)
+
+    try:
+        genai.configure(api_key=settings.LLM_API_KEY)
+        model = genai.GenerativeModel(settings.LLM_MODEL_NAME)
+        
+        system_prompt = """
+        You are an expert at understanding user requests for cloud infrastructure management.
+        Your task is to extract the key information from the user's prompt and return it as a JSON object.
+        The JSON object should be a list of intents, where each intent has the following fields:
+        - "cloud": The cloud provider (e.g., "aws", "azure", "gcp"). If not specified, default to all three.
+        - "operation": The action to perform (e.g., "create", "delete", "list", "start", "stop").
+        - "resource": The type of resource (e.g., "vm", "storage", "database").
+        - "params": A dictionary of additional parameters, such as "name" or "region".
+
+        Example:
+        User prompt: "create a new ec2 instance named my-vm in us-east-1"
+        JSON output:
+        [
+            {
+                "cloud": "aws",
+                "operation": "create",
+                "resource": "vm",
+                "params": {
+                    "name": "my-vm",
+                    "region": "us-east-1"
+                }
+            }
+        ]
+        """
+
+        response = model.generate_content(f"{system_prompt}\n\nUser prompt: {prompt}")
+        
+        # The response from Gemini is not guaranteed to be a JSON object, so we need to extract it.
+        json_match = re.search(r'```json\n(.*)\n```', response.text, re.DOTALL)
+        if json_match:
+            intents = json.loads(json_match.group(1))
+        else:
+            intents = json.loads(response.text)
+            
+        return intents
+
+    except Exception as e:
+        print(f"Error calling LLM: {e}")
+        # Fallback to keyword-based extraction if LLM fails
+        return extract_intents_keyword(prompt)
