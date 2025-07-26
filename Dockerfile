@@ -1,0 +1,28 @@
+# ----------- Stage 1: Build frontend -----------
+FROM node:18 as frontend
+
+WORKDIR /app
+COPY frontend ./frontend
+RUN cd frontend && npm install && npm run build
+
+
+# ----------- Stage 2: Install Python backend dependencies -----------
+FROM python:3.11-slim as backend
+
+WORKDIR /app
+COPY backend ./backend
+RUN pip install --no-cache-dir -r backend/requirements.txt
+
+
+# ----------- Final Stage -----------
+FROM node:18-slim
+
+WORKDIR /app
+COPY --from=frontend /app/frontend/build ./frontend/build
+COPY --from=backend /app/backend ./backend
+
+# Set any startup script or environment vars here
+COPY start.sh ./
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
