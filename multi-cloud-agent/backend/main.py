@@ -307,6 +307,7 @@ async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_curren
 origins = [
     "http://localhost:3000",
     "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
+    "https://multi-cloud-ai-management-git-9887e5-mehboobiqbal-devs-projects.vercel.app",
 ]
 app.add_middleware(
     CORSMiddleware,

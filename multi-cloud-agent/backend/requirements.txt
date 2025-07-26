@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+gunicorn
 authlib
 sqlalchemy
 psycopg2-binary
@@ -13,6 +14,7 @@ starlette
 passlib[bcrypt]
 python-jose[cryptography]
 google-generativeai
+google-auth
 annoy
 requests
 Pillow
