@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     GEMINI_MODEL_NAME: str = "gemini-pro"
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
 
 settings = Settings()
 
