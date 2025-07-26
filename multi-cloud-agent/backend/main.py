@@ -29,6 +29,10 @@ from slowapi.errors import RateLimitExceeded
 
 from config import settings
 import schemas
+import logging
+from fastapi.responses import JSONResponse
+from fastapi.exception_handlers import RequestValidationError
+from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
@@ -37,9 +41,27 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Configure logging for production
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+
+@app.exception_handler(Exception)
+def global_exception_handler(request: Request, exc: Exception):
+    logging.error(f"Unhandled error: {exc}", exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logging.warning(f"Validation error: {exc}")
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
 @app.on_event("startup")
 async def startup_event():
-    init_db()
+    try:
+        init_db()
+        logging.info("Database initialized successfully.")
+    except Exception as e:
+        logging.error(f"Database initialization failed: {e}")
+        raise
 
 oauth = OAuth()
 oauth.register(

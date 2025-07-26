@@ -1,5 +1,7 @@
 import google.generativeai as genai
 from config import settings
+import logging
+from fastapi import HTTPException
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -36,8 +38,8 @@ def generate_text(prompt: str) -> str:
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
-        print(f"Error generating text: {e}")
-        return ""
+        logging.error(f"Error generating text: {e}")
+        raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
 
 def generate_text_with_image(prompt: str, image_path: str) -> str:
     """
@@ -50,8 +52,8 @@ def generate_text_with_image(prompt: str, image_path: str) -> str:
         response = vision_model.generate_content([prompt, img])
         return response.text
     except Exception as e:
-        print(f"Error generating text with image: {e}")
-        return ""
+        logging.error(f"Error generating text with image: {e}")
+        raise HTTPException(status_code=500, detail=f"Gemini image generation failed: {e}")
 
 def start_chat_session():
     """
@@ -67,5 +69,5 @@ def send_chat_message(chat_session, message: str) -> str:
         response = chat_session.send_message(message)
         return response.text
     except Exception as e:
-        print(f"Error sending chat message: {e}")
-        return ""
+        logging.error(f"Error sending chat message: {e}")
+        raise HTTPException(status_code=500, detail=f"Gemini chat message failed: {e}")

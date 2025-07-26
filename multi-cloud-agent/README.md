@@ -86,5 +86,20 @@ python -m unittest test_api.py
 - Add more operations in `cloud_handlers.py` and `knowledge_base.py`.
 - Expand the UI in `frontend/src/App.js`.
 
+## Production Deployment & Railway Notes
+
+- **Environment Variables:**
+  - All secrets and API keys must be set as Railway environment variables. See `.env.example` for a full list.
+  - Do NOT commit your real `.env` file or secrets to git.
+- **Required for Production:**
+  - `SESSION_SECRET`, `FERNET_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GEMINI_API_KEY`, and `DATABASE_URL` must be set.
+- **Nixpacks:**
+  - The build and start commands are configured in `nixpacks.toml`.
+  - The backend will fail to start if any required environment variable is missing.
+- **Error Handling:**
+  - The backend now returns structured error responses and logs all errors for debugging.
+- **HTTPS:**
+  - Set `FORCE_HTTPS=true` in production to enforce HTTPS.
+
 ## License
 MIT
