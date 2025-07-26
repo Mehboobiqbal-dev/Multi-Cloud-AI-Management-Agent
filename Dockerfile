@@ -2,7 +2,7 @@
 FROM node:18 as frontend
 
 WORKDIR /app
-COPY frontend ./frontend
+COPY multi-cloud-agent/frontend ./frontend
 RUN cd frontend && npm install && npm run build
 
 
@@ -10,7 +10,7 @@ RUN cd frontend && npm install && npm run build
 FROM python:3.11-slim as backend
 
 WORKDIR /app
-COPY backend ./backend
+COPY multi-cloud-agent/backend ./backend
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 
