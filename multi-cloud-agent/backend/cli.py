@@ -4,7 +4,7 @@ import json
 API_URL = "http://localhost:8000"
 
 def main():
-    print("Multi-Cloud AI Management Agent CLI")
+    print("Universal Agent CLI")
     print("Enter 'exit' to quit.")
 
     # For simplicity, using a fixed dummy token. In a real scenario, you'd implement a login flow.

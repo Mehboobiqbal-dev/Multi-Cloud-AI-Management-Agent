@@ -41,7 +41,7 @@ function Dashboard() {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h2>Multi-Cloud AI Management Agent</h2>
+        <h2>Universal Agent</h2>
         <div className="user-info">
           <span>Welcome, {user.name || user.email}</span>
           <button onClick={() => setShowCreds(true)} className="btn">Manage Credentials</button>
