@@ -23,3 +23,4 @@ google-generativeai
 # sentence-transformers
 requests
 Pillow
+pydantic-settings
