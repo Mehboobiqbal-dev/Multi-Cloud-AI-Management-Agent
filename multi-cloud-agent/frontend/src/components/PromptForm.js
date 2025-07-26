@@ -11,12 +11,12 @@ function PromptForm({ onSubmit, loading }) {
 
   return (
     <form onSubmit={handleSubmit} className="prompt-form">
-      <input
-        type="text"
+      <textarea
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="e.g., 'List all VMs in AWS and Azure'"
+        placeholder="Enter your prompt here. For example: 'List all EC2 instances in us-east-1 and all VMs in Azure'"
         disabled={loading}
+        rows="3"
       />
       <button type="submit" disabled={loading}>
         {loading ? 'Processing...' : 'Submit'}

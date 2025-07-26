@@ -39,12 +39,13 @@ function Dashboard() {
   };
 
   return (
-    <div>
+    <div className="dashboard-container">
       <header className="dashboard-header">
-        <span>Welcome, {user.name || user.email}</span>
-        <div>
-          <button onClick={() => setShowCreds(true)}>Manage Credentials</button>
-          <button onClick={logout} style={{ marginLeft: '10px' }}>Logout</button>
+        <h2>Multi-Cloud AI Management Agent</h2>
+        <div className="user-info">
+          <span>Welcome, {user.name || user.email}</span>
+          <button onClick={() => setShowCreds(true)} className="btn">Manage Credentials</button>
+          <button onClick={logout} className="btn btn-logout">Logout</button>
         </div>
       </header>
       
@@ -53,11 +54,25 @@ function Dashboard() {
         onClose={() => setShowCreds(false)} 
       />
       
-      <PromptForm onSubmit={handlePromptSubmit} loading={loading} />
-      
-      {plan && <PlanDisplay plan={plan} onConfirm={handlePlanConfirm} loading={loading} />}
-      
-      {response && <ResultsDisplay response={response} />}
+      <main className="dashboard-main">
+        <div className="prompt-section">
+          <PromptForm onSubmit={handlePromptSubmit} loading={loading} />
+        </div>
+        
+        {loading && <div className="loader"></div>}
+
+        {plan && (
+          <div className="plan-section">
+            <PlanDisplay plan={plan} onConfirm={handlePlanConfirm} loading={loading} />
+          </div>
+        )}
+        
+        {response && (
+          <div className="results-section">
+            <ResultsDisplay response={response} />
+          </div>
+        )}
+      </main>
     </div>
   );
 }
