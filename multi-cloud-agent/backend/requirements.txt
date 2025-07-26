@@ -1,11 +1,5 @@
 fastapi
 uvicorn[standard]
-boto3
-azure-mgmt-compute
-azure-mgmt-storage
-azure-identity
-google-cloud-compute
-google-cloud-storage
 authlib
 sqlalchemy
 psycopg2-binary
@@ -19,8 +13,12 @@ starlette
 passlib[bcrypt]
 python-jose[cryptography]
 google-generativeai
-faiss-cpu
-sentence-transformers
+annoy
 requests
 Pillow
 pydantic-settings
+
+[options.extras_require]
+aws = boto3
+azure = azure-mgmt-compute, azure-mgmt-storage, azure-identity
+gcp = google-cloud-compute, google-cloud-storage

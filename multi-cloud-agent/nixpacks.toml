@@ -6,7 +6,7 @@ nixPkgs = ["python311", "pip"]
 [phases.build]
 cmds = [
   "cd frontend && npm install && npm run build",
-  "cd backend && pip install -r requirements.txt"
+  "cd backend && pip install -r requirements.txt[aws,azure,gcp]"
 ]
 
 [start]
