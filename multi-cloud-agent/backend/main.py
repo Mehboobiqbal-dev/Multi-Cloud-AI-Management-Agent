@@ -284,7 +284,7 @@ async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_curren
 # CORS and HTTPS enforcement
 origins = [
     "http://localhost:3000",
-    "https://your-production-domain.com",
+    "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
 ]
 app.add_middleware(
     CORSMiddleware,
