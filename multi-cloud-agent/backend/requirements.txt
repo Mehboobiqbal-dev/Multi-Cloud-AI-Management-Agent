@@ -17,8 +17,9 @@ annoy
 requests
 Pillow
 pydantic-settings
-
-[options.extras_require]
-aws = boto3
-azure = azure-mgmt-compute, azure-mgmt-storage, azure-identity
-gcp = google-cloud-compute, google-cloud-storage
+boto3
+azure-mgmt-compute
+azure-mgmt-storage
+azure-identity
+google-cloud-compute
+google-cloud-storage
