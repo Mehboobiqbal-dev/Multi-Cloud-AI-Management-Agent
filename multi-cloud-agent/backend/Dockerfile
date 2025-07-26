@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y libgomp1
 COPY . .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt[aws,azure,gcp]
+RUN pip install --no-cache-dir -r "requirements.txt[aws,azure,gcp]"
 
 # Expose FastAPI port
 EXPOSE 8000

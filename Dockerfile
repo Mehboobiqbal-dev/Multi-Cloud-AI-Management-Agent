@@ -4,7 +4,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY multi-cloud-agent/backend ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r "requirements.txt[aws,azure,gcp]"
 
 # Set any startup script or environment vars here
 RUN chmod +x start.sh
