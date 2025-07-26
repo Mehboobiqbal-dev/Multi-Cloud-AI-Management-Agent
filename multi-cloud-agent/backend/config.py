@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    SESSION_SECRET: str = "a-very-secret-key"
+    SESSION_SECRET: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
     GOOGLE_CLIENT_ID: str
@@ -14,3 +14,8 @@ class Settings(BaseSettings):
         env_file = "../.env"
 
 settings = Settings()
+
+# Enforce required secrets
+for var in [settings.SESSION_SECRET, settings.GOOGLE_CLIENT_ID, settings.GOOGLE_CLIENT_SECRET, settings.GEMINI_API_KEY]:
+    if not var:
+        raise RuntimeError("A required environment variable is missing. Check SESSION_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GEMINI_API_KEY.")

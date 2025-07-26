@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from models import Base
+import logging
 
 # Enhanced connection string with additional parameters
 DATABASE_URL = "postgresql://neondb_owner:npg_7JBzxPl0nSCq@ep-icy-bar-abs5nr68-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
@@ -48,7 +49,7 @@ def init_db():
     """
     try:
         Base.metadata.create_all(bind=engine)
-        print("Database tables created successfully")
+        logging.info("Database tables created successfully")
     except Exception as e:
-        print(f"Error creating database tables: {e}")
+        logging.error(f"Error creating database tables: {e}")
         raise

@@ -3,6 +3,8 @@ import json
 from typing import Dict, List, Any
 import google.generativeai as genai
 from config import settings
+import logging
+from fastapi import HTTPException
 
 # --- Keyword Mapping (Fallback) ---
 CLOUD_KEYWORDS = {
@@ -115,6 +117,5 @@ def extract_intents(prompt: str) -> List[Dict[str, Any]]:
         return intents
 
     except Exception as e:
-        print(f"Error calling LLM: {e}")
-        # Fallback to keyword-based extraction if LLM fails
-        return extract_intents_keyword(prompt)
+        logging.error(f"Error calling LLM: {e}")
+        raise HTTPException(status_code=500, detail=f"Intent extraction failed: {e}")
