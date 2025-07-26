@@ -22,7 +22,4 @@ COPY --from=frontend /app/frontend/build ./frontend/build
 COPY --from=backend /app/backend ./backend
 
 # Set any startup script or environment vars here
-COPY start.sh ./
-RUN chmod +x start.sh
-
-CMD ["./start.sh"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
