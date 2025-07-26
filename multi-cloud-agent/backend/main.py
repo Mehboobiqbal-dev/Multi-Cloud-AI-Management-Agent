@@ -308,6 +308,7 @@ origins = [
     "http://localhost:3000",
     "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
     "https://multi-cloud-ai-management-git-9887e5-mehboobiqbal-devs-projects.vercel.app",
+    "https://multi-cloud-ai-management-agent-8s1.vercel.app",
 ]
 app.add_middleware(
     CORSMiddleware,
