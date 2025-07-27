@@ -235,6 +235,7 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
     Based on the following user prompt and conversation history, create a detailed execution plan.
     The plan should be a list of dictionaries, where each dictionary represents a step with 'action' and 'params'.
     Available tools are: {', '.join(tool_names)}.
+    Use the 'user_interaction' tool to send a message to the user.
     
     Conversation History:
     {context}
@@ -266,7 +267,8 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
     return {"plan": plan}
 
 @app.post('/execute_plan')
-async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def execute_plan(request: Request, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    plan = await request.json()
     # Aggregate user credentials
     creds = db.query(CloudCredential).filter_by(user_id=user.id).all()
     user_creds = {}
@@ -290,14 +292,24 @@ async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_curren
             }
 
     execution_steps = []
-    for planned_step in plan:
-        action = planned_step['action']
-        params = planned_step['params']
-        
+    for i, planned_step in enumerate(plan):
+        action = planned_step.get('action')
+        params = planned_step.get('params', {})
+        step_num = planned_step.get('step', i + 1)
+
+        if not action:
+            execution_steps.append({
+                "step": step_num,
+                "action": "unknown",
+                "status": "error",
+                "details": "Missing 'action' in plan step."
+            })
+            continue
+
         tool = tool_registry.get_tool(action)
         if not tool:
             execution_steps.append({
-                "step": planned_step['step'],
+                "step": step_num,
                 "action": action,
                 "status": "error",
                 "details": f"Tool '{action}' not found."
@@ -309,14 +321,14 @@ async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_curren
                 params["user_creds"] = user_creds
             result = tool.func(**params)
             execution_steps.append({
-                "step": planned_step['step'],
+                "step": step_num,
                 "action": action,
                 "status": "done",
                 "details": result
             })
         except Exception as e:
             execution_steps.append({
-                "step": planned_step['step'],
+                "step": step_num,
                 "action": action,
                 "status": "error",
                 "details": str(e)

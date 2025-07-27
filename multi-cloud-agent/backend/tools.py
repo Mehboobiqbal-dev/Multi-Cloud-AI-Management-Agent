@@ -62,6 +62,13 @@ def cloud_operation(cloud: str, operation: str, resource: str, params: Dict[str,
     """
     return handle_clouds([{"cloud": cloud, "operation": operation, "resource": resource, "params": params}], user_creds)
 
+def user_interaction(message: str) -> str:
+    """
+    Sends a message to the user.
+    :param message: The message to send to the user.
+    """
+    return message
+
 # --- Tool Registration ---
 
 tool_registry = ToolRegistry()
@@ -70,3 +77,4 @@ tool_registry.register(Tool("read_file", "Reads the contents of a file.", read_f
 tool_registry.register(Tool("write_file", "Writes content to a file.", write_file))
 tool_registry.register(Tool("execute_command", "Executes a shell command.", execute_command))
 tool_registry.register(Tool("cloud_operation", "Executes a cloud operation.", cloud_operation))
+tool_registry.register(Tool("user_interaction", "Sends a message to the user.", user_interaction))
