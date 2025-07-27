@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import './App.css';
 import Dashboard from './components/Dashboard';
 import { useAuth } from './contexts/AuthContext';
 
-// API configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
 
 // Simple components without routing for now
 const LoginForm = ({ onLogin, onSignup }) => {
