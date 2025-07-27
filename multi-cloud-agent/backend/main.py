@@ -35,6 +35,22 @@ from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 
 app = FastAPI()
+
+# CORS and HTTPS enforcement
+origins = [
+    "http://localhost:3000",
+    "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
+    "https://multi-cloud-ai-management-git-9887e5-mehboobiqbal-devs-projects.vercel.app",
+    "https://multi-cloud-ai-management-agent-8s1.vercel.app",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
 app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -303,20 +319,6 @@ async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_curren
     return {"status": status, "message": message, "steps": execution_steps}
 
 
-# CORS and HTTPS enforcement
-origins = [
-    "http://localhost:3000",
-    "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
-    "https://multi-cloud-ai-management-git-9887e5-mehboobiqbal-devs-projects.vercel.app",
-    "https://multi-cloud-ai-management-agent-8s1.vercel.app",
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
-)
 if settings.FORCE_HTTPS:
     from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
     app.add_middleware(HTTPSRedirectMiddleware)
