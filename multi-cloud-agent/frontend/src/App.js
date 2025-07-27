@@ -10,19 +10,38 @@ const api = axios.create({
 });
 
 // Simple components without routing for now
-const LoginForm = ({ onLogin }) => {
+const LoginForm = ({ onLogin, onSignup }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [isSignup, setIsSignup] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin({ email, password });
+    if (isSignup) {
+      onSignup({ email, password, name });
+    } else {
+      onLogin({ email, password });
+    }
   };
 
   return (
     <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2>Login</h2>
+      <h2>{isSignup ? 'Sign Up' : 'Login'}</h2>
       <form onSubmit={handleSubmit}>
+        {isSignup && (
+          <div style={{ marginBottom: '15px' }}>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={{ width: '100%', padding: '10px', fontSize: '16px' }}
+              autoComplete="name"
+              required={isSignup}
+            />
+          </div>
+        )}
         <div style={{ marginBottom: '15px' }}>
           <input
             type="email"
@@ -55,12 +74,28 @@ const LoginForm = ({ onLogin }) => {
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            marginBottom: '10px'
           }}
         >
-          Login
+          {isSignup ? 'Sign Up' : 'Login'}
         </button>
       </form>
+      <button
+        onClick={() => setIsSignup(!isSignup)}
+        style={{
+          width: '100%',
+          padding: '8px',
+          fontSize: '14px',
+          backgroundColor: 'transparent',
+          color: '#007bff',
+          border: '1px solid #007bff',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        {isSignup ? 'Already have an account? Login' : 'Need an account? Sign Up'}
+      </button>
     </div>
   );
 };
@@ -163,6 +198,22 @@ function App() {
     }
   };
 
+  const handleSignup = async (userData) => {
+    try {
+      console.log('Signup attempt:', userData);
+      
+      const response = await api.post('/signup', userData);
+      
+      if (response.data) {
+        alert('Account created successfully! Please login.');
+        console.log('Signup successful:', response.data);
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
+      alert('Signup failed. Please try again.');
+    }
+  };
+
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('token');
@@ -188,7 +239,7 @@ function App() {
       {user ? (
         <Dashboard user={user} onLogout={handleLogout} />
       ) : (
-        <LoginForm onLogin={handleLogin} />
+        <LoginForm onLogin={handleLogin} onSignup={handleSignup} />
       )}
     </div>
   );
