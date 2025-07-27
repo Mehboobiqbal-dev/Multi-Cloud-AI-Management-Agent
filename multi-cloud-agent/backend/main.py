@@ -36,21 +36,8 @@ from fastapi.exceptions import RequestValidationError as FastAPIRequestValidatio
 
 app = FastAPI()
 
-# CORS and HTTPS enforcement
-origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
-    "https://multi-cloud-ai-management-git-9887e5-mehboobiqbal-devs-projects.vercel.app",
-    "https://multi-cloud-ai-management-agent-8s1.vercel.app",
-    "https://multi-cloud-ai-management-agent.vercel.app",
-    "https://multi-cloud-ai-management-agent-git-mehboobiqbal.vercel.app",
-    "https://multi-cloud-ai-management-agent-git-mehboobiqbal-devs-projects.vercel.app",
-]
-
-# Allow all Vercel preview deployments - more permissive for now
-if os.environ.get("ALLOW_ALL_ORIGINS", "false").lower() == "true" or os.environ.get("ENVIRONMENT", "production") == "development":
-    origins = ["*"]
+# CORS and HTTPS enforcement - ULTRA PERMISSIVE FOR NOW
+origins = ["*"]  # Allow all origins temporarily
 
 app.add_middleware(
     CORSMiddleware,
@@ -348,6 +335,14 @@ def readyz():
 @app.get('/test-cors')
 def test_cors():
     return {"message": "CORS is working!", "timestamp": datetime.utcnow().isoformat()}
+
+@app.get('/')
+def root():
+    return {"message": "Multi-Cloud AI Management API is running!", "status": "healthy"}
+
+@app.get('/api-test')
+def api_test():
+    return {"message": "API is accessible", "cors": "enabled", "timestamp": datetime.utcnow().isoformat()}
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))  # Railway sets PORT env var
