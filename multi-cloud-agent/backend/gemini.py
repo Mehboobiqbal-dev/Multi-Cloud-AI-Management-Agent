@@ -34,11 +34,13 @@ def generate_text(prompt: str) -> str:
     """
     Generates text using the Gemini Pro model.
     """
+    logging.info("Attempting to generate text with Gemini Pro model.")
     try:
         response = model.generate_content(prompt)
+        logging.info("Successfully generated text from Gemini.")
         return response.text
     except Exception as e:
-        logging.error(f"Error generating text: {e}")
+        logging.error(f"Error generating text: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
 
 def generate_text_with_image(prompt: str, image_path: str) -> str:

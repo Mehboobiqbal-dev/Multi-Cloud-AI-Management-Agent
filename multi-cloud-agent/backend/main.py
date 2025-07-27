@@ -218,10 +218,16 @@ async def save_credentials(cred_data: schemas.CredentialCreate, user: schemas.Us
 @app.post('/prompt')
 async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     prompt_text = prompt_req.prompt
+    logging.info(f"Received prompt from user {user.id}: {prompt_text}")
     
     # 1. Search for relevant documents in memory
-    retrieved_docs = memory_instance.search(prompt_text)
-    context = "\n".join([doc for _, doc in retrieved_docs])
+    try:
+        retrieved_docs = memory_instance.search(prompt_text)
+        context = "\n".join([doc for _, doc in retrieved_docs])
+        logging.info(f"Retrieved {len(retrieved_docs)} documents from memory.")
+    except Exception as e:
+        logging.error(f"Error searching memory: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to search memory.")
 
     # 2. Generate Plan with Gemini, including context from memory
     gemini_prompt = f"""
@@ -234,16 +240,28 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
     
     User Prompt: {prompt_text}
     """
+    logging.info("Generating plan with Gemini...")
     
     try:
         response_text = generate_text(gemini_prompt)
+        logging.info(f"Gemini response: {response_text}")
         plan = json.loads(response_text)
     except (json.JSONDecodeError, TypeError) as e:
+        logging.error(f"Failed to generate or parse plan: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to generate or parse plan: {e}")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred during plan generation: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred during plan generation.")
 
     # 3. Add the current interaction to memory
-    memory_instance.add_document(f"User prompt: {prompt_text}\nGenerated plan: {plan}")
-
+    try:
+        memory_instance.add_document(f"User prompt: {prompt_text}\nGenerated plan: {plan}")
+        logging.info("Added interaction to memory.")
+    except Exception as e:
+        logging.error(f"Error adding document to memory: {e}", exc_info=True)
+        # Non-critical error, so we don't raise an exception
+    
+    logging.info("Successfully generated plan.")
     return {"plan": plan}
 
 @app.post('/execute_plan')
@@ -348,4 +366,3 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))  # Railway sets PORT env var
     uvicorn.run("main:app", host="0.0.0.0", port=port, workers=1)
-

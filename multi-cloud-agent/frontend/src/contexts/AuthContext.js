@@ -32,8 +32,32 @@ export function AuthProvider({ children }) {
     checkUser();
   }, []);
 
-  const login = (provider) => {
-    window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/login/${provider}`;
+  const login = async (credentials) => {
+    try {
+      const formData = new FormData();
+      formData.append('username', credentials.email);
+      formData.append('password', credentials.password);
+      
+      const response = await api.login(formData);
+      
+      if (response.access_token) {
+        localStorage.setItem('token', response.access_token);
+        const currentUser = await api.getMe();
+        setUser(currentUser);
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
+  };
+
+  const signup = async (userData) => {
+    try {
+      await api.signup(userData);
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
@@ -44,6 +68,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     login,
+    signup,
     logout,
     loading,
   };

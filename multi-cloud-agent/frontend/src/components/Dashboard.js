@@ -4,6 +4,7 @@ import PromptForm from './PromptForm';
 import PlanDisplay from './PlanDisplay';
 import ResultsDisplay from './ResultsDisplay';
 import CredentialsModal from './CredentialsModal';
+import Profile from './Profile';
 import api from '../services/api';
 
 function Dashboard() {
@@ -21,7 +22,9 @@ function Dashboard() {
       const data = await api.submitPrompt(prompt);
       setPlan(data.plan);
     } catch (err) {
-      setResponse({ status: 'error', message: err.detail || 'An error occurred', steps: [] });
+      console.error('Prompt submission failed:', err);
+      const message = err.message || 'An error occurred while submitting the prompt.';
+      setResponse({ status: 'error', message: message, steps: [] });
     }
     setLoading(false);
   };
@@ -32,11 +35,17 @@ function Dashboard() {
       const data = await api.executePlan(plan);
       setResponse(data);
     } catch (err) {
-      setResponse({ status: 'error', message: err.detail || 'An error occurred', steps: [] });
+      console.error('Plan execution failed:', err);
+      const message = err.message || 'An error occurred while executing the plan.';
+      setResponse({ status: 'error', message: message, steps: [] });
     }
     setLoading(false);
     setPlan(null);
   };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="dashboard-container">
@@ -55,6 +64,9 @@ function Dashboard() {
       />
       
       <main className="dashboard-main">
+        <div className="profile-section">
+          <Profile />
+        </div>
         <div className="prompt-section">
           <PromptForm onSubmit={handlePromptSubmit} loading={loading} />
         </div>
