@@ -4,13 +4,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from models import Base
 import logging
-
-# Enhanced connection string with additional parameters
-DATABASE_URL = "postgresql://neondb_owner:npg_7JBzxPl0nSCq@ep-icy-bar-abs5nr68-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+from config import settings
 
 # Create engine with more robust connection parameters
 engine = create_engine(
-    DATABASE_URL,
+    settings.DATABASE_URL,
     # Disable connection pooling to prevent hanging connections
     poolclass=NullPool,
     # Connection timeout and other parameters
