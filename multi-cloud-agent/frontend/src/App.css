@@ -20,8 +20,40 @@ body {
 }
 
 .App {
-  max-width: 1200px;
-  margin: auto;
+  text-align: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* Basic form styles */
+input {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: translateY(1px);
 }
 
 h1, h2, h3, h4 {

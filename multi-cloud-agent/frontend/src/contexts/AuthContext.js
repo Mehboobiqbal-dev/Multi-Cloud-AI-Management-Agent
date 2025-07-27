@@ -14,18 +14,26 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const currentUser = await api.getMe();
-        setUser(currentUser);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const currentUser = await api.getMe();
+          setUser(currentUser);
+        } else {
+          setUser(null);
+        }
       } catch (error) {
+        console.error('Auth check failed:', error);
         setUser(null);
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     checkUser();
   }, []);
 
   const login = (provider) => {
-    window.location.href = `${process.env.REACT_APP_API_URL}/login/${provider}`;
+    window.location.href = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/login/${provider}`;
   };
 
   const logout = () => {
@@ -37,11 +45,12 @@ export function AuthProvider({ children }) {
     user,
     login,
     logout,
+    loading,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
