@@ -230,10 +230,11 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
         raise HTTPException(status_code=500, detail="Failed to search memory.")
 
     # 2. Generate Plan with Gemini, including context from memory
+    tool_names = [tool.name for tool in tool_registry.get_all_tools()]
     gemini_prompt = f"""
     Based on the following user prompt and conversation history, create a detailed execution plan.
     The plan should be a list of dictionaries, where each dictionary represents a step with 'action' and 'params'.
-    Available tools are: {', '.join(tool_registry.get_all_tools().keys())}.
+    Available tools are: {', '.join(tool_names)}.
     
     Conversation History:
     {context}
