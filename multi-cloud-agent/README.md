@@ -86,20 +86,62 @@ python -m unittest test_api.py
 - Add more operations in `cloud_handlers.py` and `knowledge_base.py`.
 - Expand the UI in `frontend/src/App.js`.
 
-## Production Deployment & Railway Notes
+## Production Deployment
 
-- **Environment Variables:**
-  - All secrets and API keys must be set as Railway environment variables. See `.env.example` for a full list.
-  - Do NOT commit your real `.env` file or secrets to git.
-- **Required for Production:**
-  - `SESSION_SECRET`, `FERNET_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GEMINI_API_KEY`, and `DATABASE_URL` must be set.
-- **Nixpacks:**
-  - The build and start commands are configured in `nixpacks.toml`.
-  - The backend will fail to start if any required environment variable is missing.
-- **Error Handling:**
-  - The backend now returns structured error responses and logs all errors for debugging.
-- **HTTPS:**
-  - Set `FORCE_HTTPS=true` in production to enforce HTTPS.
+### Railway (Backend) + Vercel (Frontend)
+
+This project is configured for production deployment on Railway (backend) and Vercel (frontend).
+
+#### Quick Deployment
+
+1. **Railway Backend:**
+   - Connect your GitHub repo to Railway
+   - Railway will auto-detect the backend Dockerfile
+   - Set environment variables in Railway dashboard
+   - Deploy
+
+2. **Vercel Frontend:**
+   - Connect your GitHub repo to Vercel
+   - Set root directory to `multi-cloud-agent/frontend`
+   - Set build command: `npm run build`
+   - Set output directory: `build`
+   - Set environment variables in Vercel dashboard
+   - Deploy
+
+#### Environment Variables
+
+**Railway (Backend):**
+```bash
+DATABASE_URL=postgresql://...  # Railway provides this
+SESSION_SECRET=your-super-secret-key
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GEMINI_API_KEY=your-gemini-api-key
+ENVIRONMENT=production
+FORCE_HTTPS=true
+```
+
+**Vercel (Frontend):**
+```bash
+REACT_APP_API_URL=https://your-railway-backend-url.up.railway.app
+REACT_APP_GOOGLE_CLIENT_ID=your-google-client-id
+```
+
+#### Docker Compose (Local Development)
+```bash
+# From multi-cloud-agent directory
+docker-compose up -d
+```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Production Notes
+
+- **Environment Variables:** All secrets must be set as environment variables. Never commit secrets to git.
+- **CORS:** Configured for Railway + Vercel domains. Add new domains to `main.py` if needed.
+- **Health Checks:** Backend provides `/healthz` and `/readyz` endpoints.
+- **HTTPS:** Enforced in production with `FORCE_HTTPS=true`.
+- **Error Handling:** Structured error responses and comprehensive logging.
 
 ## License
 MIT

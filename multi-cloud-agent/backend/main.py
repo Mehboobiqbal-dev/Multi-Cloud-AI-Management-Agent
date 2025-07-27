@@ -48,16 +48,17 @@ origins = [
     "https://multi-cloud-ai-management-agent-git-mehboobiqbal-devs-projects.vercel.app",
 ]
 
-# Allow all Vercel preview deployments
-if os.environ.get("ALLOW_ALL_ORIGINS", "false").lower() == "true":
-    origins.append("*")
+# Allow all Vercel preview deployments - more permissive for now
+if os.environ.get("ALLOW_ALL_ORIGINS", "false").lower() == "true" or os.environ.get("ENVIRONMENT", "production") == "development":
+    origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
@@ -343,6 +344,10 @@ def healthz():
 @app.get('/readyz')
 def readyz():
     return {"status": "ready"}
+
+@app.get('/test-cors')
+def test_cors():
+    return {"message": "CORS is working!", "timestamp": datetime.utcnow().isoformat()}
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))  # Railway sets PORT env var
