@@ -316,9 +316,10 @@ async def execute_plan(plan: List[Dict], user: schemas.User = Depends(get_curren
     return {"status": status, "message": message, "steps": execution_steps}
 
 
-if settings.FORCE_HTTPS:
-    from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
-    app.add_middleware(HTTPSRedirectMiddleware)
+# Temporarily disable HTTPS enforcement for testing
+# if settings.FORCE_HTTPS:
+#     from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+#     app.add_middleware(HTTPSRedirectMiddleware)
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter

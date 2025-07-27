@@ -10,7 +10,8 @@ const testEndpoint = (path) => {
       path: path,
       method: 'GET',
       headers: {
-        'User-Agent': 'Test-Script'
+        'User-Agent': 'Test-Script',
+        'Accept': 'application/json'
       }
     };
 
@@ -20,8 +21,42 @@ const testEndpoint = (path) => {
         data += chunk;
       });
       res.on('end', () => {
-        console.log(`✅ ${path}: ${res.statusCode} - ${data}`);
-        resolve({ status: res.statusCode, data: data });
+        if (res.statusCode === 307 || res.statusCode === 308) {
+          console.log(`🔄 ${path}: ${res.statusCode} - Redirect to: ${res.headers.location}`);
+          // Follow the redirect
+          const redirectUrl = res.headers.location;
+          const redirectOptions = {
+            hostname: 'multi-cloud-ai-management-agent-production-acb4.up.railway.app',
+            port: 443,
+            path: new URL(redirectUrl).pathname,
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Test-Script',
+              'Accept': 'application/json'
+            }
+          };
+          
+          const redirectReq = https.request(redirectOptions, (redirectRes) => {
+            let redirectData = '';
+            redirectRes.on('data', (chunk) => {
+              redirectData += chunk;
+            });
+            redirectRes.on('end', () => {
+              console.log(`✅ ${path}: ${redirectRes.statusCode} - ${redirectData}`);
+              resolve({ status: redirectRes.statusCode, data: redirectData });
+            });
+          });
+          
+          redirectReq.on('error', (error) => {
+            console.log(`❌ ${path} (redirect): ${error.message}`);
+            reject(error);
+          });
+          
+          redirectReq.end();
+        } else {
+          console.log(`✅ ${path}: ${res.statusCode} - ${data}`);
+          resolve({ status: res.statusCode, data: data });
+        }
       });
     });
 
@@ -49,10 +84,41 @@ const testCORS = () => {
     };
 
     const req = https.request(options, (res) => {
-      console.log(`✅ CORS Preflight: ${res.statusCode}`);
-      console.log(`   Access-Control-Allow-Origin: ${res.headers['access-control-allow-origin']}`);
-      console.log(`   Access-Control-Allow-Methods: ${res.headers['access-control-allow-methods']}`);
-      resolve();
+      if (res.statusCode === 307 || res.statusCode === 308) {
+        console.log(`🔄 CORS Preflight: ${res.statusCode} - Redirect to: ${res.headers.location}`);
+        // Follow the redirect for CORS test
+        const redirectUrl = res.headers.location;
+        const redirectOptions = {
+          hostname: 'multi-cloud-ai-management-agent-production-acb4.up.railway.app',
+          port: 443,
+          path: new URL(redirectUrl).pathname,
+          method: 'OPTIONS',
+          headers: {
+            'Origin': 'http://localhost:3000',
+            'Access-Control-Request-Method': 'POST',
+            'Access-Control-Request-Headers': 'Content-Type'
+          }
+        };
+        
+        const redirectReq = https.request(redirectOptions, (redirectRes) => {
+          console.log(`✅ CORS Preflight: ${redirectRes.statusCode}`);
+          console.log(`   Access-Control-Allow-Origin: ${redirectRes.headers['access-control-allow-origin']}`);
+          console.log(`   Access-Control-Allow-Methods: ${redirectRes.headers['access-control-allow-methods']}`);
+          resolve();
+        });
+        
+        redirectReq.on('error', (error) => {
+          console.log(`❌ CORS Test (redirect): ${error.message}`);
+          reject(error);
+        });
+        
+        redirectReq.end();
+      } else {
+        console.log(`✅ CORS Preflight: ${res.statusCode}`);
+        console.log(`   Access-Control-Allow-Origin: ${res.headers['access-control-allow-origin']}`);
+        console.log(`   Access-Control-Allow-Methods: ${res.headers['access-control-allow-methods']}`);
+        resolve();
+      }
     });
 
     req.on('error', (error) => {
