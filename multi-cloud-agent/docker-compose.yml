@@ -12,30 +12,49 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U multicloud"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
-    working_dir: /app/backend
+    working_dir: /app
     env_file:
       - .env.example
     environment:
       DATABASE_URL: postgresql://multicloud:multicloudpass@db:5432/multicloud
+      ENVIRONMENT: production
+      PORT: 8000
+      HOST: 0.0.0.0
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build: ./frontend
     environment:
       REACT_APP_API_URL: http://localhost:8000
-      REACT_APP_SUPABASE_URL: ${REACT_APP_SUPABASE_URL}
-      REACT_APP_SUPABASE_ANON_KEY: ${REACT_APP_SUPABASE_ANON_KEY}
-      REACT_APP_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      REACT_APP_SUPABASE_URL: ${REACT_APP_SUPABASE_URL:-}
+      REACT_APP_SUPABASE_ANON_KEY: ${REACT_APP_SUPABASE_ANON_KEY:-}
+      REACT_APP_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     depends_on:
       - backend
     ports:
       - "3000:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   db_data:

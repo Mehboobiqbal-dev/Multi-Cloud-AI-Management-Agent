@@ -4,19 +4,30 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y libgomp1 build-essential
+RUN apt-get update && apt-get install -y \
+    libgomp1 \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy backend source
-COPY . .
+# Copy requirements first for better caching
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy backend source
+COPY . .
+
+# Make scripts executable
+RUN chmod +x start.sh railway-start.sh
+
 # Expose FastAPI port
 EXPOSE 8000
 
-# Make start.sh executable
-RUN chmod +x start.sh
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/healthz || exit 1
 
-# Run FastAPI
+# Run FastAPI (Railway will use railway-start.sh)
 CMD ["./start.sh"]

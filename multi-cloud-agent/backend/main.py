@@ -39,16 +39,25 @@ app = FastAPI()
 # CORS and HTTPS enforcement
 origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app",
     "https://multi-cloud-ai-management-git-9887e5-mehboobiqbal-devs-projects.vercel.app",
     "https://multi-cloud-ai-management-agent-8s1.vercel.app",
+    "https://multi-cloud-ai-management-agent.vercel.app",
+    "https://multi-cloud-ai-management-agent-git-mehboobiqbal.vercel.app",
+    "https://multi-cloud-ai-management-agent-git-mehboobiqbal-devs-projects.vercel.app",
 ]
+
+# Allow all Vercel preview deployments
+if os.environ.get("ALLOW_ALL_ORIGINS", "false").lower() == "true":
+    origins.append("*")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
