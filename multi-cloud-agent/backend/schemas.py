@@ -13,7 +13,7 @@ class User(UserBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CredentialBase(BaseModel):
     provider: str
@@ -33,7 +33,7 @@ class Credential(CredentialBase):
     provider: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PromptRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=1000)
