@@ -48,3 +48,7 @@ class PromptResponse(BaseModel):
     status: str
     message: str
     steps: List[Step]
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str

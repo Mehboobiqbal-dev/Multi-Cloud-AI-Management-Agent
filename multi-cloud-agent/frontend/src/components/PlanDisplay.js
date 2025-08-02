@@ -11,7 +11,7 @@ function PlanDisplay({ plan, onConfirm, loading }) {
             <div className="step-header">
               <span className="step-number">Step {step.step}</span>
               <span className="step-action">{step.action.replace(/_/g, ' ')}</span>
-              <span className={`step-cloud ${step.cloud}`}>{step.cloud.toUpperCase()}</span>
+              {step.cloud && <span className={`step-cloud ${step.cloud}`}>{step.cloud.toUpperCase()}</span>}
             </div>
             {step.params && Object.keys(step.params).length > 0 && (
               <div className="step-params">

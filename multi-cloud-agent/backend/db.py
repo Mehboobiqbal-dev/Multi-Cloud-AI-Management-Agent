@@ -5,29 +5,37 @@ from sqlalchemy.pool import NullPool
 from models import Base
 import logging
 from config import settings
+from urllib.parse import urlparse
 
-# Create engine with more robust connection parameters
-engine = create_engine(
-    settings.DATABASE_URL,
-    # Disable connection pooling to prevent hanging connections
-    poolclass=NullPool,
-    # Connection timeout and other parameters
-    connect_args={
-        "connect_timeout": 10,  # 10 seconds connection timeout
-        "keepalives": 1,        # Enable TCP keepalives
-        "keepalives_idle": 30,  # Keepalive packet sent after 30 seconds of idle time
-        "keepalives_interval": 10,  # Retransmit keepalive packet every 10 seconds
-        "keepalives_count": 5   # Close connection after 5 failed keepalive attempts
-    }
-)
+# Determine driver to set appropriate connect_args
+parsed_url = urlparse(settings.DATABASE_URL)
+if parsed_url.scheme.startswith("sqlite"):
+    # SQLite does not understand TCP-level options
+    engine = create_engine(
+        settings.DATABASE_URL,
+        poolclass=NullPool,
+        connect_args={"check_same_thread": False},
+    )
+else:
+    # Other SQL dialects (e.g., Postgres, MySQL) - keep robust TCP settings
+    engine = create_engine(
+        settings.DATABASE_URL,
+        poolclass=NullPool,
+        connect_args={
+            "connect_timeout": 10,
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
+        },
+    )
 
-# Create session factory
+# Session factory
 SessionLocal = sessionmaker(
-    autocommit=False, 
-    autoflush=False, 
+    autocommit=False,
+    autoflush=False,
     bind=engine,
-    # Add additional session configuration if needed
-    expire_on_commit=False  # Keep objects usable after session is closed
+    expire_on_commit=False,
 )
 
 def get_db():

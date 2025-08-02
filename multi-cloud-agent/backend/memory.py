@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from typing import List, Tuple
-from annoy import AnnoyIndex
+# from annoy import AnnoyIndex
 import google.generativeai as genai
 
 # Configure the generative AI model with the API key from environment variables
@@ -18,7 +18,7 @@ class Memory:
             embedding_dim: The dimension of the embeddings. Google's model uses 768.
         """
         self.embedding_dim = embedding_dim
-        self.index = AnnoyIndex(embedding_dim, 'angular')
+        # self.index = AnnoyIndex(embedding_dim, 'angular')
         self.documents: List[str] = []
         self.item_counter = 0
         self.index_built = False
@@ -41,7 +41,7 @@ class Memory:
         Adds a document to the memory. The index will need to be rebuilt.
         """
         embedding = self._get_embedding(text)
-        self.index.add_item(self.item_counter, embedding)
+        # self.index.add_item(self.item_counter, embedding)
         self.documents.append(text)
         self.item_counter += 1
         self.index_built = False  # Mark index as not built
@@ -55,18 +55,18 @@ class Memory:
 
         if not self.index_built:
             # Build the index if it hasn't been built yet. 10 trees is a good balance.
-            self.index.build(10)
+            # self.index.build(10)
             self.index_built = True
             
         query_embedding = self._get_embedding(query)
-        indices, distances = self.index.get_nns_by_vector(
-            query_embedding, k, include_distances=True
-        )
+        # indices, distances = self.index.get_nns_by_vector(
+        #     query_embedding, k, include_distances=True
+        # )
         
         results = []
-        if indices:
-            for i, dist in zip(indices, distances):
-                results.append((dist, self.documents[i]))
+        # if indices:
+        #     for i, dist in zip(indices, distances):
+        #         results.append((dist, self.documents[i]))
         
         return results
 

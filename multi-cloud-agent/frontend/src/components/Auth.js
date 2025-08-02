@@ -8,6 +8,7 @@ function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,14 +20,18 @@ function Auth() {
         }));
         localStorage.setItem('token', response.access_token);
         window.location.href = '/';
+        setError('');
       } catch (error) {
+        setError('Login failed');
         console.error('Login failed', error);
       }
     } else {
       try {
         await api.signup({ email, password, name });
         setIsLogin(true);
+        setError('');
       } catch (error) {
+        setError(error.message);
         console.error('Signup failed', error);
       }
     }
@@ -34,6 +39,7 @@ function Auth() {
 
   return (
     <div className="auth-container">
+      {error && <p className="error" style={{color: 'red'}}>{error}</p>}
       <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
       <form onSubmit={handleSubmit}>
         {!isLogin && (
@@ -76,4 +82,3 @@ function Auth() {
 }
 
 export default Auth;
-

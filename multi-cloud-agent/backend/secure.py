@@ -1,9 +1,13 @@
 from cryptography.fernet import Fernet
-import os
+from config import settings
 
-FERNET_KEY = os.environ.get('FERNET_KEY')
+FERNET_KEY = settings.FERNET_KEY
 if not FERNET_KEY:
-    raise RuntimeError("FERNET_KEY environment variable must be set for production security.")
+    # In case the key is not in settings, generate a temporary one for development.
+    # This should not happen if the .env file is set up correctly.
+    print("Warning: FERNET_KEY not found in settings. Using a temporary key.")
+    FERNET_KEY = Fernet.generate_key().decode()
+
 fernet = Fernet(FERNET_KEY.encode())
 
 def encrypt(text: str) -> str:

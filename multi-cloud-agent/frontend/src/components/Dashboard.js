@@ -13,14 +13,25 @@ function Dashboard() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showCreds, setShowCreds] = useState(false);
+  const [userInteractionMessage, setUserInteractionMessage] = useState(null);
 
   const handlePromptSubmit = async (prompt) => {
     setLoading(true);
     setPlan(null);
     setResponse(null);
+    setUserInteractionMessage(null);
     try {
       const data = await api.submitPrompt(prompt);
-      setPlan(data.plan);
+      const interactionStep = data.plan.find(step => step.action === 'user_interaction');
+      if (interactionStep) {
+        setUserInteractionMessage(interactionStep.params.prompt);
+        const filteredPlan = data.plan.filter(step => step.action !== 'user_interaction');
+        if (filteredPlan.length > 0) {
+          setPlan(filteredPlan);
+        }
+      } else {
+        setPlan(data.plan);
+      }
     } catch (err) {
       console.error('Prompt submission failed:', err);
       const message = err.message || 'An error occurred while submitting the prompt.';
@@ -72,6 +83,12 @@ function Dashboard() {
         </div>
         
         {loading && <div className="loader"></div>}
+
+        {userInteractionMessage && (
+          <div className="user-interaction-message">
+            <p>{userInteractionMessage}</p>
+          </div>
+        )}
 
         {plan && (
           <div className="plan-section">

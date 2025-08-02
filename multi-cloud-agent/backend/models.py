@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -12,6 +13,7 @@ class User(Base):
     hashed_password = Column(String)
     google_id = Column(String, unique=True, index=True)
     credentials = relationship('CloudCredential', back_populates='user')
+    audit_logs = relationship('AuditLog', back_populates='user')
 
 class CloudCredential(Base):
     __tablename__ = 'cloud_credentials'
@@ -27,3 +29,12 @@ class CloudCredential(Base):
     gcp_project_id = Column(String)
     gcp_credentials_json = Column(String)  # Store as encrypted JSON string
     user = relationship('User', back_populates='credentials')
+
+class AuditLog(Base):
+    __tablename__ = 'audit_logs'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    action = Column(String)
+    details = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    user = relationship('User', back_populates='audit_logs')

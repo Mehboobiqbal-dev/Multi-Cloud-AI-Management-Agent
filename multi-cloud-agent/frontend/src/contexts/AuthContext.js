@@ -34,11 +34,12 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     try {
-      const formData = new FormData();
-      formData.append('username', credentials.email);
-      formData.append('password', credentials.password);
+      const loginData = {
+        username: credentials.email,
+        password: credentials.password,
+      };
       
-      const response = await api.login(formData);
+      const response = await api.login(loginData);
       
       if (response.access_token) {
         localStorage.setItem('token', response.access_token);
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
         setUser(currentUser);
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Login failed:', error.response ? error.response.data : error.message);
       throw error;
     }
   };
@@ -55,7 +56,7 @@ export function AuthProvider({ children }) {
     try {
       await api.signup(userData);
     } catch (error) {
-      console.error('Signup failed:', error);
+      console.error('Signup failed:', error.response ? error.response.data : error.message);
       throw error;
     }
   };

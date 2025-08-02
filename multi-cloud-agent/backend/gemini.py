@@ -2,6 +2,7 @@ import google.generativeai as genai
 from config import settings
 import logging
 from fastapi import HTTPException
+from google.api_core.exceptions import ResourceExhausted
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -39,6 +40,9 @@ def generate_text(prompt: str) -> str:
         response = model.generate_content(prompt)
         logging.info("Successfully generated text from Gemini.")
         return response.text
+    except ResourceExhausted as e:
+        logging.warning(f"Gemini quota exceeded: {e}", exc_info=True)
+        raise HTTPException(status_code=429, detail="Gemini API quota exceeded. Please wait and try again later.")
     except Exception as e:
         logging.error(f"Error generating text: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
@@ -53,6 +57,9 @@ def generate_text_with_image(prompt: str, image_path: str) -> str:
         img = PIL.Image.open(image_path)
         response = vision_model.generate_content([prompt, img])
         return response.text
+    except ResourceExhausted as e:
+        logging.warning(f"Gemini quota exceeded (vision): {e}")
+        raise HTTPException(status_code=429, detail="Gemini API quota exceeded. Please wait and try again later.")
     except Exception as e:
         logging.error(f"Error generating text with image: {e}")
         raise HTTPException(status_code=500, detail=f"Gemini image generation failed: {e}")

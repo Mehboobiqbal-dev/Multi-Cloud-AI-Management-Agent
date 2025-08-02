@@ -12,22 +12,27 @@ from passlib.context import CryptContext
 
 import sys
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from config import settings
 from db import SessionLocal, init_db
 from models import User, CloudCredential
 from secure import encrypt, decrypt
-from gemini import generate_text
+from groq import generate_text
 from audit import log_audit
 from tools import tool_registry
 from memory import memory_instance
 import json
+import re
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from config import settings
 import schemas
 import logging
 from fastapi.responses import JSONResponse
@@ -121,9 +126,9 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 @app.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+async def login_for_access_token(login_data: schemas.LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == login_data.username).first()
+    if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -215,6 +220,11 @@ async def save_credentials(cred_data: schemas.CredentialCreate, user: schemas.Us
 
 # ... cloud operation endpoints will be refactored next ...
 
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 @app.post('/prompt')
 async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     prompt_text = prompt_req.prompt
@@ -232,25 +242,48 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
     # 2. Generate Plan with Gemini, including context from memory
     tool_names = [tool.name for tool in tool_registry.get_all_tools()]
     gemini_prompt = f"""
-    Based on the following user prompt and conversation history, create a detailed execution plan.
-    The plan should be a list of dictionaries, where each dictionary represents a step with 'action' and 'params'.
-    Available tools are: {', '.join(tool_names)}.
-    Use the 'user_interaction' tool to send a message to the user.
+    You are a world-class multi-cloud AI management agent. Create a precise execution plan based on the user's request.
     
-    Conversation History:
+    INSTRUCTIONS:
+    1. Analyze the user prompt carefully
+    2. Create a JSON array of steps, each with 'step', 'action', and 'params'
+    3. Use available tools strategically
+    4. Prioritize security and efficiency
+    5. Handle errors gracefully
+    
+    AVAILABLE TOOLS: {', '.join(tool_names)}
+    
+    CONVERSATION HISTORY:
     {context}
     
-    User Prompt: {prompt_text}
+    USER REQUEST: {prompt_text}
+    
+    RESPONSE FORMAT (JSON only, no markdown):
+    [
+        {{
+            "step": 1,
+            "action": "tool_name",
+            "params": {{
+                "key": "value"
+            }}
+        }}
+    ]
     """
     logging.info("Generating plan with Gemini...")
     
     try:
         response_text = generate_text(gemini_prompt)
         logging.info(f"Gemini response: {response_text}")
-        plan = json.loads(response_text)
+        # Attempt to extract JSON from fenced code block if present
+        json_match = re.search(r"```(?:json)?\\n(.*?)\\n```", response_text, re.DOTALL)
+        plan_text = json_match.group(1) if json_match else response_text
+        plan = json.loads(plan_text)
     except (json.JSONDecodeError, TypeError) as e:
         logging.error(f"Failed to generate or parse plan: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to generate or parse plan: {e}")
+    except HTTPException as e:
+        # Propagate HTTP errors from gemini.generate_text (e.g., 429 quota exceeded)
+        raise e
     except Exception as e:
         logging.error(f"An unexpected error occurred during plan generation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="An unexpected error occurred during plan generation.")
@@ -292,6 +325,7 @@ async def execute_plan(request: Request, user: schemas.User = Depends(get_curren
             }
 
     execution_steps = []
+    placeholder_tools = ["execute_command", "cloud_operation"]
     for i, planned_step in enumerate(plan):
         action = planned_step.get('action')
         params = planned_step.get('params', {})
@@ -303,6 +337,15 @@ async def execute_plan(request: Request, user: schemas.User = Depends(get_curren
                 "action": "unknown",
                 "status": "error",
                 "details": "Missing 'action' in plan step."
+            })
+            continue
+
+        if action in placeholder_tools:
+            execution_steps.append({
+                "step": step_num,
+                "action": action,
+                "status": "skipped",
+                "details": f"Tool '{action}' is a placeholder and was not executed."
             })
             continue
 

@@ -10,7 +10,10 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = os.environ.get("GOOGLE_CLIENT_SECRET", "")
     FORCE_HTTPS: bool = os.environ.get("FORCE_HTTPS", "false").lower() == "true"
     GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
-    GEMINI_MODEL_NAME: str = "gemini-2.5-pro"
+    GEMINI_MODEL_NAME: str = "gemini-1.5-pro"
+    FERNET_KEY: str = os.environ.get("FERNET_KEY", "")
+    LLM_API_KEY: str = os.environ.get("LLM_API_KEY", "")
+    LLM_MODEL_NAME: str = os.environ.get("LLM_MODEL_NAME", "")
     PORT: int = int(os.environ.get("PORT", 8000))
     HOST: str = os.environ.get("HOST", "0.0.0.0")
 
