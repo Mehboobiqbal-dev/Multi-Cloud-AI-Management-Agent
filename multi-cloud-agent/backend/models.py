@@ -38,3 +38,12 @@ class AuditLog(Base):
     details = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
     user = relationship('User', back_populates='audit_logs')
+
+class PlanHistory(Base):
+    __tablename__ = 'plan_history'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    plan = Column(String)
+    status = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    user = relationship('User')

@@ -277,8 +277,14 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
         # Attempt to extract JSON from fenced code block if present
         json_match = re.search(r"```(?:json)?\\n(.*?)\\n```", response_text, re.DOTALL)
         plan_text = json_match.group(1) if json_match else response_text
-        plan = json.loads(plan_text)
-    except (json.JSONDecodeError, TypeError) as e:
+        if not plan_text.strip().startswith(('{', '[')):
+            plan = [{"step": 1, "action": "user_interaction", "params": {"prompt": plan_text}}]
+        else:
+            plan = json.loads(plan_text)
+    except json.JSONDecodeError:
+        # Handle cases where Gemini returns a non-JSON response (e.g., a safety message)
+        return {"plan": [{"step": 1, "action": "user_interaction", "params": {"prompt": response_text}}]}
+    except (TypeError) as e:
         logging.error(f"Failed to generate or parse plan: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to generate or parse plan: {e}")
     except HTTPException as e:
@@ -302,6 +308,7 @@ async def prompt(prompt_req: schemas.PromptRequest, user: schemas.User = Depends
 @app.post('/execute_plan')
 async def execute_plan(request: Request, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     plan = await request.json()
+    logging.info(f"Executing plan: {plan}")
     # Aggregate user credentials
     creds = db.query(CloudCredential).filter_by(user_id=user.id).all()
     user_creds = {}
@@ -348,6 +355,9 @@ async def execute_plan(request: Request, user: schemas.User = Depends(get_curren
                 "details": f"Tool '{action}' is a placeholder and was not executed."
             })
             continue
+
+        if action == 'write_file' and 'filename' in params:
+            params['path'] = params.pop('filename')
 
         tool = tool_registry.get_tool(action)
         if not tool:

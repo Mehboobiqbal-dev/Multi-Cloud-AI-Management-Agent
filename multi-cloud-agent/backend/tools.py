@@ -43,8 +43,11 @@ def read_file(path: str) -> str:
 
 def write_file(path: str, content: str):
     """Writes content to a file."""
-    with open(path, "w") as f:
-        f.write(content)
+    try:
+        with open(path, "w") as f:
+            f.write(content)
+    except Exception as e:
+        raise Exception(f"Failed to write to file: {e}")
 
 def execute_command(command: str) -> str:
     """Executes a shell command."""

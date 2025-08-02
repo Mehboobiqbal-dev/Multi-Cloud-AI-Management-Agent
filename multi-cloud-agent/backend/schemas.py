@@ -52,3 +52,18 @@ class PromptResponse(BaseModel):
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+class PlanHistoryBase(BaseModel):
+    plan: str
+    status: str
+
+class PlanHistoryCreate(PlanHistoryBase):
+    pass
+
+class PlanHistory(PlanHistoryBase):
+    id: int
+    user_id: int
+    timestamp: str
+
+    class Config:
+        from_attributes = True
