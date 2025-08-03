@@ -1,11 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 
 function PromptForm({ onSubmit, loading }) {
   const [prompt, setPrompt] = useState('');
   const [file, setFile] = useState(null);
   const [language, setLanguage] = useState('en-US');
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef(null);
 
   /*
 useEffect(() => {
@@ -52,7 +50,7 @@ const toggleListening = () => {
         <option value="en-US">English</option>
         <option value="es-ES">Spanish</option>
         <option value="fr-FR">French</option>
-        // Add more languages
+        {/* Add more languages as needed */}
       </select>
       <textarea
         value={prompt}
@@ -62,11 +60,11 @@ const toggleListening = () => {
         rows="3"
       />
       <input type="file" onChange={handleFileChange} accept="image/*,audio/*,video/*" />
-      /*
-<button type="button" onClick={toggleListening} disabled={loading}>
+      {/* Voice input button removed until functionality is implemented
+      <button type="button" onClick={toggleListening} disabled={loading}>
         {isListening ? 'Stop Listening' : 'Start Voice Input'}
       </button>
-*/
+      */}
       <button type="submit" disabled={loading}>
         {loading ? 'Processing...' : 'Submit'}
       </button>

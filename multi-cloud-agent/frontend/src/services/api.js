@@ -50,6 +50,13 @@ const api = {
   },
   getHistory() {
     return apiClient.get('/history');
+  },
+  // Custom API methods
+  post(endpoint, data) {
+    return apiClient.post(endpoint, data);
+  },
+  callTool(toolName, params) {
+    return apiClient.post('/call_tool', { tool_name: toolName, params });
   }
 };
 

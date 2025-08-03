@@ -1,11 +1,5 @@
 import React from 'react';
 
-const cloudIcons = {
-  aws: 'fab fa-aws',
-  azure: 'fab fa-microsoft',
-  gcp: 'fab fa-google',
-};
-
 function ResultsDisplay({ response }) {
   if (!response || !response.history) {
     return (

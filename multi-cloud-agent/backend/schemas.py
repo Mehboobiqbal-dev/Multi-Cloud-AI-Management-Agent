@@ -89,3 +89,7 @@ class PlanHistory(PlanHistoryBase):
 
     class Config:
         from_attributes = True
+
+class ToolCallRequest(BaseModel):
+    tool_name: str
+    params: Dict[str, Any]

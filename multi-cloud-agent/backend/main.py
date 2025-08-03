@@ -477,7 +477,7 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
     if not tool:
         raise HTTPException(status_code=404, detail=f"Tool '{tool_name}' not found.")
     try:
-        if tool_name in ['open_browser', 'get_page_content', 'fill_form', 'fill_multiple_fields', 'click_button', 'close_browser']:
+        if tool_name in ['open_browser', 'get_page_content', 'fill_form', 'fill_multiple_fields', 'click_button', 'close_browser', 'search_web']:
             result = tool.func(**params)
         else:
             creds = db.query(CloudCredential).filter_by(user_id=user.id).all()

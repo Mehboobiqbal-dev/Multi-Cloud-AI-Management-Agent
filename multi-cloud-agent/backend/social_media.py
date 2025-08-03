@@ -1,6 +1,7 @@
 import tweepy
 from googleapiclient.discovery import build
 import base64
+from typing import Dict
 
 def post_to_twitter(content: str, credentials: Dict[str, str]) -> str:
     """Posts content to Twitter using provided credentials."""

@@ -17,15 +17,21 @@ def analyze_image(image_path: str) -> str:
 
 def speech_to_text(audio_path: str) -> str:
     """Converts speech to text using Google Speech Recognition."""
-    r = sr.Recognizer()
-    with sr.AudioFile(audio_path) as source:
-        audio = r.record(source)
+    if sr is None:
+        return "Speech recognition is not available. Please install the 'speech_recognition' package."
+    
     try:
-        return r.recognize_google(audio)
-    except sr.UnknownValueError:
-        return "Could not understand audio."
-    except sr.RequestError as e:
-        return f"Could not request results from Google Speech Recognition service; {e}"
+        r = sr.Recognizer()
+        with sr.AudioFile(audio_path) as source:
+            audio = r.record(source)
+        try:
+            return r.recognize_google(audio)
+        except sr.UnknownValueError:
+            return "Could not understand audio."
+        except sr.RequestError as e:
+            return f"Could not request results from Google Speech Recognition service; {e}"
+    except Exception as e:
+        return f"Error processing audio: {e}"
 
 def text_to_speech(text: str, output_path: str) -> str:
     """Converts text to speech and saves to file."""
