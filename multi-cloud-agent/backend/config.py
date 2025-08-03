@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = os.environ.get("DATABASE_URL", "")
+    DATABASE_URL: str = os.environ.get("DATABASE_URL", "sqlite:///./database.db")
     SESSION_SECRET: str = os.environ.get("SESSION_SECRET", "your-secret-key-change-in-production")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
