@@ -26,6 +26,28 @@ from groq import generate_text
 from audit import log_audit
 from tools import tool_registry, browsers
 from self_learning import SelfLearningCore
+import api_integration
+import autonomy
+import browsing
+import clear_users
+import cli
+import cloud_handlers
+import content_creation
+import custom_plugins
+import ecommerce
+import email_messaging
+import form_automation
+import gemini
+import intent_extractor
+import knowledge_base
+import memory
+import multilingual
+import multimodal
+import planner
+import scraping_analysis
+import security
+import social_media
+import voice_control
 import json
 import re
 from fastapi.middleware.cors import CORSMiddleware

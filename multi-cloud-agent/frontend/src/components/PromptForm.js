@@ -7,7 +7,8 @@ function PromptForm({ onSubmit, loading }) {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
 
-  useEffect(() => {
+  /*
+useEffect(() => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
@@ -19,8 +20,10 @@ function PromptForm({ onSubmit, loading }) {
       recognitionRef.current.onend = () => setIsListening(false);
     }
   }, []);
+*/
 
-  const toggleListening = () => {
+  /*
+const toggleListening = () => {
     if (isListening) {
       recognitionRef.current.stop();
     } else {
@@ -29,6 +32,7 @@ function PromptForm({ onSubmit, loading }) {
     }
     setIsListening(!isListening);
   };
+*/
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -58,9 +62,11 @@ function PromptForm({ onSubmit, loading }) {
         rows="3"
       />
       <input type="file" onChange={handleFileChange} accept="image/*,audio/*,video/*" />
-      <button type="button" onClick={toggleListening} disabled={loading}>
+      /*
+<button type="button" onClick={toggleListening} disabled={loading}>
         {isListening ? 'Stop Listening' : 'Start Voice Input'}
       </button>
+*/
       <button type="submit" disabled={loading}>
         {loading ? 'Processing...' : 'Submit'}
       </button>

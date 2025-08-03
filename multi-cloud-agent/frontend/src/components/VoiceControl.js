@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import api from '../services/api';
 import { Button, Box, Typography, TextField } from '@mui/material';
 
 function VoiceControl() {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
-  const {
+  /*
+const {
     transcript,
     listening,
     resetTranscript,
@@ -16,14 +17,21 @@ function VoiceControl() {
   if (!browserSupportsSpeechRecognition) {
     return <Typography>Browser doesn't support speech recognition.</Typography>;
   }
+*/
+const transcript = '';
+const listening = false;
+const resetTranscript = () => {};
 
-  const handleListen = () => {
+
+  /*
+const handleListen = () => {
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
       SpeechRecognition.startListening({ continuous: true });
     }
   };
+*/
 
   const handleProcess = async () => {
     setLoading(true);
@@ -47,7 +55,8 @@ function VoiceControl() {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5">Voice Control</Typography>
-      <Button onClick={handleListen} variant="contained">
+      /*
+<Button onClick={handleListen} variant="contained">
         {listening ? 'Stop Listening' : 'Start Listening'}
       </Button>
       <TextField
@@ -58,6 +67,7 @@ function VoiceControl() {
         multiline
         disabled
       />
+*/
       <Button onClick={handleProcess} variant="contained" disabled={loading || !transcript}>
         Process Command
       </Button>

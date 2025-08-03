@@ -37,3 +37,32 @@ google-cloud-storage
 Pillow
 numpy
 selenium
+tweepy
+google-api-python-client
+openai
+gtts
+beautifulsoup4
+
+autonomy
+browsing
+
+# Optional / custom modules (commented out to reduce weight or missing pip packages)
+# clear_users
+# cli
+# cloud_handlers
+# content_creation
+# custom_plugins
+# ecommerce
+# email_messaging
+# form_automation
+# gemini
+# intent_extractor
+# knowledge_base
+# memory
+# multilingual
+# multimodal
+# planner
+# scraping_analysis
+# security
+# social_media
+# voice_control

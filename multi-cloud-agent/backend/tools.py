@@ -13,7 +13,7 @@ import time
 import tweepy
 from googleapiclient.discovery import build
 import openai
-import speech_recognition as sr
+# import speech_recognition as sr
 from gtts import gTTS
 import io
 import requests
@@ -314,15 +314,15 @@ def analyze_image(image_path: str) -> str:
     """Analyzes an image using a placeholder (e.g., Vision API)."""
     return "Image analysis: [placeholder result]"
 
-def speech_to_text(audio_path: str) -> str:
-    """Converts speech to text."""
-    r = sr.Recognizer()
-    with sr.AudioFile(audio_path) as source:
-        audio = r.record(source)
-    try:
-        return r.recognize_google(audio)
-    except:
-        return "Could not understand audio."
+# def speech_to_text(audio_path: str) -> str:
+#     """Converts speech to text."""
+#     r = sr.Recognizer()
+#     with sr.AudioFile(audio_path) as source:
+#         audio = r.record(source)
+#     try:
+#         return r.recognize_google(audio)
+#     except:
+#         return "Could not understand audio."
 
 def text_to_speech(text: str, output_path: str) -> str:
     """Converts text to speech."""
@@ -340,7 +340,7 @@ tool_registry.register(Tool("send_email_gmail", "Sends an email via Gmail.", sen
 tool_registry.register(Tool("generate_content", "Generates text or image content.", generate_content))
 tool_registry.register(Tool("call_api", "Makes dynamic API calls.", call_api))
 tool_registry.register(Tool("analyze_image", "Analyzes images.", analyze_image))
-tool_registry.register(Tool("speech_to_text", "Converts speech to text.", speech_to_text))
+# tool_registry.register(Tool("speech_to_text", "Converts speech to text.", speech_to_text))
 tool_registry.register(Tool("text_to_speech", "Converts text to speech.", text_to_speech))
 def scrape_and_analyze(url: str, analysis: str = 'summarize') -> str:
     """Scrapes a website and performs analysis (summarize, extract_data, etc.)."""
