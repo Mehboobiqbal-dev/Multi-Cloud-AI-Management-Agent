@@ -65,7 +65,8 @@ app = FastAPI()
 core = SelfLearningCore()
 
 # CORS and HTTPS enforcement - ULTRA PERMISSIVE FOR NOW
-origins = ["*"]  # Allow all origins temporarily
+import os
+origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")  # Configure via env, e.g., https://your-vercel-app.vercel.app
 
 app.add_middleware(
     CORSMiddleware,

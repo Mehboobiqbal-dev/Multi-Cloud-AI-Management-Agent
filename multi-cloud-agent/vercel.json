@@ -5,15 +5,15 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app/$1"
+      "destination": "${BACKEND_URL}/$1"
     },
     {
       "source": "/healthz",
-      "destination": "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app/healthz"
+      "destination": "${BACKEND_URL}/healthz"
     },
     {
       "source": "/readyz",
-      "destination": "https://multi-cloud-ai-management-agent-production-acb4.up.railway.app/readyz"
+      "destination": "${BACKEND_URL}/readyz"
     }
   ],
   "headers": [
@@ -48,4 +48,4 @@
       ]
     }
   ]
-} 
+}
