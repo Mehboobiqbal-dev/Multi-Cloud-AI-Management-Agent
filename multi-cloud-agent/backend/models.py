@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -14,6 +14,7 @@ class User(Base):
     google_id = Column(String, unique=True, index=True)
     credentials = relationship('CloudCredential', back_populates='user')
     audit_logs = relationship('AuditLog', back_populates='user')
+    plan_histories = relationship('PlanHistory', back_populates='user')
 
 class CloudCredential(Base):
     __tablename__ = 'cloud_credentials'
@@ -42,8 +43,12 @@ class AuditLog(Base):
 class PlanHistory(Base):
     __tablename__ = 'plan_history'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    plan = Column(String)
-    status = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    prompt = Column(Text, nullable=False)
+    plan = Column(Text) # JSON of the plan
+    status = Column(String) # 'requires_feedback', 'success', 'failure'
+    execution_results = Column(Text) # JSON of the execution steps
+    feedback = Column(String, nullable=True) # 'success', 'failure'
+    correction = Column(Text, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    user = relationship('User')
+    user = relationship('User', back_populates='plan_histories')

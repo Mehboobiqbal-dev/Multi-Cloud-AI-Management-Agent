@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -36,7 +36,18 @@ class Credential(CredentialBase):
         from_attributes = True
 
 class PromptRequest(BaseModel):
-    prompt: str = Field(..., min_length=1, max_length=1000)
+    prompt: str = Field(..., min_length=1, max_length=2000)
+
+class PlanExecutionRequest(BaseModel):
+    prompt: str
+    plan: List[Dict[str, Any]]
+    user_input: Optional[str] = None
+
+class FeedbackRequest(BaseModel):
+    plan_id: int
+    feedback: str 
+    correction: Optional[str] = None
+    new_plan: Optional[List[Dict[str, Any]]] = None
 
 class Step(BaseModel):
     step: int
@@ -53,7 +64,18 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+class AgentStateRequest(BaseModel):
+    run_id: str
+    user_input: Optional[str] = None
+
+class AgentRunResponse(BaseModel):
+    status: str
+    message: str
+    final_result: Optional[str] = None
+    history: List[Dict[str, Any]]
+
 class PlanHistoryBase(BaseModel):
+    prompt: str
     plan: str
     status: str
 

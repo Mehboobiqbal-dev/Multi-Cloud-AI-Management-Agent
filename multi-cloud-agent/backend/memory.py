@@ -1,8 +1,9 @@
 import os
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 # from annoy import AnnoyIndex
 import google.generativeai as genai
+import json
 
 # Configure the generative AI model with the API key from environment variables
 try:
@@ -36,17 +37,18 @@ class Memory:
         )
         return np.array(result['embedding'], dtype=np.float32)
 
-    def add_document(self, text: str):
+    def add_document(self, data: Dict[str, Any]):
         """
-        Adds a document to the memory. The index will need to be rebuilt.
+        Adds a structured document to the memory. The index will need to be rebuilt.
         """
-        embedding = self._get_embedding(text)
+        text_representation = json.dumps(data)
+        embedding = self._get_embedding(text_representation)
         # self.index.add_item(self.item_counter, embedding)
-        self.documents.append(text)
+        self.documents.append(text_representation)
         self.item_counter += 1
         self.index_built = False  # Mark index as not built
 
-    def search(self, query: str, k: int = 5) -> List[Tuple[float, str]]:
+    def search(self, query: str, k: int = 5) -> List[Tuple[float, Dict[str, Any]]]:
         """
         Searches the memory for similar documents.
         """
@@ -57,16 +59,19 @@ class Memory:
             # Build the index if it hasn't been built yet. 10 trees is a good balance.
             # self.index.build(10)
             self.index_built = True
-            
+
         query_embedding = self._get_embedding(query)
-        # indices, distances = self.index.get_nns_by_vector(
-        #     query_embedding, k, include_distances=True
-        # )
+        # For now, as Annoy is disabled, we'll return the most recent interactions.
+        # This is a placeholder for a real vector search.
+        num_docs_to_return = min(k, len(self.documents))
         
         results = []
-        # if indices:
-        #     for i, dist in zip(indices, distances):
-        #         results.append((dist, self.documents[i]))
+        for doc_str in reversed(self.documents[-num_docs_to_return:]):
+            try:
+                # The "distance" is a placeholder value.
+                results.append((0.0, json.loads(doc_str)))
+            except json.JSONDecodeError:
+                continue # Skip malformed entries
         
         return results
 

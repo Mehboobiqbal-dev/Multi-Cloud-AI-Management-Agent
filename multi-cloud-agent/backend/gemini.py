@@ -42,10 +42,10 @@ def generate_text(prompt: str) -> str:
         return response.text
     except ResourceExhausted as e:
         logging.warning(f"Gemini quota exceeded: {e}", exc_info=True)
-        return '{"error": "Gemini API quota exceeded. Please wait and try again later."}'
+        raise HTTPException(status_code=429, detail="Gemini API quota exceeded. Please wait and try again later.")
     except Exception as e:
         logging.error(f"Error generating text: {e}", exc_info=True)
-        return f'{{"error": "Gemini text generation failed: {e}"}}'
+        raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
 
 def generate_text_with_image(prompt: str, image_path: str) -> str:
     """

@@ -6,6 +6,7 @@ authlib
 passlib[bcrypt]
 python-jose[cryptography]
 cryptography
+bcrypt==3.2.2
 slowapi
 
 sqlalchemy
@@ -23,6 +24,7 @@ pydantic-settings
 
 google-generativeai
 google-auth
+google-search-results
 # annoy
 
 boto3
@@ -34,3 +36,4 @@ google-cloud-storage
 
 Pillow
 numpy
+selenium

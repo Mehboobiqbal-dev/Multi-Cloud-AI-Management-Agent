@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Dashboard from './components/Dashboard';
-import { useAuth } from './contexts/AuthContext';
+import History from './components/History';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 
 // Simple components without routing for now
@@ -95,8 +96,21 @@ const LoginForm = ({ onLogin, onSignup }) => {
   );
 };
 
-function App() {
+function AppContent() {
   const { user, loading, login, signup } = useAuth();
+  const [page, setPage] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setPage(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -113,14 +127,36 @@ function App() {
     );
   }
 
+  const navigate = (path) => {
+    window.history.pushState({}, '', path);
+    setPage(path);
+  };
+
+  const renderPage = () => {
+    if (!user) {
+      return <LoginForm onLogin={login} onSignup={signup} />;
+    }
+
+    switch (page) {
+      case '/history':
+        return <History />;
+      default:
+        return <Dashboard navigate={navigate} />;
+    }
+  };
+
   return (
     <div className="App">
-      {user ? (
-        <Dashboard />
-      ) : (
-        <LoginForm onLogin={login} onSignup={signup} />
-      )}
+      {renderPage()}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

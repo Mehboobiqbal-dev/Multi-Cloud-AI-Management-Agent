@@ -1,0 +1,1 @@
+[{"step": 1, "action": "open_browser", "params": {"url": "https://www.facebook.com/r.php"}}, {"step": 2, "action": "fill_form", "params": {"fields": {"reg_email__": "alihassan", "reg_passwd__": "ali hassan"}}}, {"step": 3, "action": "click_button", "params": {"button_text": "Sign Up"}}]

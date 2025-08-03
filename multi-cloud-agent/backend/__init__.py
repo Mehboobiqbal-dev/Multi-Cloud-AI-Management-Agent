@@ -1,1 +1,1 @@
-# This file makes the 'backend' directory a Python package.
+from .memory import memory_instance

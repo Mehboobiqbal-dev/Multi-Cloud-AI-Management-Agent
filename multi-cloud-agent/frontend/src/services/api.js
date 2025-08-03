@@ -45,11 +45,11 @@ const api = {
   saveCredentials(credData) {
     return apiClient.post('/credentials', credData);
   },
-  submitPrompt(prompt) {
-    return apiClient.post('/prompt', { prompt });
+  runAgent(goal) {
+    return apiClient.post('/agent/run', { goal });
   },
-  executePlan(plan) {
-    return apiClient.post('/execute_plan', plan);
+  getHistory() {
+    return apiClient.get('/history');
   }
 };
 

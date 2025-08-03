@@ -58,10 +58,33 @@ def generate_plan(intents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         You are a world-class AI agent. Your task is to create a multi-step execution plan based on a list of intents.
         The plan should be a JSON object, which is a list of steps. Each step should have the following fields:
         - "step": The step number.
-        - "action": The action to perform (e.g., "search_web", "read_file", "execute_command").
+        - "action": The action to perform (e.g., "search_web", "read_file", "execute_command", "ask_user").
         - "params": A dictionary of parameters for the action.
 
-        Example:
+        If the user's request is missing information required to complete the task, you should add a step with the action "ask_user" to ask for the missing information.
+        For example, if the task is to create a Gmail account, you will need a first name, last name, and desired username. If this information is not provided, you must ask for it.
+
+        Example of a task with missing information:
+        Intents:
+        [
+            {
+                "action": "create_gmail_account",
+                "params": {}
+            }
+        ]
+
+        JSON output:
+        [
+            {
+                "step": 1,
+                "action": "ask_user",
+                "params": {
+                    "question": "I can help with that. What is the first name, last name, and desired username for the new Gmail account?"
+                }
+            }
+        ]
+
+        Example of a complete task:
         Intents:
         [
             {
