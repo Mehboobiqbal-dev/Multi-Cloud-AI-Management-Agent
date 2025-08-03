@@ -23,8 +23,9 @@ function FormAutomation() {
     setLoading(true);
     try {
       const res = await api.callTool('open_browser', { url });
-      setBrowserId(res.split('ID: ')[1].split('.')[0]);
-      setResults([...results, res]);
+      const formattedRes = typeof res === 'object' ? JSON.stringify(res, null, 2) : res;
+      setBrowserId(formattedRes.split('ID: ')[1]?.split('.')[0] || '');
+      setResults([...results, formattedRes]);
     } catch (err) {
       setResults([...results, 'Error: ' + err.message]);
     }
@@ -35,7 +36,8 @@ function FormAutomation() {
     setLoading(true);
     try {
       const res = await api.callTool('fill_multiple_fields', { browser_id: browserId, fields });
-      setResults([...results, res]);
+      const formattedRes = typeof res === 'object' ? JSON.stringify(res, null, 2) : res;
+      setResults([...results, formattedRes]);
     } catch (err) {
       setResults([...results, 'Error: ' + err.message]);
     }
@@ -46,7 +48,8 @@ function FormAutomation() {
     setLoading(true);
     try {
       const res = await api.callTool('click_button', { browser_id: browserId, selector });
-      setResults([...results, res]);
+      const formattedRes = typeof res === 'object' ? JSON.stringify(res, null, 2) : res;
+      setResults([...results, formattedRes]);
     } catch (err) {
       setResults([...results, 'Error: ' + err.message]);
     }
@@ -57,7 +60,8 @@ function FormAutomation() {
     setLoading(true);
     try {
       const res = await api.callTool('close_browser', { browser_id: browserId });
-      setResults([...results, res]);
+      const formattedRes = typeof res === 'object' ? JSON.stringify(res, null, 2) : res;
+      setResults([...results, formattedRes]);
       setBrowserId('');
     } catch (err) {
       setResults([...results, 'Error: ' + err.message]);
@@ -90,7 +94,7 @@ function FormAutomation() {
       )}
       <Box sx={{ mt: 2 }}>
         <Typography variant="h6">Results:</Typography>
-        <pre>{results.join('\n')}</pre>
+        <pre>{results.map(result => typeof result === 'object' ? JSON.stringify(result, null, 2) : result).join('\n')}</pre>
       </Box>
     </Box>
   );

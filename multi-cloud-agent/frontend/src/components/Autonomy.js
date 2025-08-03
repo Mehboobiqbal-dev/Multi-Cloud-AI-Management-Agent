@@ -12,7 +12,9 @@ function Autonomy() {
     setLogs([]);
     try {
       const response = await api.post('/agent/run', { goal });
-      setLogs(response.data.logs || []);
+      // Handle logs properly whether they're objects or strings
+      const logs = response.data.logs || [];
+      setLogs(logs.map(log => typeof log === 'object' ? JSON.stringify(log, null, 2) : log));
     } catch (err) {
       setLogs(['Error: ' + err.message]);
     }

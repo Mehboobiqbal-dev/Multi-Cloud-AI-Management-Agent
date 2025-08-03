@@ -43,7 +43,8 @@ const handleListen = () => {
       // Execute plan or get response text
       const execRes = await api.post('/execute_plan', { plan });
       const responseText = execRes.data.result;
-      setResponse(responseText);
+      // Ensure response is stringified if it's an object
+      setResponse(typeof responseText === 'object' ? JSON.stringify(responseText, null, 2) : responseText);
       // Text-to-speech functionality is not implemented in the API yet
       // Uncomment when API supports this feature
       // await api.callTool('text_to_speech', { text: responseText });
@@ -76,7 +77,7 @@ const handleListen = () => {
       {response && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Response:</Typography>
-          <pre>{response}</pre>
+          <pre>{typeof response === 'object' ? JSON.stringify(response, null, 2) : response}</pre>
           <Typography>Response played via TTS.</Typography>
         </Box>
       )}

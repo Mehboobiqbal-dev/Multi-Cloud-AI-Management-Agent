@@ -50,9 +50,11 @@ function ContentCreation() {
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Generated Content:</Typography>
           {type === 'image' || type === 'video' ? (
-            <a href={result} target="_blank" rel="noopener noreferrer">{result}</a>
+            <a href={typeof result === 'object' ? JSON.stringify(result) : result} target="_blank" rel="noopener noreferrer">
+              {typeof result === 'object' ? JSON.stringify(result) : result}
+            </a>
           ) : (
-            <pre>{result}</pre>
+            <pre>{typeof result === 'object' ? JSON.stringify(result, null, 2) : result}</pre>
           )}
         </Box>
       )}

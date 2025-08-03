@@ -23,7 +23,8 @@ function Security() {
         params = { key };
       }
       const response = await api.callTool(toolName, params);
-      setResult(response);
+      // Ensure response is stringified if it's an object
+      setResult(typeof response === 'object' ? JSON.stringify(response, null, 2) : response);
     } catch (err) {
       setResult('Error: ' + err.message);
     }
@@ -63,7 +64,7 @@ function Security() {
       {result && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Result:</Typography>
-          <pre>{result}</pre>
+          <pre>{typeof result === 'object' ? JSON.stringify(result, null, 2) : result}</pre>
         </Box>
       )}
     </Box>

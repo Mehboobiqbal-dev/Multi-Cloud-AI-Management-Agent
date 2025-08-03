@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import PromptForm from './PromptForm';
 import PlanDisplay from './PlanDisplay';
@@ -6,6 +6,7 @@ import ResultsDisplay from './ResultsDisplay';
 import CredentialsModal from './CredentialsModal';
 import Profile from './Profile';
 import api from '../services/api';
+import websocketService from '../services/websocket';
 import { AppBar, Toolbar, Typography, Button, Container, Tabs, Tab, Box } from '@mui/material';
 import PluginManager from './PluginManager';
 import Browsing from './Browsing';
@@ -32,25 +33,86 @@ function Dashboard({ navigate }) {
 const [showCreds, setShowCreds] = useState(false);
 const [userInteractionMessage, setUserInteractionMessage] = useState(null);
 
+  // Set up WebSocket connection when component mounts
+  useEffect(() => {
+    // Initialize WebSocket connection
+    const wsConnection = websocketService.connect();
+    
+    // Clean up WebSocket connection when component unmounts
+    return () => {
+      websocketService.disconnect();
+    };
+  }, []);
+
   const handlePromptSubmit = async (prompt) => {
     setLoading(true);
     setPlan(null);
     setResponse(null);
     setUserInteractionMessage(null);
+    
+    // Subscribe to WebSocket updates for this session
+    const unsubscribe = websocketService.subscribe('agent_updates', (update) => {
+      if (update.plan) setPlan(update.plan);
+      if (update.status === 'complete' && update.data) {
+        processResponseData(update.data);
+      }
+    });
+    
     try {
       const data = await api.runAgent(prompt);
-      if (data.status === 'requires_input') {
-        setUserInteractionMessage(data.final_result);
-        setResponse(data);
-      } else {
-        setResponse(data);
-      }
+      processResponseData(data);
     } catch (err) {
       console.error('Agent run failed:', err);
       const message = err.message || 'An error occurred while running the agent.';
       setResponse({ status: 'error', message: message, history: [] });
+    } finally {
+      // Unsubscribe from WebSocket updates
+      unsubscribe();
+      setLoading(false);
     }
-    setLoading(false);
+  };
+  
+  // Helper function to process response data and handle objects
+  const processResponseData = (data) => {
+    // Create a deep copy to avoid modifying the original data
+    const processedData = JSON.parse(JSON.stringify(data));
+    
+    // Process the response data to ensure objects are properly handled
+    if (processedData.status === 'requires_input') {
+      const finalResult = typeof processedData.final_result === 'object' ? 
+        JSON.stringify(processedData.final_result) : processedData.final_result;
+      setUserInteractionMessage(finalResult);
+    }
+    
+    // Ensure final_result is stringified if it's an object
+    if (typeof processedData.final_result === 'object') {
+      processedData.final_result = JSON.stringify(processedData.final_result);
+    }
+    
+    // Ensure history objects are properly stringified
+    if (processedData.history) {
+      processedData.history = processedData.history.map(item => {
+        const processedItem = {...item};
+        
+        // Stringify result if it's an object
+        if (typeof processedItem.result === 'object') {
+          processedItem.result = JSON.stringify(processedItem.result);
+        }
+        
+        // Ensure action is properly handled
+        if (typeof processedItem.action === 'object' && processedItem.action.result) {
+          processedItem.action = {
+            ...processedItem.action,
+            result: typeof processedItem.action.result === 'object' ? 
+              JSON.stringify(processedItem.action.result) : processedItem.action.result
+          };
+        }
+        
+        return processedItem;
+      });
+    }
+    
+    setResponse(processedData);
   };
 
   const handleTabChange = (event, newValue) => {

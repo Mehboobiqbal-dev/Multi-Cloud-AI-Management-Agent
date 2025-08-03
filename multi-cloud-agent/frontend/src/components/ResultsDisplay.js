@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { isValidElement } from 'react';
 
 function ResultsDisplay({ response }) {
   if (!response || !response.history) {
@@ -22,7 +22,7 @@ function ResultsDisplay({ response }) {
       {response.final_result && (
         <div className="final-result">
           <h4>Final Result</h4>
-          <p>{response.final_result}</p>
+          <p>{typeof response.final_result === 'object' ? JSON.stringify(response.final_result) : response.final_result}</p>
         </div>
       )}
 
@@ -32,7 +32,7 @@ function ResultsDisplay({ response }) {
           {response.history.map((step, idx) => (
             <li key={idx} className={`workflow-step`}>
               <span className="step-action-name">{step.action.name}</span>
-              <span className="step-status">{step.result}</span>
+              <span className="step-status">{typeof step.result === 'object' ? JSON.stringify(step.result) : step.result}</span>
             </li>
           ))}
         </ol>

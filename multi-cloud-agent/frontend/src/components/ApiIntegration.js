@@ -15,7 +15,8 @@ function ApiIntegration() {
     setLoading(true);
     try {
       const response = await api.callTool('call_api', { url, method, headers: JSON.parse(headers || '{}'), body: body ? JSON.parse(body) : null });
-      setResult(JSON.stringify(response, null, 2));
+      // Ensure response is stringified if it's an object
+      setResult(typeof response === 'object' ? JSON.stringify(response, null, 2) : response);
     } catch (err) {
       setResult('Error: ' + err.message);
     }
@@ -65,7 +66,7 @@ function ApiIntegration() {
       {result && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Response:</Typography>
-          <pre>{result}</pre>
+          <pre>{typeof result === 'object' ? JSON.stringify(result, null, 2) : result}</pre>
         </Box>
       )}
     </Box>

@@ -13,7 +13,8 @@ function Browsing() {
     setLoading(true);
     try {
       const response = await api.callTool('search_web', { query, engine });
-      setResults(response);
+      // Ensure response is stringified if it's an object
+      setResults(typeof response === 'object' ? JSON.stringify(response, null, 2) : response);
     } catch (err) {
       setResults('Error: ' + err.message);
     }
@@ -46,7 +47,7 @@ function Browsing() {
       {results && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6">Results:</Typography>
-          <pre>{results}</pre>
+          <pre>{typeof results === 'object' ? JSON.stringify(results, null, 2) : results}</pre>
         </Box>
       )}
     </Box>
