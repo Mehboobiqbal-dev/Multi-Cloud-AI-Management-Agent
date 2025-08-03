@@ -20,7 +20,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from config import settings
 from db import SessionLocal, init_db
-from models import User, CloudCredential
+from models import User, CloudCredential, PlanHistory
 from secure import encrypt, decrypt
 from groq import generate_text
 from audit import log_audit
@@ -399,6 +399,10 @@ async def execute_plan(request: Request, user: schemas.User = Depends(get_curren
         
     return {"status": status, "message": message, "steps": execution_steps}
 
+@app.get('/history', response_model=List[schemas.PlanHistory])
+async def get_history(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    history = db.query(PlanHistory).filter_by(user_id=user.id).all()
+    return history
 
 # Temporarily disable HTTPS enforcement for testing
 # if settings.FORCE_HTTPS:
