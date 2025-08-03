@@ -23,6 +23,12 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+if not settings.DATABASE_URL:
+    settings.DATABASE_URL = "sqlite:///./database.db"
+if not settings.FERNET_KEY:
+    from cryptography.fernet import Fernet
+    settings.FERNET_KEY = Fernet.generate_key().decode()
+
 # Only enforce required secrets in production
 if os.environ.get("ENVIRONMENT", "development") == "production":
     for var_name, var_value in [
