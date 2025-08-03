@@ -1,7 +1,7 @@
 import importlib.util
 import os
 from typing import Callable, Dict
-from .tools import Tool, tool_registry
+from tools import Tool, tool_registry
 
 def load_plugin(plugin_path: str) -> str:
     """Loads a custom plugin from a Python file and registers its functions as tools."""

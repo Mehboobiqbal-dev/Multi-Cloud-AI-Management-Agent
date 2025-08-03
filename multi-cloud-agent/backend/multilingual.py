@@ -1,4 +1,4 @@
-from .gemini import generate_content as gemini_generate
+from gemini import generate_text as gemini_generate
 
 def detect_language(text: str) -> str:
     """Detects the language of the given text using Gemini."""

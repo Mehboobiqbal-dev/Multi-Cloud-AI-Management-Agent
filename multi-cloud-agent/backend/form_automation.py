@@ -5,8 +5,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.webdriver import WebDriver
 import time
 
-# Assuming browsers dict is shared or imported from browsing.py
-extern browsers: Dict[str, WebDriver]
+# Import browsers dict from browsing.py
+from browsing import browsers
 
 def fill_form(browser_id: str, selector: str, value: str) -> str:
     """Fills a single form field in the specified browser using a CSS selector."""

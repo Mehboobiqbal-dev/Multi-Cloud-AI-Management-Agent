@@ -1,7 +1,8 @@
 import logging
 import json
-from .tools import tool_registry
-from .groq import generate_text
+from typing import Dict
+from tools import tool_registry
+from groq import generate_text
 
 AGENT_LOOP_PROMPT = """
 You are an autonomous AI agent. Your goal is: {goal}

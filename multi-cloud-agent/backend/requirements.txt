@@ -43,9 +43,6 @@ openai
 gtts
 beautifulsoup4
 
-autonomy
-browsing
-
 # Optional / custom modules (commented out to reduce weight or missing pip packages)
 # clear_users
 # cli

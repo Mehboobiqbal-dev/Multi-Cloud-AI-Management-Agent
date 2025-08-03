@@ -12,7 +12,7 @@ def send_email_gmail(subject: str, body: str, to: str, credentials: Dict[str, st
     except Exception as e:
         return f"Error sending email: {e}"
 
-def read_emails_gmail(max_results: int = 5, credentials: Dict[str, str]) -> str:
+def read_emails_gmail(credentials: Dict[str, str], max_results: int = 5) -> str:
     """Reads recent emails from Gmail."""
     service = build('gmail', 'v1', credentials=credentials)
     try:

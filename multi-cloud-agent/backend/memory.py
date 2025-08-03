@@ -4,12 +4,14 @@ from typing import List, Tuple, Dict, Any
 # from annoy import AnnoyIndex
 import google.generativeai as genai
 import json
+from config import settings
 
-# Configure the generative AI model with the API key from environment variables
-try:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-except KeyError:
-    raise ValueError("GEMINI_API_KEY environment variable not set.")
+# Configure the generative AI model with the API key from settings
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
+else:
+    print("Warning: GEMINI_API_KEY not set. Memory features will be limited.")
+    # We'll continue without raising an exception to allow the app to start
 
 class Memory:
     def __init__(self, embedding_dim: int = 768):
@@ -18,6 +20,7 @@ class Memory:
         Args:
             embedding_dim: The dimension of the embeddings. Google's model uses 768.
         """
+        # API key configuration moved to module level
         self.embedding_dim = embedding_dim
         # self.index = AnnoyIndex(embedding_dim, 'angular')
         self.documents: List[str] = []

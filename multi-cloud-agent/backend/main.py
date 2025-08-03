@@ -1,3 +1,13 @@
+import sys
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from config import settings
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
@@ -10,15 +20,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 from passlib.context import CryptContext
 
-import sys
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from config import settings
 from db import SessionLocal, init_db
 from models import User, CloudCredential, PlanHistory
 from secure import encrypt, decrypt

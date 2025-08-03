@@ -1,4 +1,10 @@
-import speech_recognition as sr
+# Try to import speech_recognition, but provide fallback if not available
+try:
+    import speech_recognition as sr
+except ImportError:
+    sr = None
+    print("Warning: speech_recognition module not found. Speech recognition features will be disabled.")
+
 from gtts import gTTS
 import io
 import requests

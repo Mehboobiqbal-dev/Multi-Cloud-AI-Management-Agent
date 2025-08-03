@@ -19,7 +19,7 @@ import io
 import requests
 import base64
 from bs4 import BeautifulSoup
-from gemini import generate_content as gemini_generate
+from gemini import generate_text as gemini_generate
 from cryptography.fernet import Fernet
 import pickle
 
