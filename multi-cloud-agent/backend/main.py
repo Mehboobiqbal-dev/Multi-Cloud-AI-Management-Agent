@@ -89,6 +89,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+active_connections: Dict[int, WebSocket] = {}
+
 # Add CORS middleware first
 app.add_middleware(
     CORSMiddleware,
@@ -254,13 +256,20 @@ async def get_current_user_from_ws(
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, user: schemas.User = Depends(get_current_user_from_ws)):
+    user_id = user.id
+    active_connections[user_id] = websocket
     await websocket.accept()
     try:
         while True:
-            data = await websocket.receive_text()
-            await websocket.send_text(f"Message text was: {data}")
+            # Keep the connection alive, or handle incoming messages if needed
+            await websocket.receive_text() # This will block until a message is received or connection closes
     except WebSocketDisconnect:
-        print("Client disconnected")
+        del active_connections[user_id]
+        print(f"Client {user_id} disconnected")
+    except Exception as e:
+        if user_id in active_connections:
+            del active_connections[user_id]
+        logging.error(f"WebSocket error for client {user_id}: {e}", exc_info=True)
 
 app.include_router(universal_assistant.router, prefix="/assistant", tags=["assistant"], dependencies=[Depends(get_current_user)])
 
@@ -650,14 +659,29 @@ def generate_text(prompt: str) -> str:
 @limiter.limit("5/minute")
 async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user: schemas.User = Depends(get_current_user)):
     core.log_action('agent_run', {'user_input': agent_req.user_input})
+    user_id = user.id
+    websocket = active_connections.get(user_id)
+
+    async def send_log(message: str):
+        if websocket:
+            try:
+                await websocket.send_json({"topic": "agent_updates", "payload": {"log": message}})
+            except RuntimeError as e:
+                logging.warning(f"Could not send log to WebSocket for user {user_id}: {e}")
+        else:
+            logging.warning(f"No active WebSocket connection for user {user_id} to send log: {message}")
+
     try:
         goal = agent_req.user_input
-        max_loops = 3
+        max_loops = 3  # Reduced from 8 for faster response
         history = []
+
+        await send_log(f"Agent run started for goal: {goal}")
 
         # Define the agent loop prompt template
         AGENT_LOOP_PROMPT = """
         You are a highly intelligent, self-sufficient AI agent capable of performing any task on the internet autonomously without needing user input. Always think step by step and persist until the goal is achieved. If the goal is null, unclear, or not provided, infer from history or default to useful autonomous tasks like searching the web for trending topics, analyzing information, or performing exploratory actions independently. Never attempt to ask the user for clarification; instead, make reasonable assumptions or choose a default goal.
+        If an action fails, analyze the error message from history and try an alternative strategy (e.g., waiting, using alternative selectors, reloading the page, or using different tools). Continue iterating until "finish_task".
         
         GOAL: {goal}
         
@@ -679,7 +703,7 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
         """
     
         for i in range(max_loops):
-            logging.info(f"--- Agent Loop {i+1} for goal: '{goal}' ---")
+            await send_log(f"--- Agent Loop {i+1} for goal: '{goal}' ---")
             
             # 1. THINK and CHOOSE NEXT ACTION
             history_str = "\n".join([f"  - Step {h['step']}: I used '{h['action']['name']}' which resulted in: '{h['result']}'" for h in history]) if history else "  - No actions taken yet."
@@ -691,8 +715,9 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             )
             
             try:
+                await send_log(f"Generating next action with LLM...")
                 response_text = generate_text(prompt)
-                logging.info(f"Agent LLM Response: {response_text}")
+                await send_log(f"LLM Response: {response_text[:200]}...") # Log first 200 chars
                 # Extract JSON from the response
                 import re
                 json_match = re.search(r'```json\n([\s\S]*?)\n```', response_text)
@@ -716,17 +741,20 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                  return schemas.AgentRunResponse(status="error", message=f"Agent generated an invalid action. Last thought: {thought}", history=history, final_result=None)
 
             # 2. EXECUTE THE CHOSEN ACTION
-            logging.info(f"Agent Thought: {thought}")
-            logging.info(f"Agent Action: {action_name} with params {action_params}")
+            await send_log(f"Agent Thought: {thought}")
+            await send_log(f"Agent Action: {action_name} with params {action_params}")
 
             tool = tool_registry.get_tool(action_name)
             if not tool:
                 result = f"Error: Tool '{action_name}' not found."
+                await send_log(result)
             else:
                 try:
                     result = tool.func(**action_params)
+                    await send_log(f"Action Result: {str(result)[:200]}...") # Log first 200 chars
                 except Exception as e:
                     result = f"Error executing tool '{action_name}': {e}"
+                    await send_log(result)
             
             # 3. RECORD AND OBSERVE
             history.append({
@@ -739,19 +767,25 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             # Self-Critique
             critique_prompt = f"Goal: {goal}\nLast Action Result: {result}\nCritique and suggest improvement."
             critique = generate_text(critique_prompt)
-            logging.info(f"Self-Critique: {critique}")
+            await send_log(f"Self-Critique: {critique[:200]}...") # Log first 200 chars
 
             # 4. CHECK FOR COMPLETION
             if action_name == "finish_task":
-                logging.info(f"Agent finished goal: '{goal}'")
+                await send_log(f"Agent finished goal: '{goal}'")
+                await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"final_result": result}}}))
                 return schemas.AgentRunResponse(status="success", message="Agent completed the goal.", history=history, final_result=result)
             
 
-        logging.warning(f"Agent reached max loops for goal: '{goal}'")
+        await send_log(f"Agent reached max loops for goal: '{goal}'")
         core.post_task_review(goal, False, {'loops': max_loops})
+        await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"message": "Agent reached maximum loops without finishing the goal."}}}))
         return schemas.AgentRunResponse(status="error", message="Agent reached maximum loops without finishing the goal.", history=history, final_result=None)
     except Exception as e:
+        error_message = f"An unexpected error occurred during agent run: {e}"
+        logging.error(error_message, exc_info=True)
         core.log_error(str(e), {'goal': goal})
+        await send_log(error_message)
+        await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "error", "data": {"message": error_message}}}))
         raise
 
 @app.get('/')

@@ -38,7 +38,7 @@ def search_web(query: str, engine: str = 'duckduckgo') -> str:
                     pass  # continue; sometimes input is available without wait
                 fill_form(browser_id, "textarea[name='q']", query)
                 submit_form(browser_id, "textarea[name='q']")
-                time.sleep(2) # Give time for results to load
+                time.sleep(1)  # Reduced wait for faster results
                 content = get_page_content(browser_id)
                 # Simple CAPTCHA awareness
                 if re.search(r"captcha|unusual traffic|verify you are human", content, re.IGNORECASE):
@@ -88,6 +88,7 @@ def search_web(query: str, engine: str = 'duckduckgo') -> str:
         except Exception as e:
             return f"Error during DuckDuckGo API search: {e}. Browser-based search is not supported for this engine."
 
+
 def open_browser(url: str) -> str:
     """Opens a new headless Chrome browser window and navigates to the specified URL."""
     try:
@@ -116,7 +117,23 @@ def open_browser(url: str) -> str:
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--guest")
         options.add_argument("--disable-speech-api")
+        # Performance optimizations
+        options.add_argument("--disable-renderer-backgrounding")
+        options.add_argument("--disable-background-media-suspend")
+        options.add_argument("--disable-ipc-flooding-protection")
+        options.add_argument("--memory-pressure-off")
+        options.add_argument("--max_old_space_size=4096")
+        options.add_argument("--disable-features=VizDisplayCompositor")
+        options.add_argument("--disable-features=TranslateUI")
+        options.add_argument("--disable-features=BlinkGenPropertyTrees")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-web-security")
+        options.add_argument("--disable-features=dsp")
+        options.add_argument("--disable-logging")
+        options.add_argument("--disable-login-animations")
+        options.add_argument("--disable-smooth-scrolling")
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_experimental_option('useAutomationExtension', False)
         options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
         driver = webdriver.Chrome(options=options)
         driver.get(url)
@@ -125,16 +142,22 @@ def open_browser(url: str) -> str:
     except Exception as e:
         raise Exception(f"Failed to open browser: {e}")
 
+
 def get_page_content(browser_id: str) -> str:
     """Gets the clean text content of the current page in the specified browser."""
     if browser_id not in browsers:
         raise Exception(f"Browser with ID '{browser_id}' not found.")
     try:
         driver = browsers[browser_id]
-        content = driver.find_element(By.TAG_NAME, 'body').text
+        # Prefer executing JS to get textContent which is faster in some cases
+        try:
+            content = driver.execute_script("return document.body ? document.body.innerText : '';")
+        except Exception:
+            content = driver.find_element(By.TAG_NAME, 'body').text
         return '\n'.join([line for line in content.split('\n') if line.strip()])
     except Exception as e:
         raise Exception(f"Failed to get page content from browser '{browser_id}': {e}")
+
 
 def fill_form(browser_id: str, selector: str, value: str) -> str:
     """Fills a form field in the specified browser.
@@ -160,6 +183,7 @@ def fill_form(browser_id: str, selector: str, value: str) -> str:
     except Exception as e:
         raise Exception(f"Failed to fill form field '{selector}' in browser '{browser_id}': {e}")
 
+
 def close_browser(browser_id: str) -> str:
     """Closes the specified browser window and removes it from the list."""
     if browser_id not in browsers:
@@ -172,6 +196,33 @@ def close_browser(browser_id: str) -> str:
         if browser_id in browsers:
             browsers.pop(browser_id)
         raise Exception(f"Failed to close browser {browser_id}: {e}")
+
+
+def fill_multiple_fields(browser_id: str, fields: list) -> str:
+    """Fills multiple form fields in the specified browser.
+
+    Args:
+        browser_id (str): The ID of the browser to interact with.
+        fields (list): A list of dictionaries, each containing 'selector' and 'value' for a field.
+
+    Returns:
+        str: A message indicating success or failure for all fields.
+    """
+    if browser_id not in browsers:
+        raise Exception(f"Browser with ID '{browser_id}' not found.")
+    try:
+        results = []
+        for field in fields:
+            selector = field.get('selector')
+            value = field.get('value')
+            if selector and value:
+                fill_form(browser_id, selector, value)
+                results.append(f"Filled '{selector}' with '{value}'.")
+            else:
+                results.append(f"Skipped invalid field: {field}")
+        return "\n".join(results)
+    except Exception as e:
+        raise Exception(f"Failed to fill multiple fields in browser '{browser_id}': {e}")
 
 def submit_form(browser_id: str, selector: str) -> str:
     """Submits a form by pressing Enter on the specified element.

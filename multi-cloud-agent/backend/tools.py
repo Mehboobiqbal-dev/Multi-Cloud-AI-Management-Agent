@@ -13,7 +13,6 @@ import time
 import tweepy
 from googleapiclient.discovery import build
 import openai
-# import speech_recognition as sr
 from gtts import gTTS
 import io
 import requests
@@ -23,126 +22,218 @@ from gemini import generate_text as gemini_generate
 from cryptography.fernet import Fernet
 import pickle
 
-class Tool:
-    def __init__(self, name: str, description: str, func: Callable):
-        self.name = name
-        self.description = description
-        self.func = func
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "description": self.description,
-        }
-
-class ToolRegistry:
-    def __init__(self):
-        self._tools: Dict[str, Tool] = {}
-
-    def register(self, tool: Tool):
-        self._tools[tool.name] = tool
-
-    def get_tool(self, name: str) -> Tool:
-        return self._tools.get(name)
-
-    def get_all_tools(self) -> List[Tool]:
-        return list(self._tools.values())
-
-    def get_all_tools_dict(self) -> List[Dict[str, Any]]:
-        return [tool.to_dict() for tool in self.get_all_tools()]
-
-# --- Core Tools ---
+# Import browser management from browsing module
+from browsing import (
+    browsers as shared_browsers,
+    open_browser as browsing_open_browser,
+    get_page_content as browsing_get_page_content,
+    close_browser as browsing_close_browser,
+)
 
 def search_web(query: str, engine: str = 'duckduckgo') -> str:
-    """Searches the web for the given query using specified engine (google, bing, duckduckgo) via free APIs or browser automation."""
-    from browsing import search_web as browsing_search_web
-    
-    # Use the implementation from browsing.py which doesn't require SerpAPI
-    try:
-        return browsing_search_web(query, engine)
-    except Exception as e:
-        return f"Error during web search: {e}"
+    """Searches the web using DuckDuckGo or Google through browser automation."""
+    return browsing.search_web(query, engine)
 
 # --- Browser Tools ---
 
-browsers: Dict[str, WebDriver] = {}
+# Alias to shared browser dict so all browser operations use the same sessions
+browsers: Dict[str, WebDriver] = shared_browsers
 
 def open_browser(url: str) -> str:
-    """Opens a new headless Chrome browser window and navigates to the specified URL."""
-    try:
-        browser_id = f"browser_{len(browsers)}"
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--log-level=3")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-infobars")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--mute-audio")
-        options.add_argument("--metrics-recording-only")
-        options.add_argument("--disable-notifications")
-        options.add_argument("--disable-cloud-import")
-        options.add_argument("--disable-sync")
-        options.add_argument("--disable-client-side-phishing-detection")
-        options.add_argument("--disable-background-networking")
-        options.add_argument("--disable-background-timer-throttling")
-        options.add_argument("--disable-backgrounding-occluded-windows")
-        options.add_argument("--disable-component-update")
-        options.add_argument("--disable-default-apps")
-        options.add_argument("--no-first-run")
-        options.add_argument("--no-default-browser-check")
-        options.add_argument("--ignore-certificate-errors")
-        options.add_argument("--guest")
-        options.add_argument("--disable-speech-api")
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
-        driver = webdriver.Chrome(options=options)
-        driver.get(url)
-        browsers[browser_id] = driver
-        return f"Browser opened with ID: {browser_id}. Navigated to {url}. You can now read its content or interact with it."
-    except Exception as e:
-        raise Exception(f"Failed to open browser: {e}")
+    """Opens a new browser window and navigates to the URL."""
+    return browsing_open_browser(url)
 
 def get_page_content(browser_id: str) -> str:
-    """Gets the clean text content of the current page in the specified browser."""
-    if browser_id not in browsers:
-        raise Exception(f"Browser with ID '{browser_id}' not found.")
-    try:
-        driver = browsers[browser_id]
-        content = driver.find_element(By.TAG_NAME, 'body').text
-        return '\n'.join([line for line in content.split('\n') if line.strip()])
-    except Exception as e:
-        raise Exception(f"Failed to get page content from browser '{browser_id}': {e}")
+    """Gets the text content of the current page."""
+    return browsing_get_page_content(browser_id)
 
-def fill_form(browser_id: str, selector: str, value: str) -> str:
-    """Fills a single form field in the specified browser using a CSS selector."""
-    if browser_id not in browsers:
-        raise Exception(f"Browser with ID '{browser_id}' not found.")
-    try:
-        driver = browsers[browser_id]
-        element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))
-        element.clear()
-        element.send_keys(value)
-        return f"Filled field with selector '{selector}' successfully."
-    except Exception as e:
-        raise Exception(f"Failed to fill form field '{selector}': {e}")
-
-def fill_multiple_fields(browser_id: str, fields: Dict[str, str]) -> str:
-    """Fills multiple form fields in one go. Expects a dictionary of CSS selectors to values."""
+def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15) -> str:
+    """Enhanced form filling with multiple selector strategies and robust waiting."""
     if browser_id not in browsers:
         raise Exception(f"Browser with ID '{browser_id}' not found.")
     
+    driver = browsers[browser_id]
+    
+    # Multiple selector strategies to try
+    selector_strategies = [
+        selector,  # Original selector
+        f"input{selector}",  # Add input prefix if missing
+        f"[name='{selector.replace('[name=\"', '').replace('"]', '').replace("[name='", '').replace("']", '')}']",  # Extract name and rebuild
+        f"#{selector.replace('#', '').replace('[id=\"', '').replace('"]', '').replace("[id='", '').replace("']", '')}",  # Try as ID
+        f".{selector.replace('.', '').replace('[class=\"', '').replace('"]', '').replace("[class='", '').replace("']", '')}",  # Try as class
+    ]
+    
+    last_error = None
+    for attempt, current_selector in enumerate(selector_strategies):
+        try:
+            # Wait for element to be present and interactable
+            element = WebDriverWait(driver, wait_timeout).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, current_selector))
+            )
+            
+            # Scroll to element to ensure it's visible
+            driver.execute_script("arguments[0].scrollIntoView(true);", element)
+            time.sleep(0.3)  # Reduced from 0.5
+            
+            # Clear and fill the field
+            element.clear()
+            time.sleep(0.1)  # Reduced from 0.2
+            element.send_keys(value)
+            time.sleep(0.1)  # Reduced from 0.2
+            
+            # Verify the value was set
+            actual_value = element.get_attribute('value')
+            if actual_value == value:
+                return f"Filled field with selector '{current_selector}' successfully."
+            else:
+                # Try alternative input method
+                element.clear()
+                driver.execute_script("arguments[0].value = arguments[1];", element, value)
+                driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element)
+                return f"Filled field with selector '{current_selector}' using JS fallback."
+                
+        except Exception as e:
+            last_error = e
+            if attempt < len(selector_strategies) - 1:
+                continue  # Try next selector strategy
+            
+    raise Exception(f"Failed to fill form field after trying {len(selector_strategies)} selector strategies. Last error: {last_error}")
+
+def fill_multiple_fields(browser_id: str, fields: Dict[str, str], retry_failed: bool = True, page_analysis: bool = True) -> str:
+    """Enhanced multiple field filling with adaptive strategies, retries, and page analysis."""
+    if browser_id not in browsers:
+        raise Exception(f"Browser with ID '{browser_id}' not found.")
+    
+    driver = browsers[browser_id]
     results = []
+    failed_fields = {}
+    
+    # Page analysis to understand form structure
+    if page_analysis:
+        try:
+            # Get all form inputs on the page
+            all_inputs = driver.find_elements(By.CSS_SELECTOR, "input, select, textarea")
+            available_inputs = []
+            for inp in all_inputs:
+                name = inp.get_attribute('name') or inp.get_attribute('id') or inp.get_attribute('class')
+                input_type = inp.get_attribute('type') or inp.tag_name
+                available_inputs.append(f"{input_type}[name='{name}']" if name else f"{input_type}[unnamed]")
+            
+            results.append(f"Page analysis: Found {len(all_inputs)} form inputs: {', '.join(available_inputs[:10])}")
+        except Exception as e:
+            results.append(f"Page analysis failed: {e}")
+    
+    # Wait for page to be fully loaded
+    try:
+        WebDriverWait(driver, 5).until(  # Reduced from 10
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
+        time.sleep(1)  # Reduced from 2 for dynamic content
+    except:
+        pass
+    
+    # First pass: try to fill all fields
     for selector, value in fields.items():
         try:
-            fill_form(browser_id, selector, value)
-            results.append(f"Successfully filled field: {selector}")
+            fill_form(browser_id, selector, value, wait_timeout=10)
+            results.append(f"✓ Successfully filled field: {selector}")
         except Exception as e:
-            results.append(f"Failed to fill field {selector}: {str(e)}")
+            failed_fields[selector] = value
+            results.append(f"✗ Failed to fill field {selector}: {str(e)}")
+    
+    # Second pass: retry failed fields with enhanced strategies
+    if retry_failed and failed_fields:
+        results.append("\n--- RETRY PHASE ---")
+        time.sleep(2)  # Wait before retrying
+        
+        for selector, value in failed_fields.copy().items():
+            # Generate alternative selectors based on common patterns
+            alt_selectors = [
+                selector,
+                selector.lower(),
+                selector.replace('_', ''),
+                selector.replace('_', '-'),
+                f"input[name*='{selector.replace('[name=\"', '').replace('"]', '').replace('_', '').replace('-', '')}']",
+                f"input[id*='{selector.replace('[name=\"', '').replace('"]', '').replace('_', '').replace('-', '')}']",
+                f"*[name*='{selector.replace('[name=\"', '').replace('"]', '').replace('_', '').replace('-', '')}']"
+            ]
+            
+            retry_success = False
+            for alt_selector in alt_selectors:
+                try:
+                    fill_form(browser_id, alt_selector, value, wait_timeout=5)
+                    results.append(f"✓ RETRY SUCCESS - filled {selector} using alternative: {alt_selector}")
+                    failed_fields.pop(selector)
+                    retry_success = True
+                    break
+                except:
+                    continue
+            
+            if not retry_success:
+                # Try finding by placeholder text (common on signup forms like Google)
+                try:
+                    keywords = []
+                    sel_lower = selector.lower()
+                    if any(k in sel_lower for k in ["user", "username", "login", "email"]):
+                        keywords.extend(["username", "email", "user"])
+                    if any(k in sel_lower for k in ["pass", "passwd", "password"]):
+                        keywords.extend(["password", "pass"])
+                    if "confirm" in sel_lower:
+                        keywords.extend(["confirm", "again", "re-enter"])
+                    if any(k in sel_lower for k in ["recover", "backup"]):
+                        keywords.extend(["recovery", "backup", "alternate"])
+                    if "phone" in sel_lower:
+                        keywords.append("phone")
+                    
+                    if not keywords:
+                        # Fall back to using the raw selector as a keyword hint
+                        keywords.append(sel_lower.strip("[]#.").replace("name=", "").replace("id=", "").replace("'", "").replace('"', ''))
+                        
+                    placeholder_query = " or ".join([f"contains(translate(@placeholder, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{kw}')" for kw in keywords if kw])
+                    xpath = f"//input[{placeholder_query}] | //textarea[{placeholder_query}]"
+                    elements = driver.find_elements(By.XPATH, xpath)
+                    if elements:
+                        elem = elements[0]
+                        driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+                        time.sleep(0.2)
+                        elem.clear()
+                        elem.send_keys(value)
+                        results.append(f"✓ RETRY SUCCESS - filled {selector} using placeholder match")
+                        failed_fields.pop(selector)
+                        retry_success = True
+                except:
+                    pass
+                
+                if not retry_success:
+                    # Try finding by associated label text
+                    try:
+                        field_name = selector.replace('[name="', '').replace('"]', '').replace("'", "")
+                        label_xpath = f"//label[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{field_name.lower()}')]//input | //label[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{field_name.lower()}')]//textarea"
+                        elements = driver.find_elements(By.XPATH, label_xpath)
+                        if elements:
+                            element = elements[0]
+                            driver.execute_script("arguments[0].scrollIntoView(true);", element)
+                            time.sleep(0.1)  # Reduced from 0.2
+                            element.clear()
+                            element.send_keys(value)
+                            results.append(f"✓ RETRY SUCCESS - filled {selector} using label association")
+                            failed_fields.pop(selector)
+                            retry_success = True
+                    except:
+                        pass
+
+    # Summary
+    total_fields = len(fields)
+    successful_fields = total_fields - len(failed_fields)
+    results.append(f"\n--- SUMMARY ---")
+    results.append(f"Total fields: {total_fields}, Successful: {successful_fields}, Failed: {len(failed_fields)}")
+    
+    if failed_fields:
+        results.append(f"Still failed: {list(failed_fields.keys())}")
+        # Suggest next steps for remaining failures
+        results.append("Consider: 1) Wait for page to load completely, 2) Check if fields require user interaction, 3) Verify field names are correct")
     
     return "\n".join(results)
-
 
 def click_button(browser_id: str, selector: str) -> str:
     """Clicks a button in the specified browser using a CSS selector."""
@@ -158,321 +249,177 @@ def click_button(browser_id: str, selector: str) -> str:
 
 def close_browser(browser_id: str) -> str:
     """Closes the specified browser window and removes it from the list."""
-    if browser_id not in browsers:
-        return f"Browser with ID '{browser_id}' not found or already closed."
-    try:
-        driver = browsers.pop(browser_id)
-        driver.quit()
-        return f"Browser {browser_id} closed successfully."
-    except Exception as e:
-        if browser_id in browsers:
-            browsers.pop(browser_id)
-        raise Exception(f"Failed to close browser {browser_id}: {e}")
-        
+    return browsing_close_browser(browser_id)
+
 # --- E-commerce Tools ---
-
-def search_products_amazon(product_query: str) -> str:
-    """Searches for a product on Amazon.com and returns the top 3 results with titles, prices, and links."""
-    results = []
-    browser_id = ""
+def search_amazon_products(query: str, max_results: int = 10) -> str:
+    """Search for products on Amazon."""
+    browser_id = None
     try:
-        search_url = f"https://www.amazon.com/s?k={product_query.replace(' ', '+')}"
-        browser_id = open_browser(search_url)
-        driver = browsers[browser_id]
+        # Open Amazon
+        open_result = open_browser("https://www.amazon.com")
+        browser_id = open_result.split("ID: ")[1].split(".")[0]
         
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[data-component-type='s-search-result']")))
-        search_results = driver.find_elements(By.CSS_SELECTOR, "div[data-component-type='s-search-result']")
+        # Search for products
+        fill_form(browser_id, "input[id='twotabsearchtextbox']", query)
+        click_button(browser_id, "input[id='nav-search-submit-button']")
         
-        for i, item in enumerate(search_results[:3]):
-            title, price, link = "Not found", "Not found", "Not found"
-            try:
-                title_element = item.find_element(By.CSS_SELECTOR, "h2 a.a-link-normal span.a-text-normal")
-                title = title_element.text
-                link = title_element.find_element(By.XPATH, "..").get_attribute('href')
-            except: pass
-            try:
-                price_whole = item.find_element(By.CSS_SELECTOR, "span.a-price-whole").text
-                price_fraction = item.find_element(By.CSS_SELECTOR, "span.a-price-fraction").text
-                price = f"${price_whole}.{price_fraction}"
-            except: pass
-            results.append(f"Result {i+1}:\n  - Title: {title}\n  - Price: {price}\n  - Link: {link}")
-
-        return "\n".join(results) if results else "No products found."
-    except TimeoutException:
-        return "Timed out waiting for Amazon search results to load. The page might have a CAPTCHA."
+        # Get results
+        time.sleep(1.5)  # Reduced from 3
+        content = get_page_content(browser_id)
+        
+        # Extract product information (simplified)
+        products = []
+        lines = content.split('\n')
+        for i, line in enumerate(lines):
+            if 'sponsored' not in line.lower() and '$' in line and len(products) < max_results:
+                products.append(line.strip())
+        
+        return f"Amazon search results for '{query}':\n" + "\n".join(products[:max_results])
+    
     except Exception as e:
-        return f"An error occurred while searching Amazon: {e}"
+        return f"Error searching Amazon: {e}"
     finally:
-        if browser_id in browsers:
+        if browser_id:
             close_browser(browser_id)
 
-# --- Agent and Control Tools ---
-
-def finish_task(final_answer: str) -> str:
-    """Use this tool to signify that you have successfully completed the entire goal. The final answer or summary should be provided in the 'final_answer' parameter."""
-    return f"Task finished with final answer: {final_answer}"
-
-# --- Other Tools ---
-
-def read_file(path: str) -> str:
-    """Reads the contents of a file."""
-    with open(path, "r") as f:
-        return f.read()
-
-def write_file(path: str, content: str):
-    """Writes content to a file."""
+def search_ebay_products(query: str, max_results: int = 10) -> str:
+    """Search for products on eBay."""
+    browser_id = None
     try:
-        with open(path, "w") as f:
-            f.write(content)
-        return f"Successfully wrote content to {path}"
-    except Exception as e:
-        raise Exception(f"Failed to write to file: {e}")
-
-def execute_command(command: str) -> str:
-    """Executes a shell command."""
-    return f"Executed command: {command}"
-
-def cloud_operation(cloud: str, operation: str, resource: str, params: Dict[str, Any], user_creds: Dict[str, Any]) -> Dict[str, Any]:
-    """Executes a cloud operation."""
-    return handle_clouds([{"cloud": cloud, "operation": operation, "resource": resource, "params": params}], user_creds)
-
-def user_interaction(question: str) -> str:
-    """Asks the user a question for clarification."""
-    return question
-
-# --- Tool Registration ---
-
-tool_registry = ToolRegistry()
-tool_registry.register(Tool("search_web", "Searches the web for a given query using specified engine (google, bing, duckduckgo) and returns a summary of results.", search_web))
-tool_registry.register(Tool("search_products_amazon", "Searches for a product on Amazon.com and returns the top results.", search_products_amazon))
-tool_registry.register(Tool("open_browser", "Opens a new headless browser window and navigates to a URL. Returns a browser_id.", open_browser))
-tool_registry.register(Tool("get_page_content", "Gets the visible text content of the current page in a browser, using its browser_id.", get_page_content))
-tool_registry.register(Tool("fill_form", "Fills a single form field (identified by a CSS selector) in a browser.", fill_form))
-tool_registry.register(Tool("fill_multiple_fields", "Fills multiple form fields in a browser from a dictionary of {selector: value}.", fill_multiple_fields))
-tool_registry.register(Tool("click_button", "Clicks a button (identified by a CSS selector) in a browser.", click_button))
-tool_registry.register(Tool("close_browser", "Closes a specific browser window by its browser_id.", close_browser))
-tool_registry.register(Tool("read_file", "Reads the contents of a local file.", read_file))
-tool_registry.register(Tool("write_file", "Writes content to a local file.", write_file))
-tool_registry.register(Tool("cloud_operation", "Executes a cloud operation (list, create, delete) on AWS, Azure, or GCP.", cloud_operation))
-tool_registry.register(Tool("finish_task", "Signals that the agent has completed the goal and provides the final answer.", finish_task))
-
-def post_to_twitter(content: str, credentials: Dict[str, str]) -> str:
-    """Posts content to Twitter using provided credentials."""
-    auth = tweepy.OAuth1UserHandler(
-        credentials['consumer_key'], credentials['consumer_secret'],
-        credentials['access_token'], credentials['access_token_secret']
-    )
-    api = tweepy.API(auth)
-    try:
-        api.update_status(content)
-        return "Posted to Twitter successfully."
-    except Exception as e:
-        return f"Error posting to Twitter: {e}"
-
-def send_email_gmail(subject: str, body: str, to: str, credentials: Dict[str, str]) -> str:
-    """Sends an email via Gmail API."""
-    service = build('gmail', 'v1', credentials=credentials)
-    message = {'raw': base64.urlsafe_b64encode(f'Subject: {subject}\nTo: {to}\n\n{body}'.encode()).decode()}
-    try:
-        service.users().messages().send(userId='me', body=message).execute()
-        return "Email sent successfully."
-    except Exception as e:
-        return f"Error sending email: {e}"
-
-def generate_content(prompt: str, type: str = 'text') -> str:
-    """Generates content using Gemini API. Type can be 'text', 'blog', 'code', 'image'."""
-    if type in ['text', 'blog', 'code']:
-        # Use Gemini API instead of OpenAI
-        try:
-            return gemini_generate(prompt)
-        except Exception as e:
-            return f"Error generating content with Gemini: {e}"
-    elif type == 'image':
-        # Placeholder for image generation
-        return "Image generation is not supported with current configuration."
-    elif type == 'video':
-        # Placeholder for video generation
-        return "Video generation is not supported with current configuration."
-    return "Unsupported content type."
-
-def call_api(url: str, method: str = 'GET', data: Dict = None, headers: Dict = None) -> str:
-    """Makes a dynamic API call."""
-    try:
-        response = requests.request(method, url, json=data, headers=headers)
-        return response.text
-    except Exception as e:
-        return f"API call error: {e}"
-
-def analyze_image(image_path: str) -> str:
-    """Analyzes an image using a placeholder (e.g., Vision API)."""
-    return "Image analysis: [placeholder result]"
-
-# def speech_to_text(audio_path: str) -> str:
-#     """Converts speech to text."""
-#     r = sr.Recognizer()
-#     with sr.AudioFile(audio_path) as source:
-#         audio = r.record(source)
-#     try:
-#         return r.recognize_google(audio)
-#     except:
-#         return "Could not understand audio."
-
-def text_to_speech(text: str, output_path: str) -> str:
-    """Converts text to speech."""
-    tts = gTTS(text)
-    tts.save(output_path)
-    return f"Audio saved to {output_path}"
-
-def load_plugin(plugin_path: str) -> str:
-    """Loads a custom plugin tool from a Python file."""
-    # Placeholder for dynamic import
-    return "Plugin loaded: [placeholder]"
-
-tool_registry.register(Tool("post_to_twitter", "Posts content to Twitter.", post_to_twitter))
-tool_registry.register(Tool("send_email_gmail", "Sends an email via Gmail.", send_email_gmail))
-tool_registry.register(Tool("generate_content", "Generates text or image content.", generate_content))
-tool_registry.register(Tool("call_api", "Makes dynamic API calls.", call_api))
-tool_registry.register(Tool("analyze_image", "Analyzes images.", analyze_image))
-# tool_registry.register(Tool("speech_to_text", "Converts speech to text.", speech_to_text))
-tool_registry.register(Tool("text_to_speech", "Converts text to speech.", text_to_speech))
-def scrape_and_analyze(url: str, analysis: str = 'summarize') -> str:
-    """Scrapes a website and performs analysis (summarize, extract_data, etc.)."""
-    try:
-        browser_id = open_browser(url)
+        # Open eBay
+        open_result = open_browser("https://www.ebay.com")
+        browser_id = open_result.split("ID: ")[1].split(".")[0]
+        
+        # Search for products
+        fill_form(browser_id, "input[id='gh-ac']", query)
+        click_button(browser_id, "input[id='gh-btn']")
+        
+        # Get results
+        time.sleep(1.5)  # Reduced from 3
         content = get_page_content(browser_id)
-        close_browser(browser_id)
-        soup = BeautifulSoup(content, 'html.parser')
-        clean_text = soup.get_text(separator=' ', strip=True)
-        if analysis == 'summarize':
-            prompt = f"Summarize the following content: {clean_text[:2000]}"
-            return gemini_generate(prompt)
-        elif analysis == 'extract_data':
-            prompt = f"Extract key data points from: {clean_text[:2000]}"
-            return gemini_generate(prompt)
-        return "Unsupported analysis type."
+        
+        # Extract product information (simplified)
+        products = []
+        lines = content.split('\n')
+        for i, line in enumerate(lines):
+            if '$' in line and 'bid' not in line.lower() and len(products) < max_results:
+                products.append(line.strip())
+        
+        return f"eBay search results for '{query}':\n" + "\n".join(products[:max_results])
+    
     except Exception as e:
-        return f"Error scraping and analyzing: {e}"
+        return f"Error searching eBay: {e}"
+    finally:
+        if browser_id:
+            close_browser(browser_id)
 
-def comment_on_twitter(tweet_id: str, comment: str, credentials: Dict[str, str]) -> str:
-    """Comments on a Twitter post."""
-    auth = tweepy.OAuth1UserHandler(credentials['consumer_key'], credentials['consumer_secret'], credentials['access_token'], credentials['access_token_secret'])
-    api = tweepy.API(auth)
+# --- File Operations ---
+def read_file(file_path: str) -> str:
+    """Read content from a file."""
     try:
-        api.update_status(status=comment, in_reply_to_status_id=tweet_id)
-        return "Commented on Twitter successfully."
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
     except Exception as e:
-        return f"Error commenting on Twitter: {e}"
+        raise Exception(f"Failed to read file: {e}")
 
-def send_dm_twitter(user_id: str, message: str, credentials: Dict[str, str]) -> str:
-    """Sends a direct message on Twitter."""
-    auth = tweepy.OAuth1UserHandler(credentials['consumer_key'], credentials['consumer_secret'], credentials['access_token'], credentials['access_token_secret'])
-    api = tweepy.API(auth)
+def write_file(file_path: str, content: str) -> str:
+    """Write content to a file."""
     try:
-        api.send_direct_message(recipient_id=user_id, text=message)
-        return "DM sent on Twitter successfully."
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(content)
+        return f"Successfully wrote to {file_path}"
     except Exception as e:
-        return f"Error sending DM on Twitter: {e}"
+        raise Exception(f"Failed to write file: {e}")
 
-def post_to_linkedin(content: str, credentials: Dict[str, str]) -> str:
-    """Posts to LinkedIn (placeholder using API)."""
-    # Requires LinkedIn API setup
-    return "Posted to LinkedIn successfully (placeholder)."
-
-tool_registry.register(Tool("comment_on_twitter", "Comments on a Twitter post.", comment_on_twitter))
-tool_registry.register(Tool("send_dm_twitter", "Sends DM on Twitter.", send_dm_twitter))
-def compare_prices(product: str) -> str:
-    """Compares prices of a product across Amazon, eBay, and Walmart using search."""
-    results = []
-    for site in ['amazon', 'ebay', 'walmart']:
-        query = f"site:{site}.com {product}"
-        search_result = search_web(query)
-        results.append(f"{site.capitalize()}: {search_result[:300]}")
-    return "\n".join(results)
-
-def add_to_cart_amazon(product_url: str) -> str:
-    """Adds a product to Amazon cart using browser automation."""
+# --- Cloud Operations ---
+def cloud_operation(operation: str, service: str, provider: str, params: Dict[str, Any], credentials: Dict[str, str]) -> str:
+    """Execute a cloud operation on the specified provider."""
     try:
-        browser_id = open_browser(product_url)
-        driver = browsers[browser_id]
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, 'add-to-cart-button'))).click()
-        close_browser(browser_id)
-        return "Added to Amazon cart successfully."
+        return handle_clouds(operation, service, provider, params, credentials)
     except Exception as e:
-        return f"Error adding to cart: {e}"
+        raise Exception(f"Cloud operation failed: {e}")
 
-tool_registry.register(Tool("compare_prices", "Compares product prices across sites.", compare_prices))
-def read_emails_gmail(max_results: int = 5) -> str:
-    """Reads recent emails from Gmail."""
+# --- Task Completion ---
+def finish_task(final_answer: str) -> str:
+    """Mark the current task as completed with the final result."""
+    return f"Task completed successfully. Final result: {final_answer}"
+
+# --- Email Tools ---
+def send_email(to_email: str, subject: str, body: str, smtp_server: str = "smtp.gmail.com", smtp_port: int = 587, username: str = "", password: str = "") -> str:
+    """Send an email."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
     try:
-        # Get credentials from environment or user settings
-        # This is a simplified implementation without the credentials parameter
-        return "This is a placeholder for reading emails from Gmail. In a real implementation, this would connect to Gmail API and fetch emails."
+        msg = MIMEMultipart()
+        msg['From'] = username
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(username, password)
+        text = msg.as_string()
+        server.sendmail(username, to_email, text)
+        server.quit()
+        
+        return f"Email sent successfully to {to_email}"
     except Exception as e:
-        return f"Error reading emails: {e}"
+        raise Exception(f"Failed to send email: {e}")
 
-def reply_email_gmail(message_id: str, body: str, credentials: Dict[str, str]) -> str:
-    """Replies to a Gmail email."""
-    service = build('gmail', 'v1', credentials=credentials)
+# --- Social Media Tools ---
+def post_to_twitter(content: str, api_key: str, api_secret: str, access_token: str, access_token_secret: str) -> str:
+    """Post content to Twitter."""
     try:
-        message = {'raw': base64.urlsafe_b64encode(body.encode()).decode(), 'threadId': message_id}
-        service.users().messages().send(userId='me', body=message).execute()
-        return "Replied to email successfully."
+        auth = tweepy.OAuthHandler(api_key, api_secret)
+        auth.set_access_token(access_token, access_token_secret)
+        api = tweepy.API(auth)
+        
+        api.update_status(content)
+        return "Tweet posted successfully"
     except Exception as e:
-        return f"Error replying to email: {e}"
+        raise Exception(f"Failed to post tweet: {e}")
 
-def send_email_outlook(subject: str, body: str, to: str, credentials: Dict[str, str]) -> str:
-    """Sends an email via Outlook (placeholder)."""
-    return "Email sent via Outlook successfully (placeholder)."
+# --- Tool Registry ---
+class Tool:
+    def __init__(self, name: str, description: str, func: Callable):
+        self.name = name
+        self.description = description
+        self.func = func
 
-tool_registry.register(Tool("read_emails_gmail", "Reads recent Gmail emails.", read_emails_gmail))
-tool_registry.register(Tool("reply_email_gmail", "Replies to a Gmail email.", reply_email_gmail))
-def secure_store_credential(key: str, value: str, encryption_key: str) -> str:
-    """Securely stores a credential using encryption."""
-    f = Fernet(encryption_key)
-    encrypted = f.encrypt(value.encode())
-    with open('credentials.pkl', 'ab') as file:
-        pickle.dump({key: encrypted}, file)
-    return "Credential stored securely."
+class ToolRegistry:
+    def __init__(self):
+        self.tools = {}
+    
+    def register(self, tool: Tool):
+        self.tools[tool.name] = tool
+    
+    def get_tool(self, name: str) -> Tool:
+        return self.tools.get(name)
+    
+    def get_all_tools_dict(self) -> Dict[str, str]:
+        return {name: tool.description for name, tool in self.tools.items()}
 
-def secure_get_credential(key: str, encryption_key: str) -> str:
-    """Retrieves and decrypts a stored credential."""
-    f = Fernet(encryption_key)
-    try:
-        with open('credentials.pkl', 'rb') as file:
-            while True:
-                try:
-                    data = pickle.load(file)
-                    if key in data:
-                        return f.decrypt(data[key]).decode()
-                except EOFError:
-                    break
-        return "Credential not found."
-    except Exception as e:
-        return f"Error retrieving credential: {e}"
+# Initialize tool registry
+tool_registry = ToolRegistry()
 
-tool_registry.register(Tool("secure_store_credential", "Stores credential securely.", secure_store_credential))
-def detect_language(text: str) -> str:
-    """Detects the language of the given text using Gemini."""
-    prompt = f"Detect the language of this text: {text}"
-    return gemini_generate(prompt).strip()
-
-def translate_text(text: str, target_lang: str) -> str:
-    """Translates text to the target language using Gemini."""
-    prompt = f"Translate this text to {target_lang}: {text}"
-    return gemini_generate(prompt)
-
-tool_registry.register(Tool("detect_language", "Detects text language.", detect_language))
-tool_registry.register(Tool("translate_text", "Translates text.", translate_text))
-tool_registry.register(Tool("secure_get_credential", "Retrieves secure credential.", secure_get_credential))
-tool_registry.register(Tool("send_email_outlook", "Sends email via Outlook.", send_email_outlook))
-tool_registry.register(Tool("add_to_cart_amazon", "Adds product to Amazon cart.", add_to_cart_amazon))
-tool_registry.register(Tool("post_to_linkedin", "Posts to LinkedIn.", post_to_linkedin))
-tool_registry.register(Tool("scrape_and_analyze", "Scrapes and analyzes web content.", scrape_and_analyze))
-tool_registry.register(Tool("load_plugin", "Loads custom plugins.", load_plugin))
-
-# Register form automation tools
-import form_automation
-tool_registry.register(Tool("select_dropdown_option", "Selects an option from a dropdown menu.", form_automation.select_dropdown_option))
-tool_registry.register(Tool("upload_file", "Uploads a file to a form.", form_automation.upload_file))
-tool_registry.register(Tool("wait_for_element", "Waits for an element to be present on the page.", form_automation.wait_for_element))
-tool_registry.register(Tool("check_checkbox", "Checks or unchecks a checkbox.", form_automation.check_checkbox))
+# Register all tools
+tool_registry.register(Tool("search_web", "Search the web using DuckDuckGo or Google", search_web))
+tool_registry.register(Tool("open_browser", "Open a browser window and navigate to a URL", open_browser))
+tool_registry.register(Tool("get_page_content", "Get the text content of the current page", get_page_content))
+tool_registry.register(Tool("fill_form", "Fill a single form field using CSS selector", fill_form))
+tool_registry.register(Tool("fill_multiple_fields", "Fill multiple form fields with enhanced retry logic", fill_multiple_fields))
+tool_registry.register(Tool("click_button", "Click a button using CSS selector", click_button))
+tool_registry.register(Tool("close_browser", "Close a browser window", close_browser))
+tool_registry.register(Tool("search_amazon_products", "Search for products on Amazon", search_amazon_products))
+tool_registry.register(Tool("search_ebay_products", "Search for products on eBay", search_ebay_products))
+tool_registry.register(Tool("read_file", "Read content from a file", read_file))
+tool_registry.register(Tool("write_file", "Write content to a file", write_file))
+tool_registry.register(Tool("cloud_operation", "Execute cloud operations", cloud_operation))
+tool_registry.register(Tool("finish_task", "Mark task as completed", finish_task))
+tool_registry.register(Tool("send_email", "Send an email", send_email))
+tool_registry.register(Tool("post_to_twitter", "Post content to Twitter", post_to_twitter))

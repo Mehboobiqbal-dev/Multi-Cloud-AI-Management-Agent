@@ -18,10 +18,11 @@ Output ONLY a valid JSON object. No other text, no explanations outside the JSON
  "action": {{"name": "tool_name", "params": {{}}}}}}
 
 For completion, use "finish_task" with {{"final_answer": "result"}}.
+For any browser-related tool (e.g., `get_page_content`, `fill_form`, `fill_multiple_fields`, `submit_form`, `close_browser`), always include the `browser_id` parameter, inferring it from previous `open_browser` actions in the history.
 Never use non-existent tools like 'ask_user'. Persist through errors and adapt autonomously.
 """
 
-def run_agent_loop(goal: str, max_loops: int = 15) -> Dict:
+def run_agent_loop(goal: str, max_loops: int = 30) -> Dict:
     history = []
     for i in range(max_loops):
         history_str = "\n".join([f"  - Step {h['step']}: I used '{h['action']['name']}' which resulted in: '{h['result']}'" for h in history]) if history else "  - No actions taken yet."

@@ -13,12 +13,15 @@ function Dashboard({ navigate }) {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    const wsConnection = websocketService.connect(null, token);
+    // Pass the token as a query parameter for WebSocket authentication
+    const wsUrl = `ws://${window.location.hostname}:8000/ws?token=${token}`;
+    websocketService.connect(wsUrl);
+
     const unsubscribe = websocketService.subscribe('agent_updates', (update) => {
       if (update.log) {
         setLogs(prevLogs => [...prevLogs, update.log]);
       }
-      if (update.status === 'complete' && update.data) {
+      if (update.status === 'complete' || update.status === 'error') {
         setResponse(update.data);
         setLoading(false);
       }
