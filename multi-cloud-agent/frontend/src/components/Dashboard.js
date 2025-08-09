@@ -12,7 +12,8 @@ function Dashboard({ navigate }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const wsConnection = websocketService.connect();
+    const token = localStorage.getItem('access_token');
+    const wsConnection = websocketService.connect(null, token);
     const unsubscribe = websocketService.subscribe('agent_updates', (update) => {
       if (update.log) {
         setLogs(prevLogs => [...prevLogs, update.log]);

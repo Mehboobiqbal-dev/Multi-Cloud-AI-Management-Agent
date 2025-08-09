@@ -1,7 +1,7 @@
 import json
 from typing import List, Dict, Any
 import google.generativeai as genai
-from config import settings
+from core.config import settings
 from fastapi import HTTPException
 
 def extract_intents(prompt: str) -> List[Dict[str, Any]]:

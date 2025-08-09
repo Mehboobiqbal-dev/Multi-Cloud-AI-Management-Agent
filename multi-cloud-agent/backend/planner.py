@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from config import settings
+from core.config import settings
 
 PLAN_RULES = {
     'cloud_operation': ['validate_credentials', 'check_quotas', 'execute_api_call'],

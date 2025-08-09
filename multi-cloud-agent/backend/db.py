@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from core.db import Base
 import logging
-from config import settings
+from core.config import settings
 from urllib.parse import urlparse
 
 # Determine driver to set appropriate connect_args

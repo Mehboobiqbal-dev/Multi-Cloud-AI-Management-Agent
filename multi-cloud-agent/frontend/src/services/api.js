@@ -75,9 +75,9 @@ const api = {
   saveCredentials(credData) {
     return apiClient.post('/credentials', credData);
   },
-  runAgent(goal) {
+  runAgent(user_input) {
     const run_id = Date.now().toString(); // Simple unique ID
-    return apiClient.post('/agent/run', { goal, run_id });
+    return apiClient.post('/agent/run', { user_input, run_id });
   },
   getHistory() {
     return apiClient.get('/history');
@@ -114,7 +114,7 @@ const api = {
       // Try to determine if we need to use a fallback URL
       if (!url) {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const apiHost = process.env.REACT_APP_API_URL || window.location.hostname + ':8000';
+        const apiHost = process.env.REACT_APP_API_URL || '127.0.0.1:8000';
         url = `${protocol}//${apiHost}/ws`;
       }
       

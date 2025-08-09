@@ -44,7 +44,9 @@ class Settings(BaseSettings):
     LLM_MODEL_NAME: str = os.environ.get("LLM_MODEL_NAME", "llama3-8b-8192")
     
     # Gemini settings (for backward compatibility)
-    GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY", "")
+    GEMINI_API_KEYS: str = os.environ.get("GEMINI_API_KEYS", "")
+    GEMINI_API_KEYS_LIST: List[str] = [k.strip() for k in GEMINI_API_KEYS.split(",") if k.strip()]
+    GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEYS_LIST[0] if GEMINI_API_KEYS_LIST else "")
     GEMINI_MODEL_NAME: str = os.environ.get("GEMINI_MODEL_NAME", "gemini-1.5-pro")
     
     # Rate limiting

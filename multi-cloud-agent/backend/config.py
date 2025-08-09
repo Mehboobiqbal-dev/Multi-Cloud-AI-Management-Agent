@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 import os
 from dotenv import load_dotenv
+from typing import List
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,8 +14,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = os.environ.get("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: str = os.environ.get("GOOGLE_CLIENT_SECRET", "")
     FORCE_HTTPS: bool = os.environ.get("FORCE_HTTPS", "false").lower() == "true"
-    GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
-    GEMINI_MODEL_NAME: str = "gemini-1.5-pro"
+    # Gemini settings are managed in core/config.py
     FERNET_KEY: str = os.environ.get("FERNET_KEY", "")
     LLM_API_KEY: str = os.environ.get("LLM_API_KEY", "")
     LLM_MODEL_NAME: str = os.environ.get("LLM_MODEL_NAME", "")
@@ -40,7 +40,7 @@ if os.environ.get("ENVIRONMENT", "development") == "production":
         ("SESSION_SECRET", settings.SESSION_SECRET),
         ("GOOGLE_CLIENT_ID", settings.GOOGLE_CLIENT_ID),
         ("GOOGLE_CLIENT_SECRET", settings.GOOGLE_CLIENT_SECRET),
-        ("GEMINI_API_KEY", settings.GEMINI_API_KEY)
+        # ("GEMINI_API_KEY", settings.GEMINI_API_KEY)
     ]:
         if not var_value:
             raise RuntimeError(f"A required environment variable is missing: {var_name}")

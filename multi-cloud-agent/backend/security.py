@@ -1,5 +1,5 @@
 from cryptography.fernet import Fernet
-from config import settings
+from core.config import settings
 
 FERNET_KEY = settings.FERNET_KEY
 if not FERNET_KEY:

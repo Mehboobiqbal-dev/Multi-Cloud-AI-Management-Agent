@@ -72,10 +72,31 @@ def open_browser(url: str) -> str:
     try:
         browser_id = f"browser_{len(browsers)}"
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+        options.add_argument("--log-level=3")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--mute-audio")
+        options.add_argument("--metrics-recording-only")
+        options.add_argument("--disable-notifications")
+        options.add_argument("--disable-cloud-import")
+        options.add_argument("--disable-sync")
+        options.add_argument("--disable-client-side-phishing-detection")
+        options.add_argument("--disable-background-networking")
+        options.add_argument("--disable-background-timer-throttling")
+        options.add_argument("--disable-backgrounding-occluded-windows")
+        options.add_argument("--disable-component-update")
+        options.add_argument("--disable-default-apps")
+        options.add_argument("--no-first-run")
+        options.add_argument("--no-default-browser-check")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--guest")
+        options.add_argument("--disable-speech-api")
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
         driver = webdriver.Chrome(options=options)
         driver.get(url)
         browsers[browser_id] = driver
@@ -131,7 +152,6 @@ def click_button(browser_id: str, selector: str) -> str:
         driver = browsers[browser_id]
         element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
         element.click()
-        time.sleep(2) # Wait for potential page load
         return f"Clicked button with selector '{selector}' successfully. Current URL is now {driver.current_url}"
     except Exception as e:
         raise Exception(f"Failed to click button '{selector}': {e}")
@@ -234,7 +254,6 @@ tool_registry.register(Tool("close_browser", "Closes a specific browser window b
 tool_registry.register(Tool("read_file", "Reads the contents of a local file.", read_file))
 tool_registry.register(Tool("write_file", "Writes content to a local file.", write_file))
 tool_registry.register(Tool("cloud_operation", "Executes a cloud operation (list, create, delete) on AWS, Azure, or GCP.", cloud_operation))
-tool_registry.register(Tool("ask_user", "Asks the user for clarification when information is missing.", user_interaction))
 tool_registry.register(Tool("finish_task", "Signals that the agent has completed the goal and provides the final answer.", finish_task))
 
 def post_to_twitter(content: str, credentials: Dict[str, str]) -> str:

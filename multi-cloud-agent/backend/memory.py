@@ -4,7 +4,7 @@ from typing import List, Tuple, Dict, Any
 # from annoy import AnnoyIndex
 import google.generativeai as genai
 import json
-from config import settings
+from core.config import settings
 
 # Configure the generative AI model with the API key from settings
 if settings.GEMINI_API_KEY:

@@ -2,7 +2,7 @@ import os
 import requests
 import logging
 from fastapi import HTTPException
-from config import settings
+from core.config import settings
 
 # Fetch the API key and model name from settings or environment variables
 API_KEY = settings.LLM_API_KEY or os.getenv("LLM_API_KEY")

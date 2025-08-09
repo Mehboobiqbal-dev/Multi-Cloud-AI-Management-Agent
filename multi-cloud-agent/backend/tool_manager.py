@@ -41,7 +41,7 @@ class ToolManager:
                         if dep not in loaded:
                             load_recursive(dep)
             except Exception as e:
-                print(f"Tool loading failed for {tool_name}: {e}")
+                logging.error(f"Tool loading failed for {tool_name}: {e}")
         return tools
 
     def get_tools(self):

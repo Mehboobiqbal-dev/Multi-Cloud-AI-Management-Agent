@@ -4,9 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from config import settings
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from core.config import settings
 
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -20,11 +18,13 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 from passlib.context import CryptContext
 
+import time
 from core.db import SessionLocal, Base
-from db import init_db
+from core.db import init_db
 from models import User, CloudCredential, PlanHistory
 from security import encrypt_text as encrypt, decrypt_text as decrypt
-from groq import generate_text
+from openai import OpenAI
+
 from audit import log_audit
 from tools import tool_registry, browsers
 from self_learning import SelfLearningCore
@@ -41,6 +41,7 @@ import ecommerce
 import email_messaging
 import form_automation
 import gemini
+import groq
 import intent_extractor
 import knowledge_base
 import memory
@@ -54,8 +55,7 @@ import social_media
 import universal_assistant
 import json
 import re
-import re
-from fastapi.middleware.cors import CORSMiddleware
+
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -67,37 +67,9 @@ from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 from fastapi import WebSocket, WebSocketDisconnect
 
-app = FastAPI()
 core = SelfLearningCore()
 
-# CORS and HTTPS enforcement - ULTRA PERMISSIVE FOR NOW
-origins = [
-    "http://localhost:52828",  # Frontend development server
-    "http://localhost:8000",   # Backend development server
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
-    expose_headers=["Content-Type", "Authorization"],
-)
-
-app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
-
-
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await websocket.send_text(f"Message text was: {data}")
-    except WebSocketDisconnect:
-        print("Client disconnected")
+from fastapi.middleware.cors import CORSMiddleware
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -106,26 +78,37 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # Configure logging for production
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-@app.exception_handler(Exception)
-def global_exception_handler(request: Request, exc: Exception):
-    logging.error(f"Unhandled error during request to {request.url}: {exc}", exc_info=True)
-    return JSONResponse(status_code=500, content={"detail": "An internal server error occurred."})
-
-@app.exception_handler(RequestValidationError)
-def validation_exception_handler(request: Request, exc: RequestValidationError):
-    logging.warning(f"Validation error for request {request.url}: {exc.errors()}")
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
-
-@app.on_event("startup")
-async def startup_event():
-    print(f"Python executable: {sys.executable}")
-    print(f"sys.path: {sys.path}")
+async def lifespan(app: FastAPI):
     try:
         init_db()
         logging.info("Database initialized successfully.")
     except Exception as e:
         logging.error(f"Fatal error during database initialization: {e}", exc_info=True)
         raise
+    yield
+
+app = FastAPI(lifespan=lifespan)
+
+# Add CORS middleware first
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logging.error(f"Unhandled error during request to {request.url}: {exc}", exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "An internal server error occurred."})
+
+@app.exception_handler(FastAPIRequestValidationError)
+async def validation_exception_handler(request: Request, exc: FastAPIRequestValidationError):
+    logging.warning(f"Validation error for request {request.url}: {exc.errors()}")
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
 
 oauth = OAuth()
 oauth.register(
@@ -242,7 +225,43 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
+async def get_current_user_from_ws(
+    websocket: WebSocket,
+    db: Session = Depends(get_db)
+) -> schemas.User:
+    token = websocket.query_params.get("token")
+    if token is None:
+        raise WebSocketDisconnect(code=status.WS_1008_POLICY_VIOLATION, reason="Missing token")
+
+    try:
+        # The token from the query parameter might be prefixed with "Bearer ", remove it
+        if token.startswith("Bearer "):
+            token = token.split(" ")[1]
+            
+        payload = jwt.decode(token, settings.SESSION_SECRET, algorithms=[settings.ALGORITHM])
+        user_id: int = payload.get("user_id")
+        if user_id is None:
+            raise WebSocketDisconnect(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token")
+    except JWTError:
+        raise WebSocketDisconnect(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid token")
+        
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise WebSocketDisconnect(code=status.WS_1008_POLICY_VIOLATION, reason="User not found")
+    return user
+
 # Register universal assistant routes after get_current_user is defined to avoid NameError
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket, user: schemas.User = Depends(get_current_user_from_ws)):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"Message text was: {data}")
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
 app.include_router(universal_assistant.router, prefix="/assistant", tags=["assistant"], dependencies=[Depends(get_current_user)])
 
 @app.get('/me', response_model=schemas.User)
@@ -605,35 +624,57 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error executing tool: {str(e)}")
 
+def generate_text(prompt: str) -> str:
+    # Try Gemini first with its internal API key failover
+    try:
+        return gemini.generate_text(prompt)
+    except HTTPException as e:
+        # If Gemini fails due to quota or other issues, try Groq as a fallback
+        logging.warning(f"Gemini generation failed: {e.detail}. Falling back to Groq.")
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                return groq.generate_text(prompt)
+            except HTTPException as groq_e:
+                if groq_e.status_code == 429 and attempt < max_retries - 1:
+                    logging.warning(f"Groq 429 on attempt {attempt+1}, retrying immediately")
+                else:
+                    logging.error(f"Groq generation also failed: {groq_e}")
+                    raise HTTPException(status_code=500, detail=f"All LLM providers failed: {str(groq_e)}")
+    except Exception as e:
+        logging.error(f"An unexpected error occurred with Gemini: {e}")
+        raise HTTPException(status_code=500, detail=f"An unexpected LLM error occurred: {e}")
+
 @app.post('/agent/run', response_model=schemas.AgentRunResponse, tags=["Agent"])
 @limiter.limit("5/minute")
 async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user: schemas.User = Depends(get_current_user)):
     core.log_action('agent_run', {'user_input': agent_req.user_input})
     try:
         goal = agent_req.user_input
-        max_loops = 15
+        max_loops = 3
         history = []
 
         # Define the agent loop prompt template
         AGENT_LOOP_PROMPT = """
-        You are an autonomous AI agent working to achieve a goal. Think step by step about what to do next.
+        You are a highly intelligent, self-sufficient AI agent capable of performing any task on the internet autonomously without needing user input. Always think step by step and persist until the goal is achieved. If the goal is null, unclear, or not provided, infer from history or default to useful autonomous tasks like searching the web for trending topics, analyzing information, or performing exploratory actions independently. Never attempt to ask the user for clarification; instead, make reasonable assumptions or choose a default goal.
         
         GOAL: {goal}
         
-        HISTORY OF ACTIONS AND RESULTS:
-        {history}
+        HISTORY: {history}
         
-        AVAILABLE TOOLS:
-        {tools}
+        TOOLS: {tools}
         
-        Think carefully about what to do next. First explain your thought process, then choose ONE tool to use.
+        Output ONLY a valid JSON object. No other text, no explanations outside the JSON. The JSON must have exactly:
+        {{
+            "thought": "Your reasoning",
+            "action": {{
+                "name": "tool_name",
+                "params": {{}}
+            }}
+        }}
         
-        Return a JSON object with two keys:
-        1. "thought": Your reasoning about what to do next
-        2. "action": An object with "name" (tool name) and "params" (parameters for the tool)
-        
-        If you believe the task is complete, use the "finish_task" tool with your final answer.
-        If you need user input, use the "ask_user" tool with your question.
+        For completion, use "finish_task" with {{"final_answer": "result"}}.
+        Never use non-existent tools like 'ask_user'. Persist through errors and adapt autonomously.
         """
     
         for i in range(max_loops):
@@ -652,31 +693,15 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                 response_text = generate_text(prompt)
                 logging.info(f"Agent LLM Response: {response_text}")
                 # Extract JSON from the response
-                json_match = re.search(r'```(?:json)?\n(.*?)\n```', response_text, re.DOTALL)
-                json_str = ""
+                import re
+                json_match = re.search(r'```json\n([\s\S]*?)\n```', response_text)
                 if json_match:
-                    json_str = json_match.group(1).strip()
-                
-                decision_data = {}
-                try:
-                    decision_data = json.loads(json_str) if json_str else json.loads(response_text)
-                except json.JSONDecodeError:
-                    # Fallback if the extracted JSON is still invalid or if no markdown block was found
-                    # Attempt to find the first JSON-like structure in the response_text
-                    try:
-                        # This is a more aggressive attempt to find JSON, assuming it might be at the start or end
-                        # or embedded without proper markdown fencing.
-                        # This might need further refinement based on actual LLM output patterns.
-                        start_idx = response_text.find('{')
-                        end_idx = response_text.rfind('}')
-                        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-                            json_candidate = response_text[start_idx : end_idx + 1]
-                            decision_data = json.loads(json_candidate)
-                        else:
-                            raise ValueError("No JSON-like structure found.")
-                    except (json.JSONDecodeError, ValueError) as inner_e:
-                        logging.error(f"Failed aggressive JSON parsing. Error: {inner_e}")
-                        raise json.JSONDecodeError("Could not decode JSON from response", response_text, 0)
+                    json_string = json_match.group(1)
+                    decision_data = json.loads(json_string)
+                else:
+                    # Fallback if no JSON block is found, try to parse the whole response
+                    # This might still fail if the response is not pure JSON
+                    decision_data = json.loads(response_text)
 
                 thought = decision_data.get("thought", "No thought provided.")
                 action_data = decision_data.get("action", {})
@@ -719,9 +744,7 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             if action_name == "finish_task":
                 logging.info(f"Agent finished goal: '{goal}'")
                 return schemas.AgentRunResponse(status="success", message="Agent completed the goal.", history=history, final_result=result)
-            if action_name == "ask_user":
-                 logging.info(f"Agent requires user input for goal: '{goal}'")
-                 return schemas.AgentRunResponse(status="requires_input", message="Agent requires user input.", history=history, final_result=result)
+            
 
         logging.warning(f"Agent reached max loops for goal: '{goal}'")
         core.post_task_review(goal, False, {'loops': max_loops})

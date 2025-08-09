@@ -1,10 +1,10 @@
 import google.generativeai as genai
-from config import settings
+from core.config import settings
 import logging
 from fastapi import HTTPException
 from google.api_core.exceptions import ResourceExhausted
-
-genai.configure(api_key=settings.GEMINI_API_KEY)
+from typing import List
+import google.generativeai as genai
 
 # Generation Config
 generation_config = {
@@ -22,30 +22,37 @@ safety_settings = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
 ]
 
-# Initialize the models
-model = genai.GenerativeModel(
-    model_name=settings.GEMINI_MODEL_NAME,
-    generation_config=generation_config,
-    safety_settings=safety_settings
-)
-
-vision_model = genai.GenerativeModel('gemini-pro-vision')
+# No global configuration; will configure per call in functions
 
 def generate_text(prompt: str) -> str:
     """
-    Generates text using the Gemini Pro model.
+    Generates text using the Gemini Pro model with API key failover.
     """
-    logging.info("Attempting to generate text with Gemini Pro model.")
-    try:
-        response = model.generate_content(prompt)
-        logging.info("Successfully generated text from Gemini.")
-        return response.text
-    except ResourceExhausted as e:
-        logging.warning(f"Gemini quota exceeded: {e}", exc_info=True)
-        raise HTTPException(status_code=429, detail="Gemini API quota exceeded. Please wait and try again later.")
-    except Exception as e:
-        logging.error(f"Error generating text: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
+    api_keys = settings.GEMINI_API_KEYS if settings.GEMINI_API_KEYS else [settings.GEMINI_API_KEY]
+    if not api_keys:
+        raise HTTPException(status_code=500, detail="No Gemini API keys configured.")
+
+    for key in api_keys:
+        try:
+            genai.configure(api_key=key)
+            model = genai.GenerativeModel(
+                model_name=settings.GEMINI_MODEL_NAME,
+                generation_config=generation_config,
+                safety_settings=safety_settings
+            )
+            response = model.generate_content(prompt)
+            logging.info(f"Successfully generated text using key: {key[:10]}...")
+            return response.text
+        except ResourceExhausted as e:
+            logging.warning(f"Gemini quota exceeded for key {key[:10]}...: {e}")
+            continue
+        except Exception as e:
+            logging.error(f"Error generating text with key {key[:10]}...: {e}")
+            raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
+
+    raise HTTPException(status_code=429, detail="All Gemini API keys have exceeded quota. Please try again later.")
+
+vision_model = genai.GenerativeModel('gemini-pro-vision')
 
 def generate_text_with_image(prompt: str, image_path: str) -> str:
     """

@@ -5,18 +5,20 @@ from tools import tool_registry
 from groq import generate_text
 
 AGENT_LOOP_PROMPT = """
-You are an autonomous AI agent. Your goal is: {goal}
+You are a highly intelligent, self-sufficient AI agent capable of performing any task on the internet autonomously without needing user input. Always think step by step and persist until the goal is achieved. If the goal is null, unclear, or not provided, infer from history or default to useful autonomous tasks like searching the web for trending topics, analyzing information, or performing exploratory actions independently. Never attempt to ask the user for clarification; instead, make reasonable assumptions or choose a default goal.
 
-Past actions and results:
-{history}
+GOAL: {goal}
 
-Available tools:
-{tools}
+HISTORY: {history}
 
-Think step-by-step. Output a JSON object with:
-- "thought": Your reasoning.
-- "action": {{"name": tool_name, "params": {}}}
-Or to finish: {{"name": "finish_task", "params": {"final_answer": "..."}}}
+TOOLS: {tools}
+
+Output ONLY a valid JSON object. No other text, no explanations outside the JSON. The JSON must have exactly:
+{{"thought": "Your reasoning",
+ "action": {{"name": "tool_name", "params": {{}}}}}}
+
+For completion, use "finish_task" with {{"final_answer": "result"}}.
+Never use non-existent tools like 'ask_user'. Persist through errors and adapt autonomously.
 """
 
 def run_agent_loop(goal: str, max_loops: int = 15) -> Dict:
@@ -56,7 +58,6 @@ def run_agent_loop(goal: str, max_loops: int = 15) -> Dict:
 
         if action_name == "finish_task":
             return {"status": "success", "message": "Agent completed the goal.", "history": history, "final_result": result}
-        if action_name == "ask_user":
-            return {"status": "requires_input", "message": "Agent requires user input.", "history": history, "final_result": result}
+        
 
     return {"status": "error", "message": "Agent reached maximum loops without finishing the goal.", "history": history, "final_result": None}

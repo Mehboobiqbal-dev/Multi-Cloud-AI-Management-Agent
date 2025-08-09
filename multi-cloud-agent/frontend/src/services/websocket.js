@@ -12,9 +12,10 @@ class WebSocketService {
     this.url = null;
   }
 
-  connect(url) {
+  connect(url, token) {
+    let finalUrl = url;
     // If no URL is provided, use the default backend WebSocket URL
-    if (!url) {
+    if (!finalUrl) {
       // Determine the WebSocket URL based on the current environment
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       // Use the API URL from environment or fallback to current host with port 8000
@@ -23,10 +24,20 @@ class WebSocketService {
       if (process.env.NODE_ENV !== 'production') {
         wsUrl = `${protocol}//${window.location.hostname}:8000/ws`;
       }
-      url = wsUrl;
+      finalUrl = wsUrl;
+    }
+
+    const authToken = token || localStorage.getItem('access_token');
+    if (authToken) {
+      // Ensure we are appending query params correctly
+      if (finalUrl.includes('?')) {
+        finalUrl += `&token=${authToken}`;
+      } else {
+        finalUrl += `?token=${authToken}`;
+      }
     }
     
-    this.url = url;
+    this.url = finalUrl;
     
     // Close existing connection if any
     if (this.socket) {
@@ -34,20 +45,7 @@ class WebSocketService {
     }
 
     try {
-      // Add a try-catch block specifically for WebSocket creation
-      try {
-        this.socket = new WebSocket(url);
-      } catch (wsError) {
-        console.warn('WebSocket creation failed:', wsError.message);
-        // Fallback to a different port if the initial connection fails
-        if (url.includes(':8000')) {
-          const fallbackUrl = url.replace(':8000', ':52828');
-          console.log('Attempting fallback WebSocket connection to:', fallbackUrl);
-          this.socket = new WebSocket(fallbackUrl);
-        } else {
-          throw wsError; // Re-throw if not using the default port
-        }
-      }
+      this.socket = new WebSocket(this.url);
 
       this.socket.onopen = () => {
         console.log('WebSocket connection established');
