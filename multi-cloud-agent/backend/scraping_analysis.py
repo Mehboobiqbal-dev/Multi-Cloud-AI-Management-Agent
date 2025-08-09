@@ -1,6 +1,16 @@
 from bs4 import BeautifulSoup
-from browsing import open_browser, get_page_content, close_browser
+from browsing import open_browser, get_page_content, close_browser, browsers
 from gemini import generate_text as gemini_generate
+import requests
+import re
+import json
+from typing import Dict, List, Any, Optional, Union
+import time
+from datetime import datetime
+import lxml.html
+from lxml import etree
+import csv
+import os
 
 def scrape_and_analyze(url: str, analysis: str = 'summarize') -> str:
     """Scrapes a website and performs analysis (summarize, extract_data, etc.)."""

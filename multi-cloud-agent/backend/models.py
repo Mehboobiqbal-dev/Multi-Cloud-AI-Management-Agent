@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -9,9 +9,13 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String)
-    hashed_password = Column(String)
-    google_id = Column(String, unique=True, index=True)
+    name = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=True)  # Nullable for OAuth users
+    google_id = Column(String, unique=True, index=True, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_superuser = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     credentials = relationship('CloudCredential', back_populates='user')
     audit_logs = relationship('AuditLog', back_populates='user')
     plan_histories = relationship('PlanHistory', back_populates='user')

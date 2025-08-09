@@ -1,32 +1,26 @@
 from cryptography.fernet import Fernet
-import pickle
-from typing import Dict, Optional
+from config import settings
 
-# Generate a key for encryption (in production, store securely)
-key = Fernet.generate_key()
-fernet = Fernet(key)
+FERNET_KEY = settings.FERNET_KEY
+if not FERNET_KEY:
+    # In case the key is not in settings, generate a temporary one for development.
+    # This should not happen if the .env file is set up correctly.
+    print("Warning: FERNET_KEY not found in settings. Using a temporary key.")
+    FERNET_KEY = Fernet.generate_key().decode()
 
-def secure_store_credential(key: str, value: str) -> str:
-    """Securely stores a credential using encryption."""
-    encrypted = fernet.encrypt(value.encode())
-    with open('credentials.pkl', 'ab') as file:
-        pickle.dump({key: encrypted}, file)
-    return "Credential stored securely."
+fernet = Fernet(FERNET_KEY.encode())
 
-def secure_get_credential(key: str) -> Optional[str]:
-    """Retrieves and decrypts a stored credential."""
-    try:
-        with open('credentials.pkl', 'rb') as file:
-            while True:
-                try:
-                    data = pickle.load(file)
-                    if key in data:
-                        return fernet.decrypt(data[key]).decode()
-                except EOFError:
-                    break
-        return None
-    except Exception as e:
-        raise Exception(f"Error retrieving credential: {e}")
+def encrypt_text(text: str) -> str:
+    """Encrypts a string."""
+    if not text:
+        return ''
+    return fernet.encrypt(text.encode()).decode()
+
+def decrypt_text(token: str) -> str:
+    """Decrypts a token."""
+    if not token:
+        return ''
+    return fernet.decrypt(token.encode()).decode()
 
 def sandbox_execute(code: str) -> str:
     """Executes code in a sandboxed environment (placeholder)."""

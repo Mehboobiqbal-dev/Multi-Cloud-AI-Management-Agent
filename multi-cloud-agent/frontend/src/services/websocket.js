@@ -18,8 +18,12 @@ class WebSocketService {
       // Determine the WebSocket URL based on the current environment
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       // Use the API URL from environment or fallback to current host with port 8000
-      const apiHost = process.env.REACT_APP_API_URL || window.location.hostname + ':8000';
-      url = `${protocol}//${apiHost}/ws`;
+      const apiHost = process.env.REACT_APP_API_URL || window.location.host;
+      let wsUrl = `${protocol}//${apiHost}/ws`;
+      if (process.env.NODE_ENV !== 'production') {
+        wsUrl = `${protocol}//${window.location.hostname}:8000/ws`;
+      }
+      url = wsUrl;
     }
     
     this.url = url;

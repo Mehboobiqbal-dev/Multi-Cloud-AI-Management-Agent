@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-from models import Base
+from core.db import Base
 import logging
 from config import settings
 from urllib.parse import urlparse

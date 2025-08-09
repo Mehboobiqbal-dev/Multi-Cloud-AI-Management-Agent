@@ -20,9 +20,10 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 from passlib.context import CryptContext
 
-from db import SessionLocal, init_db
+from core.db import SessionLocal, Base
+from db import init_db
 from models import User, CloudCredential, PlanHistory
-from secure import encrypt, decrypt
+from security import encrypt_text as encrypt, decrypt_text as decrypt
 from groq import generate_text
 from audit import log_audit
 from tools import tool_registry, browsers
@@ -30,7 +31,8 @@ from self_learning import SelfLearningCore
 import api_integration
 import autonomy
 import browsing
-import clear_users
+# Import clear_users module but don't execute code
+from clear_users import clear_all_users
 import cli
 import cloud_handlers
 import content_creation
@@ -48,8 +50,10 @@ import planner
 import scraping_analysis
 import security
 import social_media
-import voice_control
+# import voice_control
+import universal_assistant
 import json
+import re
 import re
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -61,24 +65,39 @@ import logging
 from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
+from fastapi import WebSocket, WebSocketDisconnect
 
 app = FastAPI()
 core = SelfLearningCore()
 
 # CORS and HTTPS enforcement - ULTRA PERMISSIVE FOR NOW
-import os
-origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")  # Configure via env, e.g., https://your-vercel-app.vercel.app
+origins = [
+    "http://localhost:52828",  # Frontend development server
+    "http://localhost:8000",   # Backend development server
+]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"],
+    allow_headers=["Content-Type", "Authorization"],
+    expose_headers=["Content-Type", "Authorization"],
 )
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
+
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"Message text was: {data}")
+    except WebSocketDisconnect:
+        print("Client disconnected")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -99,6 +118,8 @@ def validation_exception_handler(request: Request, exc: RequestValidationError):
 
 @app.on_event("startup")
 async def startup_event():
+    print(f"Python executable: {sys.executable}")
+    print(f"sys.path: {sys.path}")
     try:
         init_db()
         logging.info("Database initialized successfully.")
@@ -151,9 +172,9 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 @app.post("/token")
-async def login_for_access_token(login_data: schemas.LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == login_data.username).first()
-    if not user or not verify_password(login_data.password, user.hashed_password):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -221,17 +242,20 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
+# Register universal assistant routes after get_current_user is defined to avoid NameError
+app.include_router(universal_assistant.router, prefix="/assistant", tags=["assistant"], dependencies=[Depends(get_current_user)])
+
 @app.get('/me', response_model=schemas.User)
 async def me(user: schemas.User = Depends(get_current_user)):
     return user
 
-@app.get('/credentials', response_model=List[schemas.Credential])
+@app.get('/credentials', response_model=List[schemas.CloudCredential])
 async def get_credentials(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     creds = db.query(CloudCredential).filter_by(user_id=user.id).all()
     return creds
 
-@app.post('/credentials', response_model=schemas.Credential)
-async def save_credentials(cred_data: schemas.CredentialCreate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+@app.post('/credentials', response_model=schemas.CloudCredential)
+async def save_credentials(cred_data: schemas.CloudCredentialCreate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     cred = db.query(CloudCredential).filter_by(user_id=user.id, provider=cred_data.provider).first()
     if not cred:
         cred = CloudCredential(user_id=user.id, provider=cred_data.provider)
@@ -258,6 +282,7 @@ async def prompt(request: Request, prompt_req: schemas.PromptRequest, user: sche
     logging.info(f"Received prompt from user {user.id}: '{prompt_text}'")
     
     try:
+        memory_instance = memory.get_memory_instance()
         retrieved_docs_tuples = memory_instance.search(prompt_text, k=3)
         context_parts = []
         for _, doc in retrieved_docs_tuples:
@@ -469,6 +494,93 @@ async def feedback(feedback_req: schemas.FeedbackRequest, user: schemas.User = D
 def healthz():
     return {"status": "ok"}
 
+@app.post('/form/apply_job_upwork')
+async def api_apply_job_upwork(request: schemas.UpworkJobRequest, user: schemas.User = Depends(get_current_user)):
+    try:
+        result = form_automation.apply_job_upwork(
+            request.browser_id,
+            request.job_url,
+            request.cover_letter,
+            request.profile_name
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error applying for Upwork job: {str(e)}")
+
+@app.post('/form/apply_job_fiverr')
+async def api_apply_job_fiverr(request: schemas.FiverrJobRequest, user: schemas.User = Depends(get_current_user)):
+    try:
+        result = form_automation.apply_job_fiverr(
+            request.browser_id,
+            request.buyer_request_url,
+            request.proposal,
+            request.price,
+            request.profile_name
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error applying for Fiverr job: {str(e)}")
+
+@app.post('/form/apply_job_linkedin')
+async def api_apply_job_linkedin(request: schemas.LinkedInJobRequest, user: schemas.User = Depends(get_current_user)):
+    try:
+        result = form_automation.apply_job_linkedin(
+            request.browser_id,
+            request.job_url,
+            request.resume_path,
+            request.cover_letter,
+            request.phone,
+            request.profile_name
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error applying for LinkedIn job: {str(e)}")
+
+@app.post('/form/batch_apply_jobs')
+async def api_batch_apply_jobs(request: schemas.BatchJobRequest, user: schemas.User = Depends(get_current_user)):
+    try:
+        result = form_automation.create_job_application_batch(
+            request.job_urls,
+            request.platform,
+            request.browser_id,
+            request.profile_name,
+            **request.additional_params
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in batch job application: {str(e)}")
+
+@app.post('/form/automate_registration')
+async def api_automate_registration(request: schemas.RegistrationRequest, user: schemas.User = Depends(get_current_user)):
+    try:
+        result = form_automation.automate_registration(
+            request.browser_id,
+            request.url,
+            request.form_data,
+            request.submit_selector,
+            request.success_indicator
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error automating registration: {str(e)}")
+
+@app.post('/form/automate_login')
+async def api_automate_login(request: schemas.LoginAutomationRequest, user: schemas.User = Depends(get_current_user)):
+    try:
+        result = form_automation.automate_login(
+            request.browser_id,
+            request.url,
+            request.username_selector,
+            request.username,
+            request.password_selector,
+            request.password,
+            request.submit_selector,
+            request.success_indicator
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error automating login: {str(e)}")
+
 @app.post('/call_tool')
 async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     tool_name = tool_req.tool_name
@@ -477,7 +589,8 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
     if not tool:
         raise HTTPException(status_code=404, detail=f"Tool '{tool_name}' not found.")
     try:
-        if tool_name in ['open_browser', 'get_page_content', 'fill_form', 'fill_multiple_fields', 'click_button', 'close_browser', 'search_web']:
+        if tool_name in ['open_browser', 'get_page_content', 'fill_form', 'fill_multiple_fields', 'click_button', 'close_browser', 'search_web',
+                        'select_dropdown_option', 'upload_file', 'wait_for_element', 'check_checkbox']:
             result = tool.func(**params)
         else:
             creds = db.query(CloudCredential).filter_by(user_id=user.id).all()
@@ -495,18 +608,40 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
 @app.post('/agent/run', response_model=schemas.AgentRunResponse, tags=["Agent"])
 @limiter.limit("5/minute")
 async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user: schemas.User = Depends(get_current_user)):
-    core.log_action('agent_run', {'goal': agent_req.goal})
+    core.log_action('agent_run', {'user_input': agent_req.user_input})
     try:
-        goal = agent_req.goal
+        goal = agent_req.user_input
         max_loops = 15
         history = []
 
+        # Define the agent loop prompt template
+        AGENT_LOOP_PROMPT = """
+        You are an autonomous AI agent working to achieve a goal. Think step by step about what to do next.
+        
+        GOAL: {goal}
+        
+        HISTORY OF ACTIONS AND RESULTS:
+        {history}
+        
+        AVAILABLE TOOLS:
+        {tools}
+        
+        Think carefully about what to do next. First explain your thought process, then choose ONE tool to use.
+        
+        Return a JSON object with two keys:
+        1. "thought": Your reasoning about what to do next
+        2. "action": An object with "name" (tool name) and "params" (parameters for the tool)
+        
+        If you believe the task is complete, use the "finish_task" tool with your final answer.
+        If you need user input, use the "ask_user" tool with your question.
+        """
     
         for i in range(max_loops):
             logging.info(f"--- Agent Loop {i+1} for goal: '{goal}' ---")
             
             # 1. THINK and CHOOSE NEXT ACTION
             history_str = "\n".join([f"  - Step {h['step']}: I used '{h['action']['name']}' which resulted in: '{h['result']}'" for h in history]) if history else "  - No actions taken yet."
+            thought = "No thought recorded due to an error."
             prompt = AGENT_LOOP_PROMPT.format(
                 goal=goal,
                 history=history_str,
@@ -516,14 +651,40 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             try:
                 response_text = generate_text(prompt)
                 logging.info(f"Agent LLM Response: {response_text}")
-                decision_data = json.loads(response_text)
+                # Extract JSON from the response
+                json_match = re.search(r'```(?:json)?\n(.*?)\n```', response_text, re.DOTALL)
+                json_str = ""
+                if json_match:
+                    json_str = json_match.group(1).strip()
+                
+                decision_data = {}
+                try:
+                    decision_data = json.loads(json_str) if json_str else json.loads(response_text)
+                except json.JSONDecodeError:
+                    # Fallback if the extracted JSON is still invalid or if no markdown block was found
+                    # Attempt to find the first JSON-like structure in the response_text
+                    try:
+                        # This is a more aggressive attempt to find JSON, assuming it might be at the start or end
+                        # or embedded without proper markdown fencing.
+                        # This might need further refinement based on actual LLM output patterns.
+                        start_idx = response_text.find('{')
+                        end_idx = response_text.rfind('}')
+                        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                            json_candidate = response_text[start_idx : end_idx + 1]
+                            decision_data = json.loads(json_candidate)
+                        else:
+                            raise ValueError("No JSON-like structure found.")
+                    except (json.JSONDecodeError, ValueError) as inner_e:
+                        logging.error(f"Failed aggressive JSON parsing. Error: {inner_e}")
+                        raise json.JSONDecodeError("Could not decode JSON from response", response_text, 0)
+
                 thought = decision_data.get("thought", "No thought provided.")
                 action_data = decision_data.get("action", {})
                 action_name = action_data.get("name")
                 action_params = action_data.get("params", {})
             except (json.JSONDecodeError, AttributeError) as e:
-                logging.error(f"Failed to parse agent decision: {e}", exc_info=True)
-                return schemas.AgentRunResponse(status="error", message=f"Agent failed to make a decision. Last thought was: {thought}", history=history, final_result=None)
+                logging.error(f"Failed to parse agent decision from response: '{response_text}'. Error: {e}", exc_info=True)
+                return schemas.AgentRunResponse(status="error", message=f"Agent failed to parse LLM response: '{response_text}'. Last thought was: {thought}", history=history, final_result=None)
 
             if not action_name or not isinstance(action_params, dict):
                  return schemas.AgentRunResponse(status="error", message=f"Agent generated an invalid action. Last thought: {thought}", history=history, final_result=None)

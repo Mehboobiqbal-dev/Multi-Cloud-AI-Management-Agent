@@ -1,27 +1,42 @@
-import { createClient } from '@supabase/supabase-js';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export async function signUp({ username, password }) {
-  // Use a valid .com domain for the fake email
-  const fakeEmail = `${username}@user.com`;
-  const { user, error } = await supabase.auth.signUp({
-    email: fakeEmail,
-    password,
-    options: { data: { username } }
+export async function login({ email, password }) {
+  const response = await fetch(`${API_BASE_URL}/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      username: email,
+      password: password,
+    }).toString(),
   });
-  if (error) throw error;
-  return user;
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Login failed');
+  }
+
+  const data = await response.json();
+  // Assuming the backend returns access_token and token_type
+  localStorage.setItem('access_token', data.access_token);
+  return data;
 }
 
-export async function signIn({ username, password }) {
-  const fakeEmail = `${username}@user.com`;
-  const { user, error } = await supabase.auth.signInWithPassword({
-    email: fakeEmail,
-    password
+export async function signup({ email, password, name }) {
+  const response = await fetch(`${API_BASE_URL}/signup`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password, name }),
   });
-  if (error) throw error;
-  return user;
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Signup failed');
+  }
+
+  const data = await response.json();
+  return data;
 }

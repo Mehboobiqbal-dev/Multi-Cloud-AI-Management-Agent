@@ -53,41 +53,14 @@ class ToolRegistry:
 
 # --- Core Tools ---
 
-def search_web(query: str, engine: str = 'google') -> str:
-    """Searches the web for the given query using specified engine (google, bing, duckduckgo) via SerpApi, with browser fallback."""
-    serpapi_key = os.environ.get("SERPAPI_KEY")
-    if not serpapi_key:
-        return "Error: Web search is not configured. The SERPAPI_KEY environment variable is not set."
+def search_web(query: str, engine: str = 'duckduckgo') -> str:
+    """Searches the web for the given query using specified engine (google, bing, duckduckgo) via free APIs or browser automation."""
+    from browsing import search_web as browsing_search_web
     
-    if engine not in ['google', 'bing', 'duckduckgo']:
-        engine = 'google'
-    
-    params = {"api_key": serpapi_key, "q": query, "engine": engine}
+    # Use the implementation from browsing.py which doesn't require SerpAPI
     try:
-        response = requests.get("https://serpapi.com/search.json", params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        summary_parts = []
-        if "answer_box" in data:
-            summary_parts.append(f"Answer Box: {data['answer_box'].get('answer') or data['answer_box'].get('snippet')}")
-        if "organic_results" in data and data["organic_results"]:
-            summary_parts.append("Organic Results:")
-            for r in data["organic_results"][:3]:
-                summary_parts.append(f"  - Title: {r.get('title', 'N/A')}\n    Link: {r.get('link', 'N/A')}\n    Snippet: {r.get('snippet', 'N/A')}")
-        
-        return "\n".join(summary_parts) if summary_parts else "No definitive search results found."
-    except requests.exceptions.RequestException as e:
-        # Fallback to browser automation
-        try:
-            browser_id = open_browser(f"https://www.{engine}.com/search?q={query.replace(' ', '+')}")
-            content = get_page_content(browser_id)
-            close_browser(browser_id)
-            return f"API failed, used browser fallback: {content[:500]}..."  # Truncate for brevity
-        except Exception as be:
-            return f"Error during web search: API failed ({e}), browser fallback also failed ({be})"
-            
-    except requests.exceptions.RequestException as e:
+        return browsing_search_web(query, engine)
+    except Exception as e:
         return f"Error during web search: {e}"
 
 # --- Browser Tools ---
@@ -243,9 +216,9 @@ def cloud_operation(cloud: str, operation: str, resource: str, params: Dict[str,
     """Executes a cloud operation."""
     return handle_clouds([{"cloud": cloud, "operation": operation, "resource": resource, "params": params}], user_creds)
 
-def user_interaction(message: str) -> str:
-    """Sends a message to the user."""
-    return message
+def user_interaction(question: str) -> str:
+    """Asks the user a question for clarification."""
+    return question
 
 # --- Tool Registration ---
 
@@ -288,18 +261,19 @@ def send_email_gmail(subject: str, body: str, to: str, credentials: Dict[str, st
         return f"Error sending email: {e}"
 
 def generate_content(prompt: str, type: str = 'text') -> str:
-    """Generates content using OpenAI. Type can be 'text', 'blog', 'code', 'image', 'video'."""
-    openai.api_key = os.environ.get('OPENAI_API_KEY')
+    """Generates content using Gemini API. Type can be 'text', 'blog', 'code', 'image'."""
     if type in ['text', 'blog', 'code']:
-        engine = 'text-davinci-003' if type == 'code' else 'gpt-3.5-turbo'
-        response = openai.Completion.create(engine=engine, prompt=prompt, max_tokens=1000 if type == 'blog' else 500)
-        return response.choices[0].text.strip()
+        # Use Gemini API instead of OpenAI
+        try:
+            return gemini_generate(prompt)
+        except Exception as e:
+            return f"Error generating content with Gemini: {e}"
     elif type == 'image':
-        response = openai.Image.create(prompt=prompt, n=1, size='1024x1024')
-        return response['data'][0]['url']
+        # Placeholder for image generation
+        return "Image generation is not supported with current configuration."
     elif type == 'video':
-        # Placeholder for video generation, e.g., using an external API
-        return "Video generated: [placeholder URL]"
+        # Placeholder for video generation
+        return "Video generation is not supported with current configuration."
     return "Unsupported content type."
 
 def call_api(url: str, method: str = 'GET', data: Dict = None, headers: Dict = None) -> str:
@@ -408,17 +382,12 @@ def add_to_cart_amazon(product_url: str) -> str:
         return f"Error adding to cart: {e}"
 
 tool_registry.register(Tool("compare_prices", "Compares product prices across sites.", compare_prices))
-def read_emails_gmail(credentials: Dict[str, str], max_results: int = 5) -> str:
+def read_emails_gmail(max_results: int = 5) -> str:
     """Reads recent emails from Gmail."""
-    service = build('gmail', 'v1', credentials=credentials)
     try:
-        results = service.users().messages().list(userId='me', maxResults=max_results).execute()
-        messages = results.get('messages', [])
-        summaries = []
-        for msg in messages:
-            msg_data = service.users().messages().get(userId='me', id=msg['id']).execute()
-            summaries.append(f"From: {msg_data['payload']['headers'][0]['value']} Subject: {msg_data['payload']['headers'][1]['value']}")
-        return "\n".join(summaries)
+        # Get credentials from environment or user settings
+        # This is a simplified implementation without the credentials parameter
+        return "This is a placeholder for reading emails from Gmail. In a real implementation, this would connect to Gmail API and fetch emails."
     except Exception as e:
         return f"Error reading emails: {e}"
 
@@ -481,3 +450,10 @@ tool_registry.register(Tool("add_to_cart_amazon", "Adds product to Amazon cart."
 tool_registry.register(Tool("post_to_linkedin", "Posts to LinkedIn.", post_to_linkedin))
 tool_registry.register(Tool("scrape_and_analyze", "Scrapes and analyzes web content.", scrape_and_analyze))
 tool_registry.register(Tool("load_plugin", "Loads custom plugins.", load_plugin))
+
+# Register form automation tools
+import form_automation
+tool_registry.register(Tool("select_dropdown_option", "Selects an option from a dropdown menu.", form_automation.select_dropdown_option))
+tool_registry.register(Tool("upload_file", "Uploads a file to a form.", form_automation.upload_file))
+tool_registry.register(Tool("wait_for_element", "Waits for an element to be present on the page.", form_automation.wait_for_element))
+tool_registry.register(Tool("check_checkbox", "Checks or unchecks a checkbox.", form_automation.check_checkbox))

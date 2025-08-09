@@ -61,7 +61,7 @@ class PromptResponse(BaseModel):
     steps: List[Step]
 
 class LoginRequest(BaseModel):
-    username: str
+    email: str
     password: str
 
 class AgentStateRequest(BaseModel):
@@ -93,3 +93,48 @@ class PlanHistory(PlanHistoryBase):
 class ToolCallRequest(BaseModel):
     tool_name: str
     params: Dict[str, Any]
+
+class UpworkJobRequest(BaseModel):
+    browser_id: str
+    job_url: str
+    cover_letter: str
+    profile_name: Optional[str] = None
+
+class FiverrJobRequest(BaseModel):
+    browser_id: str
+    buyer_request_url: str
+    proposal: str
+    price: float
+    profile_name: Optional[str] = None
+
+class LinkedInJobRequest(BaseModel):
+    browser_id: str
+    job_url: str
+    resume_path: str
+    cover_letter: str
+    phone: Optional[str] = None
+    profile_name: Optional[str] = None
+
+class BatchJobRequest(BaseModel):
+    job_urls: List[str]
+    platform: str
+    browser_id: str
+    profile_name: Optional[str] = None
+    additional_params: Dict[str, Any] = Field(default_factory=dict)
+
+class RegistrationRequest(BaseModel):
+    browser_id: str
+    url: str
+    form_data: Dict[str, Any]
+    submit_selector: str
+    success_indicator: Optional[str] = None
+
+class LoginAutomationRequest(BaseModel):
+    browser_id: str
+    url: str
+    username_selector: str
+    username: str
+    password_selector: str
+    password: str
+    submit_selector: str
+    success_indicator: Optional[str] = None

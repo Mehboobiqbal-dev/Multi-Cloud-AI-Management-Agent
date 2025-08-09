@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -8,42 +8,106 @@ from selenium.common.exceptions import TimeoutException
 import requests
 import os
 import time
+from bs4 import BeautifulSoup
+import json
+from datetime import datetime
 
 browsers: Dict[str, WebDriver] = {}
 
-def search_web(query: str, engine: str = 'google') -> str:
-    """Searches the web for the given query using specified engine (google, bing, duckduckgo) via SerpApi, with browser fallback."""
-    serpapi_key = os.environ.get("SERPAPI_KEY")
-    if not serpapi_key:
-        return "Error: Web search is not configured. The SERPAPI_KEY environment variable is not set."
+
+def search_web(query: str, engine: str = 'duckduckgo') -> str:
+    """Searches the web for the given query using DuckDuckGo Instant Answer API or headless browser scraping."""
     
     if engine not in ['google', 'bing', 'duckduckgo']:
-        engine = 'google'
+        engine = 'duckduckgo'
     
-    params = {"api_key": serpapi_key, "q": query, "engine": engine}
-    try:
-        response = requests.get("https://serpapi.com/search.json", params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        summary_parts = []
-        if "answer_box" in data:
-            summary_parts.append(f"Answer Box: {data['answer_box'].get('answer') or data['answer_box'].get('snippet')}")
-        if "organic_results" in data and data["organic_results"]:
-            summary_parts.append("Organic Results:")
-            for r in data["organic_results"][:3]:
-                summary_parts.append(f"  - Title: {r.get('title', 'N/A')}\n    Link: {r.get('link', 'N/A')}\n    Snippet: {r.get('snippet', 'N/A')}")
-        
-        return "\n".join(summary_parts) if summary_parts else "No definitive search results found."
-    except requests.exceptions.RequestException as e:
-        # Fallback to browser automation
+    # Try DuckDuckGo Instant Answer API first (free, no API key required)
+    if engine == 'duckduckgo':
         try:
-            browser_id = open_browser(f"https://www.{engine}.com/search?q={query.replace(' ', '+')}")
-            content = get_page_content(browser_id)
-            close_browser(browser_id)
-            return f"API failed, used browser fallback: {content[:500]}..."  # Truncate for brevity
-        except Exception as be:
-            return f"Error during web search: API failed ({e}), browser fallback also failed ({be})"
+            # DuckDuckGo Instant Answer API
+            duckduckgo_url = f"https://api.duckduckgo.com/?q={query}&format=json&pretty=1"
+            response = requests.get(duckduckgo_url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            
+            summary_parts = []
+            
+            # Extract Abstract (main answer)
+            if data.get('Abstract'):
+                summary_parts.append(f"Answer: {data['Abstract']}")
+                if data.get('AbstractURL'):
+                    summary_parts.append(f"Source: {data['AbstractURL']}")
+            
+            # Extract Related Topics
+            if data.get('RelatedTopics'):
+                summary_parts.append("Related Topics:")
+                for topic in data['RelatedTopics'][:3]:  # Limit to 3 topics
+                    if 'Text' in topic:
+                        summary_parts.append(f"  - {topic['Text']}")
+                        if 'FirstURL' in topic:
+                            summary_parts.append(f"    Link: {topic['FirstURL']}")
+            
+            if summary_parts:
+                return "\n".join(summary_parts)
+        except Exception as e:
+            # If API fails, we'll fall back to browser scraping
+            pass
+    
+    # Fallback to headless browser + BeautifulSoup scraping
+    try:
+        browser_id = open_browser(f"https://www.{engine}.com/search?q={query.replace(' ', '+')}") 
+        driver = browsers[browser_id]
+        html_content = driver.page_source
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        results = []
+        
+        if engine == 'google':
+            # Extract Google search results
+            search_results = soup.select('div.g')
+            for result in search_results[:5]:  # Limit to 5 results
+                title_elem = result.select_one('h3')
+                link_elem = result.select_one('a')
+                snippet_elem = result.select_one('div.VwiC3b')
+                
+                title = title_elem.text if title_elem else 'N/A'
+                link = link_elem['href'] if link_elem and 'href' in link_elem.attrs else 'N/A'
+                snippet = snippet_elem.text if snippet_elem else 'N/A'
+                
+                results.append(f"Title: {title}\nLink: {link}\nSnippet: {snippet}\n")
+        
+        elif engine == 'duckduckgo':
+            # Extract DuckDuckGo search results
+            search_results = soup.select('article')
+            for result in search_results[:5]:  # Limit to 5 results
+                title_elem = result.select_one('h2')
+                link_elem = result.select_one('a.result__a')
+                snippet_elem = result.select_one('div.result__snippet')
+                
+                title = title_elem.text if title_elem else 'N/A'
+                link = link_elem['href'] if link_elem and 'href' in link_elem.attrs else 'N/A'
+                snippet = snippet_elem.text if snippet_elem else 'N/A'
+                
+                results.append(f"Title: {title}\nLink: {link}\nSnippet: {snippet}\n")
+        
+        elif engine == 'bing':
+            # Extract Bing search results
+            search_results = soup.select('li.b_algo')
+            for result in search_results[:5]:  # Limit to 5 results
+                title_elem = result.select_one('h2')
+                link_elem = result.select_one('cite')
+                snippet_elem = result.select_one('p')
+                
+                title = title_elem.text if title_elem else 'N/A'
+                link = link_elem.text if link_elem else 'N/A'
+                snippet = snippet_elem.text if snippet_elem else 'N/A'
+                
+                results.append(f"Title: {title}\nLink: {link}\nSnippet: {snippet}\n")
+        
+        close_browser(browser_id)
+        return "\n".join(results) if results else "No search results found. Try refining your query."
+    except Exception as be:
+        return f"Error during web search: {be}"
 
 def open_browser(url: str) -> str:
     """Opens a new headless Chrome browser window and navigates to the specified URL."""

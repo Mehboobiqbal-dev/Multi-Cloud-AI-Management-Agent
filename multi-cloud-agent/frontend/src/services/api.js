@@ -9,7 +9,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('access_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -30,12 +30,31 @@ apiClient.interceptors.response.use(
     
     // Handle authentication errors
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('access_token');
       // Consider redirecting to login page
     }
     
     // Ensure a consistent error structure is propagated
-    const errorMessage = error.response?.data?.detail || error.message;
+    let errorMessage = error.message;
+    
+    // Handle validation errors (422)
+    if (error.response?.status === 422 && error.response?.data?.detail) {
+      // Format validation errors in a user-friendly way
+      const validationErrors = error.response.data.detail;
+      if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+        // Extract meaningful messages from validation errors
+        const messages = validationErrors.map(err => {
+          const field = err.loc?.slice(-1)[0] || 'field';
+          return `${field}: ${err.msg}`;
+        });
+        errorMessage = messages.join('\n');
+      } else {
+        errorMessage = JSON.stringify(error.response.data.detail);
+      }
+    } else if (error.response?.data?.detail) {
+      errorMessage = error.response.data.detail;
+    }
+    
     return Promise.reject(new Error(errorMessage));
   }
 );
@@ -57,10 +76,30 @@ const api = {
     return apiClient.post('/credentials', credData);
   },
   runAgent(goal) {
-    return apiClient.post('/agent/run', { goal });
+    const run_id = Date.now().toString(); // Simple unique ID
+    return apiClient.post('/agent/run', { goal, run_id });
   },
   getHistory() {
     return apiClient.get('/history');
+  },
+  // Form automation methods
+  applyJobUpwork(data) {
+    return apiClient.post('/form/apply_job_upwork', data);
+  },
+  applyJobFiverr(data) {
+    return apiClient.post('/form/apply_job_fiverr', data);
+  },
+  applyJobLinkedin(data) {
+    return apiClient.post('/form/apply_job_linkedin', data);
+  },
+  batchApplyJobs(data) {
+    return apiClient.post('/form/batch_apply_jobs', data);
+  },
+  loginAutomation(data) {
+    return apiClient.post('/form/login_automation', data);
+  },
+  registrationAutomation(data) {
+    return apiClient.post('/form/registration_automation', data);
   },
   // Custom API methods
   post(endpoint, data) {

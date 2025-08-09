@@ -44,7 +44,7 @@ class SelfLearningCore:
 
     def search_for_fix(self, error: str) -> str:
         # Use web_search tool (assuming integrated)
-        from .tools import search_web
+        from tools import search_web
         results = search_web(f'how to fix {error} in Python')
         return results  # Process and extract fix
 

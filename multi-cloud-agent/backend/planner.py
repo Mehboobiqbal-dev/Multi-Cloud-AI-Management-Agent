@@ -1,124 +1,52 @@
-import json
-import re
 from typing import List, Dict, Any
-import google.generativeai as genai
 from config import settings
 
-def generate_plan_rule_based(intents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Analyzes intents and generates a multi-step execution plan if necessary.
-    For now, this is a simple rule-based planner.
-    """
-    planned_steps = []
+PLAN_RULES = {
+    'cloud_operation': ['validate_credentials', 'check_quotas', 'execute_api_call'],
+    'web_automation': ['open_browser', 'page_interaction', 'close_browser'],
+    'data_processing': ['acquire_data', 'transform_data', 'store_result']
+}
+
+def generate_plan(intents: List[Dict[str, Any]], kb: 'KnowledgeBase', tool_manager: 'ToolManager', previous_steps: List[Dict[str, Any]] = None, error: str = None) -> List[Dict[str, Any]]:
+    """Generates execution plans using deterministic workflow rules"""
+    plan = []
+    step_counter = 1
+    
     for intent in intents:
-        # Example of a complex task that requires planning
-        if intent['resource'] == 'vm' and intent['operation'] == 'create' and 'web server' in intent.get('params', {}).get('name', ''):
-            # This is a high-level goal. Break it down.
-            vm_name = intent['params'].get('name', 'web-server-instance')
-            planned_steps.append({
-                'step': 1,
-                'action': 'create_security_group',
-                'cloud': intent['cloud'],
-                'params': {'name': f'{vm_name}-sg', 'rules': [{'port': 80, 'protocol': 'tcp'}, {'port': 443, 'protocol': 'tcp'}]}
-            })
-            planned_steps.append({
-                'step': 2,
-                'action': 'create_vm',
-                'cloud': intent['cloud'],
-                'params': {'name': vm_name, 'security_group': f'{vm_name}-sg'}
-            })
-            planned_steps.append({
-                'step': 3,
-                'action': 'install_web_server',
-                'cloud': intent['cloud'],
-                'params': {'instance_name': vm_name}
-            })
-        else:
-            # Simple, single-step task
-            planned_steps.append({
-                'step': 1,
-                'action': f"{intent['operation']}_{intent['resource']}",
-                'cloud': intent['cloud'],
-                'params': intent['params']
-            })
-            
-    # This is a placeholder for a more sophisticated planning result.
-    # In a real scenario, you might return a more structured plan object.
-    return planned_steps
-
-def generate_plan(intents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    if not settings.LLM_API_KEY:
-        return generate_plan_rule_based(intents)
-
-    try:
-        genai.configure(api_key=settings.LLM_API_KEY)
-        model = genai.GenerativeModel(settings.LLM_MODEL_NAME)
+        intent_type = intent.get('type')
         
-        system_prompt = """
-        You are a world-class AI agent. Your task is to create a multi-step execution plan based on a list of intents.
-        The plan should be a JSON object, which is a list of steps. Each step should have the following fields:
-        - "step": The step number.
-        - "action": The action to perform (e.g., "search_web", "read_file", "execute_command", "ask_user").
-        - "params": A dictionary of parameters for the action.
-
-        If the user's request is missing information required to complete the task, you should add a step with the action "ask_user" to ask for the missing information.
-        For example, if the task is to create a Gmail account, you will need a first name, last name, and desired username. If this information is not provided, you must ask for it.
-
-        Example of a task with missing information:
-        Intents:
-        [
-            {
-                "action": "create_gmail_account",
-                "params": {}
-            }
-        ]
-
-        JSON output:
-        [
-            {
-                "step": 1,
-                "action": "ask_user",
-                "params": {
-                    "question": "I can help with that. What is the first name, last name, and desired username for the new Gmail account?"
-                }
-            }
-        ]
-
-        Example of a complete task:
-        Intents:
-        [
-            {
-                "action": "search_web",
-                "params": {
-                    "query": "latest news on AI"
-                }
-            }
-        ]
-
-        JSON output:
-        [
-            {
-                "step": 1,
-                "action": "search_web",
-                "params": {
-                    "query": "latest news on AI"
-                }
-            }
-        ]
-        """
-
-        response = model.generate_content(f"{system_prompt}\n\nIntents: {json.dumps(intents)}")
+        # Handle error recovery first
+        if error and previous_steps:
+            last_failed_step = previous_steps[-1]
+            plan.append({
+                'step': step_counter,
+                'action': 'retry',
+                'params': {'previous_step': last_failed_step}
+            })
+            step_counter += 1
+            continue
         
-        # The response from Gemini is not guaranteed to be a JSON object, so we need to extract it.
-        json_match = re.search(r'```json\n(.*)\n```', response.text, re.DOTALL)
-        if json_match:
-            plan = json.loads(json_match.group(1))
+        # Apply workflow patterns
+        if intent_type in PLAN_RULES:
+            for pattern_step in PLAN_RULES[intent_type]:
+                plan.append({
+                    'step': step_counter,
+                    'action': pattern_step,
+                    'params': intent.get('params', {})
+                })
+                step_counter += 1
         else:
-            plan = json.loads(response.text)
-            
-        return plan
-
-    except Exception as e:
-        print(f"Error calling LLM: {e}")
-        # Fallback to rule-based planner if LLM fails
-        return generate_plan_rule_based(intents)
+            # Fallback to tool-based planning
+            available_tools = tool_manager.get_tools()
+            if available_tools:
+                plan.append({
+                    'step': step_counter,
+                    'action': 'execute_tool_chain',
+                    'params': {
+                        'tools': available_tools,
+                        'input_params': intent.get('params', {})
+                    }
+                })
+                step_counter += 1
+    
+    return plan
