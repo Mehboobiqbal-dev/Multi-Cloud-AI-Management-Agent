@@ -28,9 +28,15 @@ def generate_text(prompt: str) -> str:
     """
     Generates text using the Gemini Pro model with API key failover.
     """
-    api_keys = settings.GEMINI_API_KEYS if settings.GEMINI_API_KEYS else [settings.GEMINI_API_KEY]
+    # Prefer the parsed list of API keys from settings; fall back to single key if present
+    api_keys = settings.GEMINI_API_KEYS_LIST if settings.GEMINI_API_KEYS_LIST else (
+        [settings.GEMINI_API_KEY] if settings.GEMINI_API_KEY else []
+    )
     if not api_keys:
         raise HTTPException(status_code=500, detail="No Gemini API keys configured.")
+
+    last_exception = None
+    quota_exhausted = False
 
     for key in api_keys:
         try:
@@ -44,13 +50,20 @@ def generate_text(prompt: str) -> str:
             logging.info(f"Successfully generated text using key: {key[:10]}...")
             return response.text
         except ResourceExhausted as e:
+            quota_exhausted = True
             logging.warning(f"Gemini quota exceeded for key {key[:10]}...: {e}")
+            last_exception = e
             continue
         except Exception as e:
-            logging.error(f"Error generating text with key {key[:10]}...: {e}")
-            raise HTTPException(status_code=500, detail=f"Gemini text generation failed: {e}")
+            # Continue to next key to allow failover on invalid/errored keys
+            logging.warning(f"Gemini error with key {key[:10]}...: {e}")
+            last_exception = e
+            continue
 
-    raise HTTPException(status_code=429, detail="All Gemini API keys have exceeded quota. Please try again later.")
+    # If we reach here, all keys failed
+    if quota_exhausted:
+        raise HTTPException(status_code=429, detail="All Gemini API keys have exceeded quota. Please try again later.")
+    raise HTTPException(status_code=500, detail=f"Gemini text generation failed for all keys: {last_exception}")
 
 vision_model = genai.GenerativeModel('gemini-pro-vision')
 

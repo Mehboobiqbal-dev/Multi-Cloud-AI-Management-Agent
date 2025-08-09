@@ -30,10 +30,19 @@ def search_web(query: str, engine: str = 'duckduckgo') -> str:
             match = re.search(r"Browser opened with ID: (browser_\d+)", open_browser_output)
             if match:
                 browser_id = match.group(1)
+                # Wait for the search box to be present
+                driver = browsers[browser_id]
+                try:
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "textarea[name='q']")))
+                except TimeoutException:
+                    pass  # continue; sometimes input is available without wait
                 fill_form(browser_id, "textarea[name='q']", query)
                 submit_form(browser_id, "textarea[name='q']")
                 time.sleep(2) # Give time for results to load
                 content = get_page_content(browser_id)
+                # Simple CAPTCHA awareness
+                if re.search(r"captcha|unusual traffic|verify you are human", content, re.IGNORECASE):
+                    return "Google results may be blocked by CAPTCHA or traffic protection. Try DuckDuckGo engine."
                 return f"Google Search Results for '{query}':\n\n{content}"
             else:
                 return "Error: Could not open browser for Google search."
@@ -41,14 +50,17 @@ def search_web(query: str, engine: str = 'duckduckgo') -> str:
             return f"Error during Google search: {e}"
         finally:
             if browser_id:
-                close_browser(browser_id)
+                try:
+                    close_browser(browser_id)
+                except Exception:
+                    pass
 
     # Try DuckDuckGo Instant Answer API first (free, no API key required)
     if engine == 'duckduckgo':
         try:
-            # DuckDuckGo Instant Answer API
             duckduckgo_url = f"https://api.duckduckgo.com/?q={query}&format=json&pretty=1"
-            response = requests.get(duckduckgo_url, timeout=10)
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
+            response = requests.get(duckduckgo_url, timeout=10, headers=headers)
             response.raise_for_status()
             data = response.json()
             
@@ -71,6 +83,8 @@ def search_web(query: str, engine: str = 'duckduckgo') -> str:
             
             if summary_parts:
                 return "\n".join(summary_parts)
+            else:
+                return "No direct answer found. Try using google engine for broader results."
         except Exception as e:
             return f"Error during DuckDuckGo API search: {e}. Browser-based search is not supported for this engine."
 
@@ -79,10 +93,31 @@ def open_browser(url: str) -> str:
     try:
         browser_id = f"browser_{len(browsers)}"
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+        options.add_argument("--log-level=3")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--mute-audio")
+        options.add_argument("--metrics-recording-only")
+        options.add_argument("--disable-notifications")
+        options.add_argument("--disable-cloud-import")
+        options.add_argument("--disable-sync")
+        options.add_argument("--disable-client-side-phishing-detection")
+        options.add_argument("--disable-background-networking")
+        options.add_argument("--disable-background-timer-throttling")
+        options.add_argument("--disable-backgrounding-occluded-windows")
+        options.add_argument("--disable-component-update")
+        options.add_argument("--disable-default-apps")
+        options.add_argument("--no-first-run")
+        options.add_argument("--no-default-browser-check")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--guest")
+        options.add_argument("--disable-speech-api")
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
         driver = webdriver.Chrome(options=options)
         driver.get(url)
         browsers[browser_id] = driver

@@ -20,12 +20,11 @@ class Memory:
         Args:
             embedding_dim: The dimension of the embeddings. Google's model uses 768.
         """
-        # API key configuration moved to module level
         self.embedding_dim = embedding_dim
         # self.index = AnnoyIndex(embedding_dim, 'angular')
         self.documents: List[str] = []
+        self.embeddings: List[np.ndarray] = []  # Store embeddings for cosine similarity
         self.item_counter = 0
-        self.index_built = False
         # The model for embedding
         self.embedding_model = 'models/embedding-001'
 
@@ -33,50 +32,86 @@ class Memory:
         """
         Generates an embedding for the given text using Google's service.
         """
-        result = genai.embed_content(
-            model=self.embedding_model,
-            content=text,
-            task_type="retrieval_document"
-        )
-        return np.array(result['embedding'], dtype=np.float32)
+        try:
+            result = genai.embed_content(
+                model=self.embedding_model,
+                content=text,
+                task_type="retrieval_document"
+            )
+            return np.array(result['embedding'], dtype=np.float32)
+        except Exception as e:
+            print(f"Warning: Failed to generate embedding: {e}")
+            # Return zero vector as fallback
+            return np.zeros(self.embedding_dim, dtype=np.float32)
+
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        """Compute cosine similarity between two vectors using numpy."""
+        a_norm = np.linalg.norm(a) + 1e-8
+        b_norm = np.linalg.norm(b) + 1e-8
+        return float(np.dot(a, b) / (a_norm * b_norm))
 
     def add_document(self, data: Dict[str, Any]):
         """
-        Adds a structured document to the memory. The index will need to be rebuilt.
+        Adds a structured document to the memory. The embedding is computed and stored.
         """
         text_representation = json.dumps(data)
         embedding = self._get_embedding(text_representation)
-        # self.index.add_item(self.item_counter, embedding)
+        
+        # Store both document and embedding
         self.documents.append(text_representation)
+        self.embeddings.append(embedding)
         self.item_counter += 1
-        self.index_built = False  # Mark index as not built
 
     def search(self, query: str, k: int = 5) -> List[Tuple[float, Dict[str, Any]]]:
         """
-        Searches the memory for similar documents.
+        Searches the memory for similar documents using cosine similarity.
         """
         if not self.documents:
             return []
 
-        if not self.index_built:
-            # Build the index if it hasn't been built yet. 10 trees is a good balance.
-            # self.index.build(10)
-            self.index_built = True
-
-        query_embedding = self._get_embedding(query)
-        # For now, as Annoy is disabled, we'll return the most recent interactions.
-        # This is a placeholder for a real vector search.
-        num_docs_to_return = min(k, len(self.documents))
-        
-        results = []
-        for doc_str in reversed(self.documents[-num_docs_to_return:]):
-            try:
-                # The "distance" is a placeholder value.
-                results.append((0.0, json.loads(doc_str)))
-            except json.JSONDecodeError:
-                continue # Skip malformed entries
-        
-        return results
+        try:
+            # Get query embedding
+            query_embedding = self._get_embedding(query)
+            
+            # Compute cosine similarities with all stored embeddings
+            similarities = []
+            for i, doc_embedding in enumerate(self.embeddings):
+                similarity = self._cosine_similarity(query_embedding, doc_embedding)
+                similarities.append((similarity, i))
+            
+            # Sort by similarity (descending) and get top k
+            similarities.sort(key=lambda x: x[0], reverse=True)
+            
+            results = []
+            for similarity, doc_index in similarities[:k]:
+                try:
+                    # Convert similarity to distance (lower is better)
+                    distance = 1.0 - similarity
+                    doc_data = json.loads(self.documents[doc_index])
+                    results.append((distance, doc_data))
+                except json.JSONDecodeError:
+                    continue  # Skip malformed entries
+            
+            return results
+            
+        except Exception as e:
+            print(f"Warning: Cosine similarity search failed: {e}")
+            # Fall back to recent documents
+            num_docs_to_return = min(k, len(self.documents))
+            
+            results = []
+            for doc_str in reversed(self.documents[-num_docs_to_return:]):
+                try:
+                    # The "distance" is a placeholder value.
+                    results.append((0.0, json.loads(doc_str)))
+                except json.JSONDecodeError:
+                    continue  # Skip malformed entries
+            
+            return results
 
 # Global instance of the Memory class
 memory_instance = Memory()
+
+def get_memory_instance() -> Memory:
+    """Returns the global memory instance for compatibility with main.py"""
+    return memory_instance

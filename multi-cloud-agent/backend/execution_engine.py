@@ -2,6 +2,7 @@ import logging
 from typing import Dict, Any, Tuple
 import requests
 from tool_manager import ToolManager
+from tools import search_web as registered_search_web
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,13 +18,14 @@ def execute_step(step: Dict[str, Any], kb: 'KnowledgeBase', tool_manager: 'ToolM
             query = params.get("query")
             if not query:
                 return None, "Missing 'query' parameter for 'search_web' action."
+            engine = params.get("engine", "duckduckgo")
             
-            # Use the web_search tool
+            # Use the unified search_web tool registered in tools.py (browsing-backed)
             try:
-                search_results = tool_manager.use_tool("web_search", "search", query=query)
+                search_results = registered_search_web(query=query, engine=engine)
                 return search_results, None
             except Exception as e:
-                return None, f"Web search tool failed: {str(e)}"
+                return None, f"search_web tool failed: {str(e)}"
 
         elif action == "ask_user":
             return params.get('question'), None

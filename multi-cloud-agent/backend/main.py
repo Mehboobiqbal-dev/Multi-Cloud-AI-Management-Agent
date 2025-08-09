@@ -494,6 +494,7 @@ async def feedback(feedback_req: schemas.FeedbackRequest, user: schemas.User = D
     db.commit()
 
     try:
+        memory_instance = memory.get_memory_instance()
         interaction_data = {
             "prompt": plan_history.prompt,
             "plan": json.loads(plan_history.plan),
