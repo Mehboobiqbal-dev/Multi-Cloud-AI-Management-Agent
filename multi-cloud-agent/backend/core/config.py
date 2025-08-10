@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     # Gemini settings (for backward compatibility)
     GEMINI_API_KEYS: str = os.environ.get("GEMINI_API_KEYS", "")
     GEMINI_API_KEYS_LIST: List[str] = [k.strip() for k in GEMINI_API_KEYS.split(",") if k.strip()]
-    GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEYS_LIST[0] if GEMINI_API_KEYS_LIST else "")
+    GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY", "")
     GEMINI_MODEL_NAME: str = os.environ.get("GEMINI_MODEL_NAME", "gemini-1.5-pro")
     
     # Rate limiting
@@ -55,6 +55,43 @@ class Settings(BaseSettings):
     # Logging
     LOG_LEVEL: str = os.environ.get("LOG_LEVEL", "INFO")
     LOG_FORMAT: str = "%(asctime)s - %(levelname)s - %(message)s"
+    
+    # Resilience and retry settings
+    MAX_RETRIES: int = int(os.environ.get("MAX_RETRIES", 3))
+    INITIAL_RETRY_DELAY: float = float(os.environ.get("INITIAL_RETRY_DELAY", 2.0))
+    MAX_RETRY_DELAY: float = float(os.environ.get("MAX_RETRY_DELAY", 60.0))
+    NETWORK_TIMEOUT: int = int(os.environ.get("NETWORK_TIMEOUT", 30))
+    
+    # Circuit breaker settings
+    CIRCUIT_BREAKER_FAILURE_THRESHOLD: int = int(os.environ.get("CIRCUIT_BREAKER_FAILURE_THRESHOLD", 5))
+    CIRCUIT_BREAKER_RECOVERY_TIMEOUT: int = int(os.environ.get("CIRCUIT_BREAKER_RECOVERY_TIMEOUT", 60))
+    CIRCUIT_BREAKER_EXPECTED_EXCEPTION: bool = os.environ.get("CIRCUIT_BREAKER_EXPECTED_EXCEPTION", "True").lower() == "true"
+    
+    # Memory and embedding settings
+    EMBEDDING_BATCH_SIZE: int = int(os.environ.get("EMBEDDING_BATCH_SIZE", 10))
+    MEMORY_CACHE_SIZE: int = int(os.environ.get("MEMORY_CACHE_SIZE", 1000))
+    ENABLE_LOCAL_EMBEDDINGS: bool = os.environ.get("ENABLE_LOCAL_EMBEDDINGS", "False").lower() == "true"
+    LOCAL_EMBEDDING_MODEL: str = os.environ.get("LOCAL_EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+    
+    # Self-learning settings
+    ENABLE_SELF_LEARNING: bool = os.environ.get("ENABLE_SELF_LEARNING", "True").lower() == "true"
+    LEARNING_CONFIDENCE_THRESHOLD: float = float(os.environ.get("LEARNING_CONFIDENCE_THRESHOLD", 0.75))
+    AUTO_APPLY_FIXES: bool = os.environ.get("AUTO_APPLY_FIXES", "False").lower() == "true"
+    
+    # Performance monitoring
+    ENABLE_PERFORMANCE_MONITORING: bool = os.environ.get("ENABLE_PERFORMANCE_MONITORING", "True").lower() == "true"
+    SLOW_OPERATION_THRESHOLD: float = float(os.environ.get("SLOW_OPERATION_THRESHOLD", 5.0))
+    PERFORMANCE_MONITORING_SAMPLE_RATE: float = float(os.environ.get("PERFORMANCE_MONITORING_SAMPLE_RATE", 0.1))
+    
+    # Agent execution resilience
+    MAX_CONSECUTIVE_FAILURES: int = int(os.environ.get("MAX_CONSECUTIVE_FAILURES", 3))
+    AGENT_DECISION_RETRY_ATTEMPTS: int = int(os.environ.get("AGENT_DECISION_RETRY_ATTEMPTS", 3))
+    BROWSER_ERROR_EXTRA_DELAY: bool = os.environ.get("BROWSER_ERROR_EXTRA_DELAY", "True").lower() == "true"
+    
+    # Form automation resilience
+    FORM_ELEMENT_WAIT_STRATEGIES: int = int(os.environ.get("FORM_ELEMENT_WAIT_STRATEGIES", 3))
+    FORM_ALTERNATIVE_SELECTORS: bool = os.environ.get("FORM_ALTERNATIVE_SELECTORS", "True").lower() == "true"
+    FORM_PARTIAL_SUCCESS_ALLOWED: bool = os.environ.get("FORM_PARTIAL_SUCCESS_ALLOWED", "True").lower() == "true"
     
     class Config:
         env_file = ".env"

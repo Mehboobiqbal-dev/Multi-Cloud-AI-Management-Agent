@@ -21,18 +21,50 @@ from bs4 import BeautifulSoup
 from gemini import generate_text as gemini_generate
 from cryptography.fernet import Fernet
 import pickle
-
-# Import browser management from browsing module
+import browsing
 from browsing import (
     browsers as shared_browsers,
     open_browser as browsing_open_browser,
     get_page_content as browsing_get_page_content,
     close_browser as browsing_close_browser,
 )
+from browsing import submit_form as browsing_submit_form
+from form_automation import (
+    wait_for_element as fa_wait_for_element,
+    select_dropdown_option as fa_select_dropdown_option,
+    upload_file as fa_upload_file,
+    check_checkbox as fa_check_checkbox,
+)
 
 def search_web(query: str, engine: str = 'duckduckgo') -> str:
     """Searches the web using DuckDuckGo or Google through browser automation."""
     return browsing.search_web(query, engine)
+
+# Additional thin wrappers for browser/form tools
+
+def submit_form(browser_id: str, selector: str) -> str:
+    """Submit a form by sending Enter to the specified element."""
+    return browsing_submit_form(browser_id, selector)
+
+
+def wait_for_element(browser_id: str, selector: str, timeout: int = 10) -> str:
+    """Wait for an element to be present on the page."""
+    return fa_wait_for_element(browser_id, selector, timeout)
+
+
+def select_dropdown_option(browser_id: str, selector: str, option_text: str) -> str:
+    """Select an option from a dropdown by visible text."""
+    return fa_select_dropdown_option(browser_id, selector, option_text)
+
+
+def upload_file(browser_id: str, selector: str, file_path: str) -> str:
+    """Upload a file using an input[type=file] element."""
+    return fa_upload_file(browser_id, selector, file_path)
+
+
+def check_checkbox(browser_id: str, selector: str, check: bool = True) -> str:
+    """Check or uncheck a checkbox element."""
+    return fa_check_checkbox(browser_id, selector, check)
 
 # --- Browser Tools ---
 
@@ -99,7 +131,18 @@ def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15
             
     raise Exception(f"Failed to fill form field after trying {len(selector_strategies)} selector strategies. Last error: {last_error}")
 
-def fill_multiple_fields(browser_id: str, fields: Dict[str, str], retry_failed: bool = True, page_analysis: bool = True) -> str:
+def fill_multiple_fields(browser_id: str, fields: Any, retry_failed: bool = True, page_analysis: bool = True) -> str:
+    # If fields is a list of dictionaries, convert it to the expected dictionary format
+    if isinstance(fields, list):
+        converted_fields = {}
+        for item in fields:
+            if isinstance(item, dict) and 'css_selector' in item and 'value' in item:
+                converted_fields[item['css_selector']] = item['value']
+            else:
+                raise ValueError("Each item in 'fields' list must be a dictionary with 'css_selector' and 'value' keys.")
+        fields = converted_fields
+    elif not isinstance(fields, dict):
+        raise TypeError("'fields' parameter must be a dictionary or a list of dictionaries.")
     """Enhanced multiple field filling with adaptive strategies, retries, and page analysis."""
     if browser_id not in browsers:
         raise Exception(f"Browser with ID '{browser_id}' not found.")
@@ -423,3 +466,10 @@ tool_registry.register(Tool("cloud_operation", "Execute cloud operations", cloud
 tool_registry.register(Tool("finish_task", "Mark task as completed", finish_task))
 tool_registry.register(Tool("send_email", "Send an email", send_email))
 tool_registry.register(Tool("post_to_twitter", "Post content to Twitter", post_to_twitter))
+
+# Register additional browser interaction tools
+tool_registry.register(Tool("submit_form", "Submit a form by pressing Enter on an element", submit_form))
+tool_registry.register(Tool("wait_for_element", "Wait until an element is present on the page", wait_for_element))
+tool_registry.register(Tool("select_dropdown_option", "Select an option from a dropdown by visible text", select_dropdown_option))
+tool_registry.register(Tool("upload_file", "Upload a file using a file input element", upload_file))
+tool_registry.register(Tool("check_checkbox", "Check or uncheck a checkbox element", check_checkbox))

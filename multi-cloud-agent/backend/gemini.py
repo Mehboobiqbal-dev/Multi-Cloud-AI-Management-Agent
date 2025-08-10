@@ -29,9 +29,11 @@ def generate_text(prompt: str) -> str:
     Generates text using the Gemini Pro model with API key failover.
     """
     # Prefer the parsed list of API keys from settings; fall back to single key if present
-    api_keys = settings.GEMINI_API_KEYS_LIST if settings.GEMINI_API_KEYS_LIST else (
-        [settings.GEMINI_API_KEY] if settings.GEMINI_API_KEY else []
-    )
+    api_keys = []
+    if settings.GEMINI_API_KEY:
+        api_keys.append(settings.GEMINI_API_KEY)
+    if settings.GEMINI_API_KEYS_LIST:
+        api_keys.extend(settings.GEMINI_API_KEYS_LIST)
     if not api_keys:
         raise HTTPException(status_code=500, detail="No Gemini API keys configured.")
 

@@ -13,134 +13,234 @@ from bs4 import BeautifulSoup
 import json
 import re
 from datetime import datetime
+from core.config import settings
 
 browsers: Dict[str, WebDriver] = {}
 
 
 def search_web(query: str, engine: str = 'duckduckgo') -> str:
-    """Searches the web for the given query using DuckDuckGo Instant Answer API or headless browser scraping."""
+    """Searches the web for the given query using DuckDuckGo Instant Answer API or headless browser scraping.
+    Enhanced with retry logic and multiple engine fallback.
+    """
     
     if engine not in ['duckduckgo', 'google']:
         engine = 'duckduckgo'
     
-    if engine == 'google':
-        browser_id = None
-        try:
-            open_browser_output = open_browser('https://www.google.com')
-            match = re.search(r"Browser opened with ID: (browser_\d+)", open_browser_output)
-            if match:
-                browser_id = match.group(1)
-                # Wait for the search box to be present
-                driver = browsers[browser_id]
-                try:
-                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "textarea[name='q']")))
-                except TimeoutException:
-                    pass  # continue; sometimes input is available without wait
-                fill_form(browser_id, "textarea[name='q']", query)
-                submit_form(browser_id, "textarea[name='q']")
-                time.sleep(1)  # Reduced wait for faster results
-                content = get_page_content(browser_id)
-                # Simple CAPTCHA awareness
-                if re.search(r"captcha|unusual traffic|verify you are human", content, re.IGNORECASE):
-                    return "Google results may be blocked by CAPTCHA or traffic protection. Try DuckDuckGo engine."
-                return f"Google Search Results for '{query}':\n\n{content}"
-            else:
-                return "Error: Could not open browser for Google search."
-        except Exception as e:
-            return f"Error during Google search: {e}"
-        finally:
-            if browser_id:
-                try:
-                    close_browser(browser_id)
-                except Exception:
-                    pass
-
-    # Try DuckDuckGo Instant Answer API first (free, no API key required)
+    # Try the specified engine first, then fall back to the other if needed
+    engines_to_try = [engine]
     if engine == 'duckduckgo':
+        engines_to_try.append('google')
+    elif engine == 'google':
+        engines_to_try.append('duckduckgo')
+    
+    errors = []
+    
+    for current_engine in engines_to_try:
+        max_retries = getattr(settings, "MAX_RETRIES", 3)
+        retry_delay = float(getattr(settings, "INITIAL_RETRY_DELAY", 2.0))  # Initial delay in seconds
+        
+        for attempt in range(max_retries):
+            try:
+                if current_engine == 'google':
+                    browser_id = None
+                    try:
+                        open_browser_output = open_browser('https://www.google.com')
+                        match = re.search(r"Browser opened with ID: (browser_\d+)", open_browser_output)
+                        if match:
+                            browser_id = match.group(1)
+                            # Wait for the search box to be present
+                            driver = browsers[browser_id]
+                            try:
+                                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "textarea[name='q']")))
+                            except TimeoutException:
+                                pass  # continue; sometimes input is available without wait
+                            fill_form(browser_id, "textarea[name='q']", query)
+                            submit_form(browser_id, "textarea[name='q']")
+                            time.sleep(1)  # Reduced wait for faster results
+                            content = get_page_content(browser_id)
+                            # Simple CAPTCHA awareness
+                            if re.search(r"captcha|unusual traffic|verify you are human|robot", content, re.IGNORECASE):
+                                errors.append("Google results may be blocked by CAPTCHA or traffic protection.")
+                                break  # Try next engine
+                            return f"Google Search Results for '{query}':\n\n{content}"
+                        else:
+                            errors.append("Could not open browser for Google search.")
+                            break  # Try next engine
+                    except Exception as e:
+                        error_msg = str(e)
+                        errors.append(f"Error during Google search: {error_msg}")
+                        
+                        # Check if we should retry with this engine
+                        if attempt < max_retries - 1:
+                            # Check if it's a connection-related error
+                            is_connection_error = any(msg in error_msg.lower() for msg in [
+                                "failed to connect", "connection refused", "timeout", 
+                                "socket", "network", "unreachable", "chrome not reachable"
+                            ])
+                            
+                            if is_connection_error:
+                                time.sleep(retry_delay)
+                                retry_delay = min(retry_delay * 2, float(getattr(settings, "MAX_RETRY_DELAY", 60.0)))  # Exponential backoff with cap
+                                continue
+                        # If not a retriable error or max retries reached, try next engine
+                        break
+                    finally:
+                        if browser_id:
+                            try:
+                                close_browser(browser_id)
+                            except Exception:
+                                pass
+
+                # Try DuckDuckGo Instant Answer API
+                elif current_engine == 'duckduckgo':
+                    try:
+                        duckduckgo_url = f"https://api.duckduckgo.com/?q={query}&format=json&pretty=1"
+                        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
+                        response = requests.get(duckduckgo_url, timeout=10, headers=headers)
+                        response.raise_for_status()
+                        data = response.json()
+                        
+                        summary_parts = []
+                        
+                        # Extract Abstract (main answer)
+                        if data.get('Abstract'):
+                            summary_parts.append(f"Answer: {data['Abstract']}")
+                            if data.get('AbstractURL'):
+                                summary_parts.append(f"Source: {data['AbstractURL']}")
+                        
+                        # Extract Related Topics
+                        if data.get('RelatedTopics'):
+                            summary_parts.append("Related Topics:")
+                            for topic in data['RelatedTopics'][:3]:  # Limit to 3 topics
+                                if 'Text' in topic:
+                                    summary_parts.append(f"  - {topic['Text']}")
+                                    if 'FirstURL' in topic:
+                                        summary_parts.append(f"    Link: {topic['FirstURL']}")
+                        
+                        if summary_parts:
+                            return "\n".join(summary_parts)
+                        else:
+                            errors.append("No direct answer found from DuckDuckGo.")
+                            break  # Try next engine
+                    except Exception as e:
+                        error_msg = str(e)
+                        errors.append(f"Error during DuckDuckGo API search: {error_msg}")
+                        
+                        # Check if we should retry with this engine
+                        if attempt < max_retries - 1:
+                            # Check if it's a connection-related error
+                            is_connection_error = any(msg in error_msg.lower() for msg in [
+                                "failed to connect", "connection refused", "timeout", 
+                                "socket", "network", "unreachable"
+                            ])
+                            
+                            if is_connection_error:
+                                time.sleep(retry_delay)
+                                retry_delay = min(retry_delay * 2, float(getattr(settings, "MAX_RETRY_DELAY", 60.0)))  # Exponential backoff with cap
+                                continue
+                        # If not a retriable error or max retries reached, try next engine
+                        break
+            except Exception as e:
+                errors.append(f"Unexpected error with {current_engine}: {str(e)}")
+                break  # Try next engine
+    
+    # If we get here, all engines failed
+    error_summary = "\n".join(errors)
+    return f"All search attempts failed. Details:\n{error_summary}\n\nPlease try again later or with a different query."
+
+
+def open_browser(url: str, max_retries: int = None, retry_delay: float = None) -> str:
+    """Opens a new headless Chrome browser window and navigates to the specified URL.
+    
+    Args:
+        url (str): The URL to navigate to
+        max_retries (int): Maximum number of retry attempts (defaults to settings)
+        retry_delay (float): Initial delay between retries in seconds (defaults to settings)
+    """
+    browser_id = f"browser_{len(browsers)}"
+    
+    # Use centralized settings if not provided
+    if max_retries is None:
+        max_retries = getattr(settings, "MAX_RETRIES", 3)
+    if retry_delay is None:
+        retry_delay = float(getattr(settings, "INITIAL_RETRY_DELAY", 2.0))
+    
+    for attempt in range(max_retries):
         try:
-            duckduckgo_url = f"https://api.duckduckgo.com/?q={query}&format=json&pretty=1"
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
-            response = requests.get(duckduckgo_url, timeout=10, headers=headers)
-            response.raise_for_status()
-            data = response.json()
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless=new")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--log-level=3")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-infobars")
+            options.add_argument("--disable-extensions")
+            options.add_argument("--mute-audio")
+            options.add_argument("--metrics-recording-only")
+            options.add_argument("--disable-notifications")
+            options.add_argument("--disable-cloud-import")
+            options.add_argument("--disable-sync")
+            options.add_argument("--disable-client-side-phishing-detection")
+            options.add_argument("--disable-background-networking")
+            options.add_argument("--disable-background-timer-throttling")
+            options.add_argument("--disable-backgrounding-occluded-windows")
+            options.add_argument("--disable-component-update")
+            options.add_argument("--disable-default-apps")
+            options.add_argument("--no-first-run")
+            options.add_argument("--no-default-browser-check")
+            options.add_argument("--ignore-certificate-errors")
+            options.add_argument("--guest")
+            options.add_argument("--disable-speech-api")
+            # Performance optimizations
+            options.add_argument("--disable-renderer-backgrounding")
+            options.add_argument("--disable-background-media-suspend")
+            options.add_argument("--disable-ipc-flooding-protection")
+            options.add_argument("--memory-pressure-off")
+            options.add_argument("--max_old_space_size=4096")
+            options.add_argument("--disable-features=VizDisplayCompositor")
+            options.add_argument("--disable-features=TranslateUI")
+            options.add_argument("--disable-features=BlinkGenPropertyTrees")
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_argument("--disable-web-security")
+            options.add_argument("--disable-features=dsp")
+            options.add_argument("--disable-logging")
+            options.add_argument("--disable-login-animations")
+            options.add_argument("--disable-smooth-scrolling")
+            options.add_argument("--page-load-strategy=eager")  # Interactive instead of complete
+            options.add_argument("--dns-prefetch-disable")  # Network optimization
+            options.add_experimental_option('excludeSwitches', ['enable-logging'])
+            options.add_experimental_option('useAutomationExtension', False)
+            options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
             
-            summary_parts = []
+            driver = webdriver.Chrome(options=options)
+            driver.set_page_load_timeout(30)  # 30 seconds timeout
+            driver.set_script_timeout(30)
             
-            # Extract Abstract (main answer)
-            if data.get('Abstract'):
-                summary_parts.append(f"Answer: {data['Abstract']}")
-                if data.get('AbstractURL'):
-                    summary_parts.append(f"Source: {data['AbstractURL']}")
+            # Test with a simple page load first
+            driver.get("about:blank")
             
-            # Extract Related Topics
-            if data.get('RelatedTopics'):
-                summary_parts.append("Related Topics:")
-                for topic in data['RelatedTopics'][:3]:  # Limit to 3 topics
-                    if 'Text' in topic:
-                        summary_parts.append(f"  - {topic['Text']}")
-                        if 'FirstURL' in topic:
-                            summary_parts.append(f"    Link: {topic['FirstURL']}")
+            # Now navigate to the requested URL
+            driver.get(url)
+            browsers[browser_id] = driver
+            return f"Browser opened with ID: {browser_id}. Navigated to {url}. You can now read its content or interact with it."
             
-            if summary_parts:
-                return "\n".join(summary_parts)
-            else:
-                return "No direct answer found. Try using google engine for broader results."
         except Exception as e:
-            return f"Error during DuckDuckGo API search: {e}. Browser-based search is not supported for this engine."
-
-
-def open_browser(url: str) -> str:
-    """Opens a new headless Chrome browser window and navigates to the specified URL."""
-    try:
-        browser_id = f"browser_{len(browsers)}"
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--log-level=3")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-infobars")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--mute-audio")
-        options.add_argument("--metrics-recording-only")
-        options.add_argument("--disable-notifications")
-        options.add_argument("--disable-cloud-import")
-        options.add_argument("--disable-sync")
-        options.add_argument("--disable-client-side-phishing-detection")
-        options.add_argument("--disable-background-networking")
-        options.add_argument("--disable-background-timer-throttling")
-        options.add_argument("--disable-backgrounding-occluded-windows")
-        options.add_argument("--disable-component-update")
-        options.add_argument("--disable-default-apps")
-        options.add_argument("--no-first-run")
-        options.add_argument("--no-default-browser-check")
-        options.add_argument("--ignore-certificate-errors")
-        options.add_argument("--guest")
-        options.add_argument("--disable-speech-api")
-        # Performance optimizations
-        options.add_argument("--disable-renderer-backgrounding")
-        options.add_argument("--disable-background-media-suspend")
-        options.add_argument("--disable-ipc-flooding-protection")
-        options.add_argument("--memory-pressure-off")
-        options.add_argument("--max_old_space_size=4096")
-        options.add_argument("--disable-features=VizDisplayCompositor")
-        options.add_argument("--disable-features=TranslateUI")
-        options.add_argument("--disable-features=BlinkGenPropertyTrees")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--disable-web-security")
-        options.add_argument("--disable-features=dsp")
-        options.add_argument("--disable-logging")
-        options.add_argument("--disable-login-animations")
-        options.add_argument("--disable-smooth-scrolling")
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_experimental_option('useAutomationExtension', False)
-        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
-        driver = webdriver.Chrome(options=options)
-        driver.get(url)
-        browsers[browser_id] = driver
-        return f"Browser opened with ID: {browser_id}. Navigated to {url}. You can now read its content or interact with it."
-    except Exception as e:
-        raise Exception(f"Failed to open browser: {e}")
+            error_msg = str(e)
+            # Check if we should retry
+            if attempt < max_retries - 1:
+                # Check if it's a connection-related error
+                is_connection_error = any(msg in error_msg.lower() for msg in [
+                    "failed to connect", "connection refused", "timeout", 
+                    "socket", "network", "unreachable", "chrome not reachable"
+                ])
+                
+                if is_connection_error:
+                    time.sleep(retry_delay)
+                    retry_delay = min(retry_delay * 2, float(getattr(settings, "MAX_RETRY_DELAY", 60.0)))  # Exponential backoff with cap
+                    continue
+            
+            # If we've exhausted retries or it's not a connection error
+            raise Exception(f"Failed to open browser after {attempt+1} attempts: {e}")
 
 
 def get_page_content(browser_id: str) -> str:

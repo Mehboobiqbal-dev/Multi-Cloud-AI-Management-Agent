@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 from models.base import BaseModel
 
@@ -16,6 +17,7 @@ class ChatHistory(BaseModel):
     message = Column(Text, nullable=False)
     message_type = Column(String, default='text')  # 'text', 'command', 'assistance'
     agent_run_id = Column(String, nullable=True)  # Link to specific agent run
+    timestamp = Column(DateTime, default=datetime.utcnow)
     
     def __repr__(self) -> str:
         return f"<ChatHistory(id={self.id}, sender='{self.sender}', message_type='{self.message_type}')>"

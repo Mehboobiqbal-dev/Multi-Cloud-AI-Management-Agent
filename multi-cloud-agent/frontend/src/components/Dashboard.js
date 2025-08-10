@@ -15,9 +15,8 @@ function Dashboard({ navigate }) {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    // Pass the token as a query parameter for WebSocket authentication
-    const wsUrl = `ws://${window.location.hostname}:8000/ws?token=${token}`;
-    websocketService.connect(wsUrl);
+    // Let websocketService handle URL construction and token appending
+    websocketService.connect(null, token);
 
     const unsubscribe = websocketService.subscribe('agent_updates', (update) => {
       if (update.log) {

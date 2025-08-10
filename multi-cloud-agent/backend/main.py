@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from core.config import settings
+from core.structured_logging import structured_logger, LogContext, operation_context
+from core.circuit_breaker import circuit_breaker, CircuitBreakerConfig, CircuitBreakerManager
 
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -92,6 +94,7 @@ from fastapi.exceptions import RequestValidationError as FastAPIRequestValidatio
 from fastapi import WebSocket, WebSocketDisconnect
 
 core = SelfLearningCore()
+circuit_breaker_manager = CircuitBreakerManager()
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -329,10 +332,32 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.post('/prompt')
+@circuit_breaker(
+    'prompt_generation',
+    CircuitBreakerConfig(
+        failure_threshold=getattr(settings, 'CIRCUIT_BREAKER_FAILURE_THRESHOLD', 5),
+        recovery_timeout=float(getattr(settings, 'CIRCUIT_BREAKER_RECOVERY_TIMEOUT', 60.0)),
+        expected_exception=Exception,
+        name='prompt_generation'
+    )
+)
 @limiter.limit("10/minute")
 async def prompt(request: Request, prompt_req: schemas.PromptRequest, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     prompt_text = prompt_req.prompt
-    logging.info(f"Received prompt from user {user.id}: '{prompt_text}'")
+    prompt_context = LogContext(
+        metadata={
+            'user_id': user.id,
+            'prompt_length': len(prompt_text),
+            'operation_type': 'prompt_generation'
+        }
+    )
+    
+    with operation_context('prompt_generation', prompt_context):
+        structured_logger.log_tool_execution(
+            f"Received prompt from user {user.id}: '{prompt_text}'",
+            prompt_context,
+            {"prompt": prompt_text}
+        )
     
     try:
         memory_instance = memory.get_memory_instance()
@@ -441,12 +466,36 @@ YOUR PLAN:
     return {"plan": plan, "prompt": prompt_text}
 
 @app.post('/execute_plan')
+@circuit_breaker(
+    'plan_execution',
+    CircuitBreakerConfig(
+        failure_threshold=getattr(settings, 'CIRCUIT_BREAKER_FAILURE_THRESHOLD', 5),
+        recovery_timeout=float(getattr(settings, 'CIRCUIT_BREAKER_RECOVERY_TIMEOUT', 60.0)),
+        expected_exception=Exception,
+        name='plan_execution'
+    )
+)
 @limiter.limit("10/minute")
 async def execute_plan(request: Request, exec_req: schemas.PlanExecutionRequest, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     core.log_action('execute_plan', {'prompt': exec_req.prompt})
+    execution_context = LogContext(
+        metadata={
+            'user_id': user.id,
+            'plan_steps': len(exec_req.plan),
+            'operation_type': 'plan_execution'
+        }
+    )
+    
     try:
-        plan = exec_req.plan
-        prompt_text = exec_req.prompt
+        with operation_context('execute_plan', execution_context):
+            plan = exec_req.plan
+            prompt_text = exec_req.prompt
+            
+            structured_logger.log_tool_execution(
+                f"Executing plan with {len(plan)} steps for user {user.id}",
+                execution_context,
+                {"plan_steps": len(plan), "prompt": prompt_text}
+            )
         
         creds = db.query(CloudCredential).filter_by(user_id=user.id).all()
         user_creds = {}
@@ -546,7 +595,25 @@ async def feedback(feedback_req: schemas.FeedbackRequest, user: schemas.User = D
 
 @app.get('/healthz')
 def healthz():
-    return {"status": "ok"}
+    try:
+        # Get circuit breaker statuses
+        circuit_breaker_status = {
+            name: str(cb.state) for name, cb in circuit_breaker_manager.circuit_breakers.items()
+        }
+        
+        return {
+            "status": "ok",
+            "timestamp": datetime.now().isoformat(),
+            "circuit_breakers": circuit_breaker_status,
+            "performance_monitoring": getattr(settings, 'ENABLE_PERFORMANCE_MONITORING', False)
+        }
+    except Exception as e:
+        logging.error(f"Health check failed: {str(e)}")
+        return {
+            "status": "degraded",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        }
 
 @app.post('/form/apply_job_upwork')
 async def api_apply_job_upwork(request: schemas.UpworkJobRequest, user: schemas.User = Depends(get_current_user)):
@@ -667,12 +734,20 @@ def generate_text(prompt: str) -> str:
         # If Gemini fails due to quota or other issues, try Groq as a fallback
         logging.warning(f"Gemini generation failed: {e.detail}. Falling back to Groq.")
         max_retries = 3
+        initial_delay = 1  # seconds
         for attempt in range(max_retries):
             try:
                 return groq.generate_text(prompt)
             except HTTPException as groq_e:
-                if groq_e.status_code == 429 and attempt < max_retries - 1:
-                    logging.warning(f"Groq 429 on attempt {attempt+1}, retrying immediately")
+                if groq_e.status_code == 429:
+                    if attempt < max_retries - 1:
+                        delay = initial_delay * (2 ** attempt)
+                        logging.warning(f"Groq 429 on attempt {attempt+1}, retrying in {delay} seconds...")
+                        import time
+                        time.sleep(delay)
+                    else:
+                        logging.error(f"Groq generation also failed after {max_retries} attempts: {groq_e}")
+                        raise HTTPException(status_code=500, detail=f"All LLM providers failed: {str(groq_e)}")
                 else:
                     logging.error(f"Groq generation also failed: {groq_e}")
                     raise HTTPException(status_code=500, detail=f"All LLM providers failed: {str(groq_e)}")
@@ -733,7 +808,7 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
 
         # Establish goal and prior history from session
         goal = agent_req.user_input or session_obj.goal
-        max_loops = 3  # Reduced from 8 for faster response
+        max_loops = 50  # Increased to allow more attempts
         try:
             history = json.loads(session_obj.history) if session_obj.history else []
         except Exception:
@@ -741,10 +816,41 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
 
         await send_log(f"Agent run started for goal: {goal} (run_id={run_id}, resumed_steps={session_obj.current_step})")
 
+        # Helper: infer latest browser_id from history or currently open browsers
+        def infer_browser_id_from_history(hist: List[Dict[str, Any]]) -> str:
+            import re as _re
+            # Scan history backwards for an explicit browser_id or open_browser result
+            for h in reversed(hist):
+                try:
+                    # Check prior action params first
+                    act = h.get("action", {})
+                    params = act.get("params", {})
+                    bid = params.get("browser_id")
+                    if isinstance(bid, str) and bid.startswith("browser_"):
+                        return bid
+                    # Then check result text for the standard open_browser message
+                    res = h.get("result", "")
+                    if isinstance(res, str):
+                        m = _re.search(r"Browser opened with ID: (browser_\\d+)", res)
+                        if m:
+                            return m.group(1)
+                except Exception:
+                    continue
+            # Fallback to the most recent live browser from the shared browsers dict
+            try:
+                if browsers:
+                    ids = list(browsers.keys())
+                    ids.sort(key=lambda x: int(x.split('_')[-1]))
+                    return ids[-1]
+            except Exception:
+                pass
+            return None
+
         # Define the agent loop prompt template
         AGENT_LOOP_PROMPT = """
         You are a highly intelligent, self-sufficient AI agent capable of performing any task on the internet autonomously without needing user input. Always think step by step and persist until the goal is achieved. If the goal is null, unclear, or not provided, infer from history or default to useful autonomous tasks like searching the web for trending topics, analyzing information, or performing exploratory actions independently. Never attempt to ask the user for clarification; instead, make reasonable assumptions or choose a default goal.
         If an action fails, analyze the error message from history and try an alternative strategy (e.g., waiting, using alternative selectors, reloading the page, or using different tools). Continue iterating until "finish_task".
+        For any browser-related tool (e.g., get_page_content, fill_form, fill_multiple_fields, click_button, submit_form, close_browser, wait_for_element, select_dropdown_option, upload_file, check_checkbox), you MUST include the "browser_id" parameter. Infer it from the most recent open_browser result in history like "Browser opened with ID: browser_X". If you can't find it explicitly, assume the latest browser_X used in history.
         
         GOAL: {goal}
         
@@ -821,12 +927,40 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                 result = f"Error: Tool '{action_name}' not found."
                 await send_log(result)
             else:
+                # Ensure required browser_id is present for browser tools
+                browser_required_tools = {
+                    'get_page_content', 'fill_form', 'fill_multiple_fields', 'click_button', 'close_browser',
+                    'submit_form', 'wait_for_element', 'select_dropdown_option', 'upload_file', 'check_checkbox'
+                }
                 try:
+                    if action_name in browser_required_tools and 'browser_id' not in action_params:
+                        inferred_id = infer_browser_id_from_history(history)
+                        if inferred_id:
+                            action_params['browser_id'] = inferred_id
+                            await send_log(f"Inferred browser_id '{inferred_id}' for action '{action_name}' from history.")
                     result = tool.func(**action_params)
                     await send_log(f"Action Result: {str(result)[:200]}...") # Log first 200 chars
                 except Exception as e:
-                    result = f"Error executing tool '{action_name}': {e}"
-                    await send_log(result)
+                    # Attempt a one-time retry if browser_id seems to be the issue
+                    needs_browser = ("browser_id" in str(e).lower()) or ("missing 1 required positional argument" in str(e).lower())
+                    if action_name in browser_required_tools and ('browser_id' not in action_params or needs_browser):
+                        try:
+                            inferred_id = infer_browser_id_from_history(history)
+                            if inferred_id and action_params.get('browser_id') != inferred_id:
+                                action_params['browser_id'] = inferred_id
+                                await send_log(f"Retrying '{action_name}' with inferred browser_id '{inferred_id}' due to error: {e}")
+                                result = tool.func(**action_params)
+                                await send_log(f"Action Result (after retry): {str(result)[:200]}...")
+                            else:
+                                raise e
+                        except Exception as e2:
+                            core.log_error(str(e2), {'goal': goal, 'action': action_name, 'params': action_params})
+                            result = f"Error executing tool '{action_name}': {e2}"
+                            await send_log(result)
+                    else:
+                        core.log_error(str(e), {'goal': goal, 'action': action_name, 'params': action_params})
+                        result = f"Error executing tool '{action_name}': {e}"
+                        await send_log(result)
             
             # 3. RECORD AND OBSERVE
             step_number = step_offset + i + 1

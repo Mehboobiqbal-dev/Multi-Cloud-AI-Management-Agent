@@ -1,10 +1,16 @@
 import os
 import numpy as np
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
 # from annoy import AnnoyIndex
 import google.generativeai as genai
 import json
+import time
+from datetime import datetime
 from core.config import settings
+import logging
+from core.circuit_breaker import get_circuit_breaker, CircuitBreakerConfig, CircuitBreakerOpenError
+from core.local_embeddings import local_embedding_fallback, LocalEmbeddingError
+from core.structured_logging import structured_logger, LogContext, operation_context
 
 # Configure the generative AI model with the API key from settings
 if settings.GEMINI_API_KEY:
@@ -27,21 +33,107 @@ class Memory:
         self.item_counter = 0
         # The model for embedding
         self.embedding_model = 'models/embedding-001'
+        # Circuit breaker state
+        self._embed_failures = 0
+        self._embed_open_until = 0.0
 
     def _get_embedding(self, text: str) -> np.ndarray:
         """
         Generates an embedding for the given text using Google's service.
+        Implements circuit breaker and local fallback for enhanced resilience.
         """
-        try:
-            result = genai.embed_content(
-                model=self.embedding_model,
-                content=text,
-                task_type="retrieval_document"
+        # Get circuit breaker for embeddings
+        circuit_breaker = get_circuit_breaker(
+            'embedding_generation',
+            CircuitBreakerConfig(
+                failure_threshold=getattr(settings, 'CIRCUIT_BREAKER_FAILURE_THRESHOLD', 5),
+                recovery_timeout=float(getattr(settings, 'CIRCUIT_BREAKER_RECOVERY_TIMEOUT', 60.0)),
+                expected_exception=Exception,
+                name='embedding_generation'
             )
-            return np.array(result['embedding'], dtype=np.float32)
+        )
+        
+        context = LogContext(metadata={'text_length': len(text)})
+        
+        try:
+            with operation_context('generate_embedding', context):
+                # Try to use circuit breaker protected external embedding
+                embedding_list = circuit_breaker.call(self._generate_external_embedding, text)
+                return np.array(embedding_list, dtype=np.float32)
+                
+        except CircuitBreakerOpenError:
+            # Circuit is open, try local fallback
+            structured_logger.log_circuit_breaker_event('embedding_generation', 'open', context)
+            return self._generate_fallback_embedding(text, context)
+        
         except Exception as e:
-            print(f"Warning: Failed to generate embedding: {e}")
-            # Return zero vector as fallback
+            # External embedding failed, try local fallback
+            structured_logger.log_retry_attempt('embedding_generation', 0, str(e), context)
+            return self._generate_fallback_embedding(text, context)
+
+    def _generate_external_embedding(self, text: str) -> List[float]:
+        """Generate embedding using external service (Gemini)."""
+        max_retries = getattr(settings, "MAX_RETRIES", 3)
+        retry_delay = float(getattr(settings, "INITIAL_RETRY_DELAY", 2.0))
+        
+        for attempt in range(max_retries):
+            try:
+                result = genai.embed_content(
+                    model=self.embedding_model,
+                    content=text,
+                    task_type="retrieval_document"
+                )
+                return result['embedding']
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                
+                # Check for non-retriable errors (argument errors)
+                if any(msg in error_msg for msg in ["invalid argument", "bad request", "400", "unexpected keyword argument"]):
+                    # Don't retry for argument errors
+                    raise e
+                
+                # Check for connection-related errors
+                is_connection_error = any(msg in error_msg for msg in [
+                    "failed to connect", "timeout", "connection refused", 
+                    "network", "socket", "unreachable", "tcp handshaker shutdown", "dns", "gateway"
+                ])
+                
+                if is_connection_error and attempt < max_retries - 1:
+                    structured_logger.log_retry_attempt('external_embedding', attempt + 1, str(e))
+                    time.sleep(retry_delay)
+                    retry_delay = min(retry_delay * 2, float(getattr(settings, "MAX_RETRY_DELAY", 60.0)))
+                    continue
+                
+                # Final attempt failed
+                raise e
+
+    def _generate_fallback_embedding(self, text: str, context: Optional[LogContext] = None) -> np.ndarray:
+        """Generate embedding using local fallback."""
+        try:
+            structured_logger.log_self_learning_event(
+                "Using local embedding fallback",
+                context,
+                {'fallback_reason': 'external_service_unavailable'}
+            )
+            
+            if local_embedding_fallback.available:
+                embedding_list = local_embedding_fallback.embed_text(text)
+                return np.array(embedding_list, dtype=np.float32)
+            else:
+                # Local fallback not available, return zero vector
+                structured_logger.log_self_learning_event(
+                    "Local embedding fallback not available, using zero vector",
+                    context
+                )
+                return np.zeros(self.embedding_dim, dtype=np.float32)
+                
+        except LocalEmbeddingError as e:
+            structured_logger.log_self_learning_event(
+                f"Local embedding fallback failed: {e}",
+                context
+            )
+            # Return zero vector as last resort
             return np.zeros(self.embedding_dim, dtype=np.float32)
 
     def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
