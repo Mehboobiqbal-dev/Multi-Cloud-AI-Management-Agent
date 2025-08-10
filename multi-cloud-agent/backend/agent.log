@@ -44243,3 +44243,470 @@ Traceback (most recent call last):
     return browsing.search_web(query, engine)
            ^^^^^^^^
 NameError: name 'browsing' is not defined. Did you mean: 'browsers'?
+2025-08-09 20:12:28,771 - INFO - Database initialized successfully
+2025-08-09 20:12:28,772 - INFO - Database initialized successfully.
+2025-08-09 20:13:54,271 - INFO - Action: agent_run | Details: {"user_input": "create TempMail account"}
+2025-08-09 20:13:54,998 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 6
+}
+]
+2025-08-09 20:13:54,999 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-09 20:14:10,574 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 51
+}
+]
+2025-08-09 20:14:10,574 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-09 20:14:13,254 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 48
+}
+]
+2025-08-09 20:14:13,255 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-09 20:14:15,578 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 46
+}
+]
+2025-08-09 20:14:15,579 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-09 20:14:19,904 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 42
+}
+]
+2025-08-09 20:14:19,905 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-09 20:14:23,940 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 38
+}
+]
+2025-08-09 20:14:23,940 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-09 20:14:26,266 - ERROR - Error: Task failed | Context: {"task": "create TempMail account", "success": false, "metrics": {"loops": 3}}
+2025-08-09 20:14:26,282 - ERROR - An unexpected error occurred during agent run: name 'browsing' is not defined
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 805, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 33, in log_error
+    self.learn_from_error(error, context)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 37, in learn_from_error
+    fix = self.search_for_fix(error)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 48, in search_for_fix
+    results = search_web(f'how to fix {error} in Python')
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\tools.py", line 35, in search_web
+    return browsing.search_web(query, engine)
+           ^^^^^^^^
+NameError: name 'browsing' is not defined. Did you mean: 'browsers'?
+2025-08-09 20:14:26,289 - ERROR - Error: name 'browsing' is not defined | Context: {"goal": "create TempMail account"}
+2025-08-09 20:14:26,311 - ERROR - Unhandled error during request to http://127.0.0.1:8000/agent/run: name 'browsing' is not defined
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 805, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 33, in log_error
+    self.learn_from_error(error, context)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 37, in learn_from_error
+    fix = self.search_for_fix(error)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 48, in search_for_fix
+    results = search_web(f'how to fix {error} in Python')
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\tools.py", line 35, in search_web
+    return browsing.search_web(query, engine)
+           ^^^^^^^^
+NameError: name 'browsing' is not defined. Did you mean: 'browsers'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\slowapi\extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 811, in agent_run
+    core.log_error(str(e), {'goal': goal})
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 33, in log_error
+    self.learn_from_error(error, context)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 37, in learn_from_error
+    fix = self.search_for_fix(error)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 48, in search_for_fix
+    results = search_web(f'how to fix {error} in Python')
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\tools.py", line 35, in search_web
+    return browsing.search_web(query, engine)
+           ^^^^^^^^
+NameError: name 'browsing' is not defined. Did you mean: 'browsers'?
+2025-08-09 20:15:15,039 - INFO - Database initialized successfully
+2025-08-09 20:15:15,039 - INFO - Database initialized successfully.
+2025-08-10 08:54:59,210 - INFO - Database initialized successfully
+2025-08-10 08:54:59,211 - INFO - Database initialized successfully.
+2025-08-10 08:55:58,994 - INFO - Action: agent_run | Details: {"user_input": "calculate 2 plus 2"}
+2025-08-10 08:56:01,200 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 58
+}
+]
+2025-08-10 08:56:01,200 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 08:56:03,802 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 56
+}
+]
+2025-08-10 08:56:03,802 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.

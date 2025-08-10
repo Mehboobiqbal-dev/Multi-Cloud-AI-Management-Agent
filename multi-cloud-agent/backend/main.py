@@ -56,6 +56,30 @@ import universal_assistant
 import json
 import re
 
+MEMORY_FILE = "./agent_memory.json"
+
+def load_agent_memory():
+    if os.path.exists(MEMORY_FILE):
+        with open(MEMORY_FILE, 'r') as f:
+            try:
+                data = json.load(f)
+                # Assuming 'knowledge' is the key where documents are stored
+                for doc in data.get('knowledge', []):
+                    memory.memory_instance.add_document(doc)
+                print("Agent memory loaded successfully.")
+            except json.JSONDecodeError as e:
+                print(f"Error decoding agent memory JSON: {e}")
+            except Exception as e:
+                print(f"Error loading agent memory: {e}")
+    else:
+        print("Agent memory file not found. Starting with empty memory.")
+
+def save_agent_memory():
+    with open(MEMORY_FILE, 'w') as f:
+        # Assuming documents are stored as a list of dictionaries
+        json.dump({"knowledge": memory.memory_instance.documents}, f, indent=2)
+    print("Agent memory saved successfully.")
+
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -82,6 +106,7 @@ async def lifespan(app: FastAPI):
     try:
         init_db()
         logging.info("Database initialized successfully.")
+        load_agent_memory() # Load memory on startup
     except Exception as e:
         logging.error(f"Fatal error during database initialization: {e}", exc_info=True)
         raise
@@ -661,6 +686,16 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
     core.log_action('agent_run', {'user_input': agent_req.user_input})
     user_id = user.id
     websocket = active_connections.get(user_id)
+    
+    # Add current goal to memory
+    memory.memory_instance.add_document({"type": "user_goal", "content": agent_req.user_input, "timestamp": datetime.now().isoformat()})
+    save_agent_memory()
+    
+    # Retrieve relevant context from memory
+    relevant_context = memory.memory_instance.search(agent_req.user_input, k=5) # Get top 5 relevant documents
+    context_str = "\n".join([json.dumps(doc) for _, doc in relevant_context])
+    if context_str:
+        print(f"Retrieved context from memory: {context_str}")
 
     async def send_log(message: str):
         if websocket:
