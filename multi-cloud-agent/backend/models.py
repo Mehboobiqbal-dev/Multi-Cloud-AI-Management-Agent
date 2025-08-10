@@ -19,6 +19,8 @@ class User(Base):
     credentials = relationship('CloudCredential', back_populates='user')
     audit_logs = relationship('AuditLog', back_populates='user')
     plan_histories = relationship('PlanHistory', back_populates='user')
+    chat_messages = relationship('ChatHistory', back_populates='user')
+    agent_sessions = relationship('AgentSession', back_populates='user')
 
 class CloudCredential(Base):
     __tablename__ = 'cloud_credentials'
@@ -56,3 +58,29 @@ class PlanHistory(Base):
     correction = Column(Text, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
     user = relationship('User', back_populates='plan_histories')
+
+class ChatHistory(Base):
+    __tablename__ = 'chat_history'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    sender = Column(String, nullable=False)  # 'user' or 'agent'
+    message = Column(Text, nullable=False)
+    message_type = Column(String, default='text')  # 'text', 'command', 'assistance'
+    agent_run_id = Column(String, nullable=True)  # Link to specific agent run
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    user = relationship('User', back_populates='chat_messages')
+
+class AgentSession(Base):
+    __tablename__ = 'agent_sessions'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    run_id = Column(String, unique=True, nullable=False)
+    goal = Column(Text, nullable=False)
+    status = Column(String, default='running')  # 'running', 'paused', 'completed', 'failed'
+    current_step = Column(Integer, default=0)
+    history = Column(Text)  # JSON of execution history
+    awaiting_assistance = Column(Boolean, default=False)
+    assistance_request = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user = relationship('User', back_populates='agent_sessions')

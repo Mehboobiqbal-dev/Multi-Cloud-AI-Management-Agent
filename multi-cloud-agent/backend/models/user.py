@@ -26,6 +26,8 @@ class User(BaseModel):
     credentials = relationship("CloudCredential", back_populates="user", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
     plan_histories = relationship("PlanHistory", back_populates="user", cascade="all, delete-orphan")
+    chat_messages = relationship("ChatHistory", back_populates="user", cascade="all, delete-orphan")
+    agent_sessions = relationship("AgentSession", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}', name='{self.name}')>"

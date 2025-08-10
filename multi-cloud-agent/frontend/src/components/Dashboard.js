@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import websocketService from '../services/websocket';
-import { AppBar, Toolbar, Typography, Button, Container, Box, TextField, Paper, CircularProgress, List, ListItem, ListItemText } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Container, Box, TextField, Paper, CircularProgress, List, ListItem, ListItemText, Grid } from '@mui/material';
+import ChatComponent from './Chat/ChatComponent';
 
 function Dashboard({ navigate }) {
   const { user, logout } = useAuth();
@@ -10,6 +11,7 @@ function Dashboard({ navigate }) {
   const [response, setResponse] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentRunId, setCurrentRunId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -39,6 +41,8 @@ function Dashboard({ navigate }) {
     setResponse(null);
     setLogs([]);
     try {
+      const run_id = Date.now().toString();
+      setCurrentRunId(run_id);
       const data = await api.runAgent(prompt);
       setResponse(data);
     } catch (err) {
@@ -48,6 +52,11 @@ function Dashboard({ navigate }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAgentControl = (action) => {
+    // Placeholder for pause/resume future behavior
+    console.log('Agent control:', action, 'for run id', currentRunId);
   };
 
   return (
@@ -61,39 +70,47 @@ function Dashboard({ navigate }) {
         </Toolbar>
       </AppBar>
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <form onSubmit={handlePromptSubmit}>
-            <TextField
-              fullWidth
-              label="Enter your command"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              variant="outlined"
-              disabled={loading}
-            />
-            <Button type="submit" variant="contained" sx={{ mt: 1 }} disabled={loading}>
-              {loading ? <CircularProgress size={24} /> : 'Run'}
-            </Button>
-          </form>
-        </Paper>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={8}>
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <form onSubmit={handlePromptSubmit}>
+                <TextField
+                  fullWidth
+                  label="Enter your command"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  variant="outlined"
+                  disabled={loading}
+                />
+                <Button type="submit" variant="contained" sx={{ mt: 1 }} disabled={loading}>
+                  {loading ? <CircularProgress size={24} /> : 'Run'}
+                </Button>
+              </form>
+            </Paper>
 
-        {response && (
-          <Paper sx={{ p: 2, mb: 2 }}>
-            <Typography variant="h6">Result</Typography>
-            <pre>{JSON.stringify(response, null, 2)}</pre>
-          </Paper>
-        )}
+            {response && (
+              <Paper sx={{ p: 2, mb: 2 }}>
+                <Typography variant="h6">Result</Typography>
+                <pre>{JSON.stringify(response, null, 2)}</pre>
+              </Paper>
+            )}
 
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h6">Logs</Typography>
-          <List>
-            {logs.map((log, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={log} />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="h6">Logs</Typography>
+              <List>
+                {logs.map((log, index) => (
+                  <ListItem key={index}>
+                    <ListItemText primary={log} />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <ChatComponent currentAgentRunId={currentRunId} onAgentControl={handleAgentControl} />
+          </Grid>
+        </Grid>
       </Container>
     </Box>
   );

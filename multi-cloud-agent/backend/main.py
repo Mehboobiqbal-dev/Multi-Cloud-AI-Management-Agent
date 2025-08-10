@@ -21,7 +21,7 @@ from passlib.context import CryptContext
 import time
 from core.db import SessionLocal, Base
 from core.db import init_db
-from models import User, CloudCredential, PlanHistory
+from models import User, CloudCredential, PlanHistory, ChatHistory, AgentSession
 from security import encrypt_text as encrypt, decrypt_text as decrypt
 from openai import OpenAI
 
@@ -682,20 +682,22 @@ def generate_text(prompt: str) -> str:
 
 @app.post('/agent/run', response_model=schemas.AgentRunResponse, tags=["Agent"])
 @limiter.limit("5/minute")
-async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user: schemas.User = Depends(get_current_user)):
+async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     core.log_action('agent_run', {'user_input': agent_req.user_input})
     user_id = user.id
     websocket = active_connections.get(user_id)
     
-    # Add current goal to memory
-    memory.memory_instance.add_document({"type": "user_goal", "content": agent_req.user_input, "timestamp": datetime.now().isoformat()})
-    save_agent_memory()
+    # Add current goal to memory only if provided (avoid adding None during resume)
+    if agent_req.user_input:
+        memory.memory_instance.add_document({"type": "user_goal", "content": agent_req.user_input, "timestamp": datetime.now().isoformat()})
+        save_agent_memory()
     
-    # Retrieve relevant context from memory
-    relevant_context = memory.memory_instance.search(agent_req.user_input, k=5) # Get top 5 relevant documents
-    context_str = "\n".join([json.dumps(doc) for _, doc in relevant_context])
-    if context_str:
-        print(f"Retrieved context from memory: {context_str}")
+    # Retrieve relevant context from memory if input provided
+    if agent_req.user_input:
+        relevant_context = memory.memory_instance.search(agent_req.user_input, k=5) # Get top 5 relevant documents
+        context_str = "\n".join([json.dumps(doc) for _, doc in relevant_context])
+        if context_str:
+            print(f"Retrieved context from memory: {context_str}")
 
     async def send_log(message: str):
         if websocket:
@@ -707,11 +709,37 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             logging.warning(f"No active WebSocket connection for user {user_id} to send log: {message}")
 
     try:
-        goal = agent_req.user_input
-        max_loops = 3  # Reduced from 8 for faster response
-        history = []
+        # Ensure we have a run_id to persist and resume the session
+        run_id = agent_req.run_id
+        if not run_id:
+            return schemas.AgentRunResponse(status="error", message="run_id is required to start or resume an agent run.", history=[], final_result=None)
 
-        await send_log(f"Agent run started for goal: {goal}")
+        # Load or create AgentSession
+        session_obj = db.query(AgentSession).filter(AgentSession.run_id == run_id, AgentSession.user_id == user_id).first()
+        if not session_obj:
+            if not agent_req.user_input:
+                return schemas.AgentRunResponse(status="error", message="No existing session for run_id and no user_input provided to start a new session.", history=[], final_result=None)
+            session_obj = AgentSession(
+                user_id=user_id,
+                run_id=run_id,
+                goal=agent_req.user_input,
+                status='running',
+                current_step=0,
+                history=json.dumps([])
+            )
+            db.add(session_obj)
+            db.commit()
+            db.refresh(session_obj)
+
+        # Establish goal and prior history from session
+        goal = agent_req.user_input or session_obj.goal
+        max_loops = 3  # Reduced from 8 for faster response
+        try:
+            history = json.loads(session_obj.history) if session_obj.history else []
+        except Exception:
+            history = []
+
+        await send_log(f"Agent run started for goal: {goal} (run_id={run_id}, resumed_steps={session_obj.current_step})")
 
         # Define the agent loop prompt template
         AGENT_LOOP_PROMPT = """
@@ -737,8 +765,10 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
         Never use non-existent tools like 'ask_user'. Persist through errors and adapt autonomously.
         """
     
+        # Continue from previous step count
+        step_offset = int(session_obj.current_step or 0)
         for i in range(max_loops):
-            await send_log(f"--- Agent Loop {i+1} for goal: '{goal}' ---")
+            await send_log(f"--- Agent Loop {step_offset + i + 1} for goal: '{goal}' ---")
             
             # 1. THINK and CHOOSE NEXT ACTION
             history_str = "\n".join([f"  - Step {h['step']}: I used '{h['action']['name']}' which resulted in: '{h['result']}'" for h in history]) if history else "  - No actions taken yet."
@@ -770,10 +800,17 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                 action_params = action_data.get("params", {})
             except (json.JSONDecodeError, AttributeError) as e:
                 logging.error(f"Failed to parse agent decision from response: '{response_text}'. Error: {e}", exc_info=True)
+                # Mark session as failed for this attempt, but keep history
+                session_obj.status = 'failed'
+                session_obj.history = json.dumps(history)
+                db.commit()
                 return schemas.AgentRunResponse(status="error", message=f"Agent failed to parse LLM response: '{response_text}'. Last thought was: {thought}", history=history, final_result=None)
 
             if not action_name or not isinstance(action_params, dict):
-                 return schemas.AgentRunResponse(status="error", message=f"Agent generated an invalid action. Last thought: {thought}", history=history, final_result=None)
+                session_obj.status = 'failed'
+                session_obj.history = json.dumps(history)
+                db.commit()
+                return schemas.AgentRunResponse(status="error", message=f"Agent generated an invalid action. Last thought: {thought}", history=history, final_result=None)
 
             # 2. EXECUTE THE CHOSEN ACTION
             await send_log(f"Agent Thought: {thought}")
@@ -792,12 +829,18 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                     await send_log(result)
             
             # 3. RECORD AND OBSERVE
+            step_number = step_offset + i + 1
             history.append({
-                "step": i + 1,
+                "step": step_number,
                 "thought": thought,
                 "action": action_data,
                 "result": str(result) # Ensure result is a string
             })
+            # Persist session progress after each step
+            session_obj.current_step = step_number
+            session_obj.history = json.dumps(history)
+            session_obj.status = 'running'
+            db.commit()
 
             # Self-Critique
             critique_prompt = f"Goal: {goal}\nLast Action Result: {result}\nCritique and suggest improvement."
@@ -808,17 +851,32 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             if action_name == "finish_task":
                 await send_log(f"Agent finished goal: '{goal}'")
                 await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"final_result": result}}}))
+                session_obj.status = 'completed'
+                session_obj.history = json.dumps(history)
+                db.commit()
                 return schemas.AgentRunResponse(status="success", message="Agent completed the goal.", history=history, final_result=result)
             
 
         await send_log(f"Agent reached max loops for goal: '{goal}'")
         core.post_task_review(goal, False, {'loops': max_loops})
-        await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"message": "Agent reached maximum loops without finishing the goal."}}}))
+        # Keep session resumable
+        session_obj.status = 'paused'
+        session_obj.history = json.dumps(history)
+        db.commit()
+        await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"message": "Agent reached maximum loops without finishing the goal. Call /agent/run again with the same run_id to resume."}}}))
         return schemas.AgentRunResponse(status="error", message="Agent reached maximum loops without finishing the goal.", history=history, final_result=None)
     except Exception as e:
         error_message = f"An unexpected error occurred during agent run: {e}"
         logging.error(error_message, exc_info=True)
-        core.log_error(str(e), {'goal': goal})
+        core.log_error(str(e), {'goal': agent_req.user_input})
+        # Try to update session status if possible
+        try:
+            if 'session_obj' in locals() and session_obj:
+                session_obj.status = 'failed'
+                session_obj.history = json.dumps(history if 'history' in locals() else [])
+                db.commit()
+        except Exception:
+            pass
         await send_log(error_message)
         await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "error", "data": {"message": error_message}}}))
         raise
@@ -831,3 +889,75 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
+@app.get('/chat/history')
+async def get_chat_history(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    messages = db.query(ChatHistory).filter(ChatHistory.user_id == user.id).order_by(ChatHistory.timestamp.asc()).all()
+    return [{
+        "id": m.id,
+        "sender": m.sender,
+        "message": m.message,
+        "message_type": m.message_type,
+        "agent_run_id": m.agent_run_id,
+        "timestamp": m.timestamp.isoformat()
+    } for m in messages]
+
+@app.post('/chat/message')
+async def post_chat_message(payload: Dict[str, Any], user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    message = payload.get('message')
+    message_type = payload.get('message_type', 'text')
+    agent_run_id = payload.get('agent_run_id')
+    if not message:
+        raise HTTPException(status_code=400, detail="Message is required")
+    chat = ChatHistory(user_id=user.id, sender='user', message=message, message_type=message_type, agent_run_id=agent_run_id)
+    db.add(chat)
+    db.commit()
+    # Forward to WebSocket subscribers if present
+    ws = active_connections.get(user.id)
+    if ws:
+        try:
+            await ws.send_json({"topic": "chat", "payload": {"sender": "user", "message": message, "message_type": message_type, "agent_run_id": agent_run_id}})
+        except Exception:
+            pass
+    return {"status": "ok"}
+
+# Modify websocket chat endpoint to accept run_id and assistance
+@app.websocket("/ws/chat")
+async def websocket_chat_endpoint(websocket: WebSocket, user: schemas.User = Depends(get_current_user_from_ws), db: Session = Depends(get_db)):
+    user_id = user.id
+    active_connections[user_id] = websocket
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message_data = json.loads(data)
+            message = message_data.get("message")
+            message_type = message_data.get("message_type", "text")
+            agent_run_id = message_data.get("agent_run_id")
+            if not message:
+                continue
+            # Save user message to chat history
+            user_message = ChatHistory(user_id=user_id, sender="user", message=message, message_type=message_type, agent_run_id=agent_run_id)
+            db.add(user_message)
+            db.commit()
+            # Add message to memory if available
+            try:
+                memory.memory_instance.add_document({"type": "chat", "sender": "user", "message": message, "agent_run_id": agent_run_id, "timestamp": datetime.now().isoformat()})
+            except Exception:
+                pass
+            # Echo back to client and notify agent listeners
+            await websocket.send_json({"sender": "user", "text": message, "message_type": message_type, "agent_run_id": agent_run_id})
+            ws_agent = active_connections.get(user_id)
+            if ws_agent and ws_agent is not websocket:
+                try:
+                    await ws_agent.send_json({"topic": "chat", "payload": {"sender": "user", "message": message, "message_type": message_type, "agent_run_id": agent_run_id}})
+                except Exception:
+                    pass
+    except WebSocketDisconnect:
+        if user_id in active_connections:
+            del active_connections[user_id]
+        print(f"Client {user_id} disconnected from chat")
+    except Exception as e:
+        if user_id in active_connections:
+            del active_connections[user_id]
+        logging.error(f"WebSocket chat error for client {user_id}: {e}", exc_info=True)

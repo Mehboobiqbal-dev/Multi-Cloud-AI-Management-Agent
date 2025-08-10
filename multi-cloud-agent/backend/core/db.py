@@ -64,7 +64,7 @@ def init_db() -> None:
     """
     try:
         # Import all models to ensure they're registered with the Base metadata
-        from models import User, CloudCredential, AuditLog, PlanHistory  # noqa
+        from models import User, CloudCredential, AuditLog, PlanHistory, ChatHistory, AgentSession  # noqa
         
         # Create all tables
         Base.metadata.create_all(bind=engine)

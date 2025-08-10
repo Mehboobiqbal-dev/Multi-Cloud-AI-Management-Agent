@@ -44710,3 +44710,1562 @@ violations {
 }
 ]
 2025-08-10 08:56:03,802 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 09:00:11,025 - INFO - Database initialized successfully
+2025-08-10 09:00:11,025 - INFO - Database initialized successfully.
+2025-08-10 09:01:45,861 - INFO - Database initialized successfully
+2025-08-10 09:01:45,861 - INFO - Database initialized successfully.
+2025-08-10 09:23:37,003 - INFO - Database initialized successfully
+2025-08-10 09:23:37,004 - INFO - Database initialized successfully.
+2025-08-10 09:24:46,400 - INFO - Database initialized successfully
+2025-08-10 09:24:46,400 - INFO - Database initialized successfully.
+2025-08-10 09:33:56,773 - INFO - Database initialized successfully
+2025-08-10 09:33:56,773 - INFO - Database initialized successfully.
+2025-08-10 09:34:57,244 - INFO - Database initialized successfully
+2025-08-10 09:34:57,245 - INFO - Database initialized successfully.
+2025-08-10 09:35:56,453 - INFO - Database initialized successfully
+2025-08-10 09:35:56,453 - INFO - Database initialized successfully.
+2025-08-10 09:36:58,754 - ERROR - Error initializing database: cannot import name 'ChatHistory' from 'models' (C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\models\__init__.py)
+2025-08-10 09:36:58,754 - ERROR - Fatal error during database initialization: cannot import name 'ChatHistory' from 'models' (C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\models\__init__.py)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 107, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 67, in init_db
+    from models import User, CloudCredential, AuditLog, PlanHistory, ChatHistory, AgentSession  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: cannot import name 'ChatHistory' from 'models' (C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\models\__init__.py). Did you mean: 'PlanHistory'?
+2025-08-10 10:23:19,212 - INFO - Database initialized successfully
+2025-08-10 10:23:19,212 - INFO - Database initialized successfully.
+2025-08-10 10:24:40,793 - INFO - Database initialized successfully
+2025-08-10 10:24:40,794 - INFO - Database initialized successfully.
+2025-08-10 10:29:07,460 - INFO - Database initialized successfully
+2025-08-10 10:29:07,460 - INFO - Database initialized successfully.
+2025-08-10 10:31:14,357 - INFO - Action: agent_run | Details: {"user_input": "create TempMail account"}
+2025-08-10 10:31:16,447 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 43
+}
+]
+2025-08-10 10:31:16,448 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:31:34,296 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 25
+}
+]
+2025-08-10 10:31:34,297 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:31:37,350 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 22
+}
+]
+2025-08-10 10:31:37,351 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:31:38,945 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 21
+}
+]
+2025-08-10 10:31:38,946 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:31:42,215 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 18
+}
+]
+2025-08-10 10:31:42,216 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:31:45,934 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 14
+}
+]
+2025-08-10 10:31:45,935 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:31:48,870 - ERROR - Error: Task failed | Context: {"task": "create TempMail account", "success": false, "metrics": {"loops": 3}}
+2025-08-10 10:31:48,871 - ERROR - An unexpected error occurred during agent run: 'errors'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 815, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+2025-08-10 10:31:48,884 - ERROR - Error: 'errors' | Context: {"goal": "create TempMail account"}
+2025-08-10 10:31:48,912 - ERROR - Unhandled error during request to http://127.0.0.1:8000/agent/run: 'errors'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 815, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\slowapi\extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 821, in agent_run
+    core.log_error(str(e), {'goal': goal})
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+2025-08-10 10:31:49,413 - ERROR - Unhandled error during request to http://127.0.0.1:8000/chat/history: type object 'ChatHistory' has no attribute 'timestamp'
+Traceback (most recent call last):
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\AppData\Roaming\Python\Python313\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 837, in get_chat_history
+    messages = db.query(ChatHistory).filter(ChatHistory.user_id == user.id).order_by(ChatHistory.timestamp.asc()).all()
+                                                                                     ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ChatHistory' has no attribute 'timestamp'
+2025-08-10 10:43:49,752 - INFO - Action: agent_run | Details: {"user_input": "create TempMail account"}
+2025-08-10 10:43:53,456 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 6
+}
+]
+2025-08-10 10:43:53,456 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:44:06,904 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 53
+}
+]
+2025-08-10 10:44:06,904 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:44:09,523 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 50
+}
+]
+2025-08-10 10:44:09,523 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:44:12,204 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 48
+}
+]
+2025-08-10 10:44:12,204 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:44:19,148 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 41
+}
+]
+2025-08-10 10:44:19,149 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 10:52:02,111 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DEC8A50>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:06,174 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DEC9310>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:10,255 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DC3D480>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:18,357 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DC5E9F0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:22,387 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7020>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:26,432 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7240>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:34,526 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25040>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:38,602 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24D10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:42,668 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF249E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:50,806 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24270>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:54,885 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24380>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:52:58,954 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF256A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:07,049 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25E10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:11,104 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26030>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:15,170 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26250>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:23,258 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF268B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:27,329 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26AD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:31,382 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26CF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:39,508 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27350>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:43,590 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27570>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:47,653 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27790>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:55,818 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27DF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:53:59,887 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064050>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:54:03,958 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064270>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:54:12,102 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0648D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:54:16,174 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064AF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:54:20,234 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064D10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:54:28,358 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065370>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/elements
+2025-08-10 10:54:32,424 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065590>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/elements
+2025-08-10 10:54:36,526 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0657B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/elements
+2025-08-10 10:54:44,636 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27CE0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/elements
+2025-08-10 10:54:48,699 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27AC0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/elements
+2025-08-10 10:54:52,740 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF278A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/elements
+2025-08-10 10:55:00,868 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27130>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:04,929 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26F10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:08,980 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26CF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:17,105 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26690>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:21,189 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26470>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:25,288 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26250>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:33,414 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25D00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:37,478 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF259D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:41,552 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF256A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:49,658 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25260>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:53,744 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24F30>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:55:57,802 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF249E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:05,910 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25370>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:09,957 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25590>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:14,038 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF257B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:22,154 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7BD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:26,220 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7CE0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:30,291 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD78A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:38,413 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD4270>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:42,509 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065150>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:46,584 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065040>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:54,710 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0649E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:56:58,782 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0647C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:02,841 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0645A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:10,979 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065AE0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:15,063 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065D00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:19,139 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E065F20>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:27,294 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD4270>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:31,395 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD4160>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:35,474 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD4050>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:43,650 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7F00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:47,737 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7570>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:51,808 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7DF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:57:59,975 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24C00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:04,009 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF246B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:08,101 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24E20>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:16,195 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24160>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:20,234 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24050>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:24,306 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24490>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:32,412 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25BF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:36,481 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25F20>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:40,536 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26140>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:48,637 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF267A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:52,697 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF269C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:58:56,751 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26BE0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:04,868 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27240>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:08,920 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27680>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:12,967 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF278A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:21,050 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27DF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:25,085 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E066580>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:29,143 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0659D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:37,264 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064490>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:41,337 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0646B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:45,392 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0648D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:53,556 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064F30>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 10:59:57,611 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E066690>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:01,675 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0668B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:09,865 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E066F10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:13,954 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E067130>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:18,025 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27F00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:26,156 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27570>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:30,245 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27350>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:34,326 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF27460>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:42,449 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26CF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:46,515 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26AD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:50,585 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF268B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:00:58,710 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26250>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:02,798 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF26030>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:06,878 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25E10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:14,993 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF256A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:19,038 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24380>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:23,124 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24270>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:31,227 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF249E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:35,289 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF24D10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:39,364 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DF25040>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:47,472 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7240>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:51,547 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD7020>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:01:55,594 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6DCD79B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:03,729 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064E20>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:07,788 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064C00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:11,870 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0649E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:19,984 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064380>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:24,052 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E064160>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:28,085 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E067350>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:36,194 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E0679B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:40,239 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E067BD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:02:44,288 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FD6E067DF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/e3916f4d8c1021905019e3245aed7e4a/element
+2025-08-10 11:03:47,218 - INFO - Database initialized successfully
+2025-08-10 11:03:47,219 - INFO - Database initialized successfully.
+2025-08-10 11:05:22,018 - INFO - Database initialized successfully
+2025-08-10 11:05:22,018 - INFO - Database initialized successfully.
+2025-08-10 11:06:53,617 - INFO - Action: agent_run | Details: {"user_input": "create TempMail account"}
+2025-08-10 11:06:56,014 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 4
+}
+]
+2025-08-10 11:06:56,015 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:07:08,079 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 51
+}
+]
+2025-08-10 11:07:08,080 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:07:10,828 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 49
+}
+]
+2025-08-10 11:07:10,829 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:07:16,432 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 43
+}
+]
+2025-08-10 11:07:16,433 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:07:21,920 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 38
+}
+]
+2025-08-10 11:07:21,921 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:07:26,495 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 33
+}
+]
+2025-08-10 11:07:26,496 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:07:28,519 - ERROR - Error: Task failed | Context: {"task": "create TempMail account", "success": false, "metrics": {"loops": 3}}
+2025-08-10 11:07:28,520 - ERROR - An unexpected error occurred during agent run: 'errors'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 861, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+2025-08-10 11:07:28,532 - ERROR - Error: 'errors' | Context: {"goal": "create TempMail account"}
+2025-08-10 11:07:28,538 - ERROR - Unhandled error during request to http://127.0.0.1:8000/chat/history: type object 'ChatHistory' has no attribute 'timestamp'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 895, in get_chat_history
+    messages = db.query(ChatHistory).filter(ChatHistory.user_id == user.id).order_by(ChatHistory.timestamp.asc()).all()
+                                                                                     ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ChatHistory' has no attribute 'timestamp'
+2025-08-10 11:07:28,721 - ERROR - Unhandled error during request to http://127.0.0.1:8000/agent/run: 'errors'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 861, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\slowapi\extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 871, in agent_run
+    core.log_error(str(e), {'goal': agent_req.user_input})
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+2025-08-10 11:09:02,929 - INFO - Action: agent_run | Details: {"user_input": "create TempMail account"}
+2025-08-10 11:09:04,765 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 55
+}
+]
+2025-08-10 11:09:04,765 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:09:22,376 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 37
+}
+]
+2025-08-10 11:09:22,377 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:09:25,243 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 34
+}
+]
+2025-08-10 11:09:25,244 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:09:27,019 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 33
+}
+]
+2025-08-10 11:09:27,019 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:09:40,347 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 20
+}
+]
+2025-08-10 11:09:40,347 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:09:43,601 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 16
+}
+]
+2025-08-10 11:09:43,601 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 11:09:45,927 - ERROR - Error: Task failed | Context: {"task": "create TempMail account", "success": false, "metrics": {"loops": 3}}
+2025-08-10 11:09:45,927 - ERROR - An unexpected error occurred during agent run: 'errors'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 861, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+2025-08-10 11:09:45,930 - ERROR - Error: 'errors' | Context: {"goal": "create TempMail account"}
+2025-08-10 11:09:45,933 - ERROR - Unhandled error during request to http://127.0.0.1:8000/agent/run: 'errors'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 861, in agent_run
+    core.post_task_review(goal, False, {'loops': max_loops})
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 62, in post_task_review
+    self.log_error('Task failed', review)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\slowapi\extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 871, in agent_run
+    core.log_error(str(e), {'goal': agent_req.user_input})
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\self_learning.py", line 31, in log_error
+    self.memory['errors'].append({'timestamp': str(datetime.now()), 'error': error, 'context': context})
+    ~~~~~~~~~~~^^^^^^^^^^
+KeyError: 'errors'
+2025-08-10 11:09:45,978 - ERROR - Unhandled error during request to http://127.0.0.1:8000/chat/history: type object 'ChatHistory' has no attribute 'timestamp'
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 895, in get_chat_history
+    messages = db.query(ChatHistory).filter(ChatHistory.user_id == user.id).order_by(ChatHistory.timestamp.asc()).all()
+                                                                                     ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ChatHistory' has no attribute 'timestamp'

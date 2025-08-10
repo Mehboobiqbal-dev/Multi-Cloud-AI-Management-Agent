@@ -101,6 +101,17 @@ const api = {
   registrationAutomation(data) {
     return apiClient.post('/form/registration_automation', data);
   },
+  // Chat methods
+  getChatHistory() {
+    return apiClient.get('/chat/history');
+  },
+  sendChatMessage(message, messageType = 'text', agentRunId = null) {
+    return apiClient.post('/chat/message', {
+      message,
+      message_type: messageType,
+      agent_run_id: agentRunId
+    });
+  },
   // Custom API methods
   post(endpoint, data) {
     return apiClient.post(endpoint, data);
