@@ -28,6 +28,7 @@
     "{\"timestamp\": \"2025-08-10 19:32:20.602249\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"create TempMail account with dummydata\"}}}",
     "{\"timestamp\": \"2025-08-10 19:40:41.010718\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"create TempMail account with dummy data\"}}}",
     "{\"timestamp\": \"2025-08-10 19:46:08.941500\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"create TempMail account with dummydata\"}}}",
-    "{\"type\": \"user_goal\", \"content\": \"create TempMail account\", \"timestamp\": \"2025-08-10T19:57:35.797526\"}"
+    "{\"type\": \"user_goal\", \"content\": \"create TempMail account\", \"timestamp\": \"2025-08-10T19:57:35.797526\"}",
+    "{\"type\": \"user_goal\", \"content\": \"scrap all of https://www.w3schools.com/css/ data \", \"timestamp\": \"2025-08-10T20:03:06.735619\"}"
   ]
 }

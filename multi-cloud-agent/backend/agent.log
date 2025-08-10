@@ -62251,3 +62251,385 @@ violations {
 2025-08-10 20:00:40,996 - INFO - 1 change detected
 2025-08-10 20:00:41,362 - INFO - 1 change detected
 2025-08-10 20:00:41,715 - INFO - 2 changes detected
+2025-08-10 20:01:49,209 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 10
+}
+]
+2025-08-10 20:01:49,209 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 20:01:56,145 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 3
+}
+]
+2025-08-10 20:01:56,146 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 20:02:08,058 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002469B221550>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/f68836f4b9a66136c1cdc4f5ff01e32e/execute/sync
+2025-08-10 20:02:12,174 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002469C349150>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/f68836f4b9a66136c1cdc4f5ff01e32e/execute/sync
+2025-08-10 20:02:16,275 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002469C34B680>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/f68836f4b9a66136c1cdc4f5ff01e32e/execute/sync
+2025-08-10 20:02:24,464 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002469C34BBD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/f68836f4b9a66136c1cdc4f5ff01e32e/element
+2025-08-10 20:02:28,554 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002469C34BDF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/f68836f4b9a66136c1cdc4f5ff01e32e/element
+2025-08-10 20:02:32,653 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002469C7C4050>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/f68836f4b9a66136c1cdc4f5ff01e32e/element
+2025-08-10 20:02:38,269 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 21
+}
+]
+2025-08-10 20:02:38,269 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 20:02:45,248 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 14
+}
+]
+2025-08-10 20:02:45,249 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 20:02:46,656 - ERROR - An unexpected error occurred during agent run: 
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\uvicorn\protocols\websockets\websockets_impl.py", line 332, in asgi_send
+    await self.send(data)  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 632, in send
+    await self.write_frame(True, opcode, data)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 1191, in write_frame
+    await self.drain()
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 1180, in drain
+    await self.ensure_open()
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 921, in ensure_open
+    raise self.connection_closed_exc()
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\websockets.py", line 86, in send
+    await self._send(message)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 39, in sender
+    await send(message)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 83, in send_wrapper
+    await send(message)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\uvicorn\protocols\websockets\websockets_impl.py", line 345, in asgi_send
+    raise ClientDisconnected from exc
+uvicorn.protocols.utils.ClientDisconnected
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 922, in agent_run
+    await send_log(f"Agent Thought: {thought}")
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 780, in send_log
+    await websocket.send_json({"topic": "agent_updates", "payload": {"log": message}})
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\websockets.py", line 176, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\websockets.py", line 89, in send
+    raise WebSocketDisconnect(code=1006)
+starlette.websockets.WebSocketDisconnect
+2025-08-10 20:02:46,666 - ERROR - Error:  | Context: {"goal": "create TempMail account"}
+2025-08-10 20:02:46,667 - INFO - {"timestamp": "2025-08-10T15:02:46.667140", "level": "info", "event_type": "operation_start", "message": "Starting operation: save_memory", "operation_id": "save_memory_1754838166667"}
+2025-08-10 20:02:46,674 - INFO - {"timestamp": "2025-08-10T15:02:46.674692", "level": "info", "event_type": "memory_update", "message": "Memory update: Memory saved to file", "operation_id": "save_memory_1754838166667", "metadata": {"file": "agent_memory.json"}, "knowledge_count": 29, "error_count": 21, "improvement_count": 0}
+2025-08-10 20:02:46,675 - INFO - {"timestamp": "2025-08-10T15:02:46.675026", "level": "info", "event_type": "operation_end", "message": "Completed operation: save_memory", "operation_id": "save_memory_1754838166667", "duration_ms": 7.9479217529296875}
+2025-08-10 20:02:46,675 - INFO - {"timestamp": "2025-08-10T15:02:46.675372", "level": "info", "event_type": "operation_start", "message": "Starting operation: learn_from_error", "operation_id": "learn_from_error_1754838166675", "metadata": {"error_type": "str", "has_context": true, "context_keys": ["goal"]}}
+2025-08-10 20:02:46,675 - INFO - {"timestamp": "2025-08-10T20:02:46.675545", "level": "info", "event_type": "self_learning", "message": "Self-learning: Error encountered for learning", "operation_id": "learn_from_error_1754838166675", "metadata": {"error_type": "str", "has_context": true, "context_keys": ["goal"]}, "error": "", "context": {"goal": "create TempMail account"}}
+2025-08-10 20:03:06,652 - ERROR - {"timestamp": "2025-08-10T15:03:06.652156", "level": "error", "event_type": "operation_error", "message": "Operation failed: learn_from_error - 'improvements'", "operation_id": "learn_from_error_1754838166675", "duration_ms": 19961.7919921875, "error_type": "KeyError", "metadata": {"error_type": "str", "has_context": true, "context_keys": ["goal"]}, "exception": "Traceback (most recent call last):\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\uvicorn\\protocols\\websockets\\websockets_impl.py\", line 332, in asgi_send\n    await self.send(data)  # type: ignore[arg-type]\n    ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\websockets\\legacy\\protocol.py\", line 632, in send\n    await self.write_frame(True, opcode, data)\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\websockets\\legacy\\protocol.py\", line 1191, in write_frame\n    await self.drain()\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\websockets\\legacy\\protocol.py\", line 1180, in drain\n    await self.ensure_open()\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\websockets\\legacy\\protocol.py\", line 921, in ensure_open\n    raise self.connection_closed_exc()\nwebsockets.exceptions.ConnectionClosedError: no close frame received or sent\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\starlette\\websockets.py\", line 86, in send\n    await self._send(message)\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 39, in sender\n    await send(message)\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\starlette\\middleware\\sessions.py\", line 83, in send_wrapper\n    await send(message)\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\uvicorn\\protocols\\websockets\\websockets_impl.py\", line 345, in asgi_send\n    raise ClientDisconnected from exc\nuvicorn.protocols.utils.ClientDisconnected\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\backend\\main.py\", line 922, in agent_run\n    await send_log(f\"Agent Thought: {thought}\")\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\backend\\main.py\", line 780, in send_log\n    await websocket.send_json({\"topic\": \"agent_updates\", \"payload\": {\"log\": message}})\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\starlette\\websockets.py\", line 176, in send_json\n    await self.send({\"type\": \"websocket.send\", \"text\": text})\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\env\\Lib\\site-packages\\starlette\\websockets.py\", line 89, in send\n    raise WebSocketDisconnect(code=1006)\nstarlette.websockets.WebSocketDisconnect\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\backend\\core\\structured_logging.py\", line 233, in operation_context\n    yield operation_context\n  File \"C:\\Users\\DELL\\Multi-Cloud-AI-Management-Agent\\multi-cloud-agent\\backend\\self_learning.py\", line 138, in learn_from_error\n    self.memory['improvements'].append(improvement)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^\nKeyError: 'improvements'\n"}
+2025-08-10 20:03:06,653 - INFO - {"timestamp": "2025-08-10T15:03:06.652945", "level": "info", "event_type": "self_learning", "message": "Self-learning: Learning from error failed: 'improvements'", "metadata": {"error_type": "str", "has_context": true, "context_keys": ["goal"]}, "learning_error": "'improvements'"}
+2025-08-10 20:03:06,666 - WARNING - Could not send log to WebSocket for user 1: Cannot call "send" once a close message has been sent.
+2025-08-10 20:03:06,667 - WARNING - Could not send log to WebSocket for user 1: Cannot call "send" once a close message has been sent.
+2025-08-10 20:03:06,674 - ERROR - Unhandled error during request to http://127.0.0.1:8000/agent/run: 
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\uvicorn\protocols\websockets\websockets_impl.py", line 332, in asgi_send
+    await self.send(data)  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 632, in send
+    await self.write_frame(True, opcode, data)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 1191, in write_frame
+    await self.drain()
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 1180, in drain
+    await self.ensure_open()
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\websockets\legacy\protocol.py", line 921, in ensure_open
+    raise self.connection_closed_exc()
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\websockets.py", line 86, in send
+    await self._send(message)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 39, in sender
+    await send(message)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 83, in send_wrapper
+    await send(message)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\uvicorn\protocols\websockets\websockets_impl.py", line 345, in asgi_send
+    raise ClientDisconnected from exc
+uvicorn.protocols.utils.ClientDisconnected
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\sessions.py", line 85, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\routing.py", line 75, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 302, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\fastapi\routing.py", line 213, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\slowapi\extension.py", line 734, in async_wrapper
+    response = await func(*args, **kwargs)  # type: ignore
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 922, in agent_run
+    await send_log(f"Agent Thought: {thought}")
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 780, in send_log
+    await websocket.send_json({"topic": "agent_updates", "payload": {"log": message}})
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\websockets.py", line 176, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\starlette\websockets.py", line 89, in send
+    raise WebSocketDisconnect(code=1006)
+starlette.websockets.WebSocketDisconnect
+2025-08-10 20:03:06,721 - INFO - {"timestamp": "2025-08-10T15:03:06.721645", "level": "info", "event_type": "self_learning", "message": "Self-learning: Agent action: agent_run", "metadata": {"action_type": "agent_run"}, "user_input": "scrap all of https://www.w3schools.com/css/ data "}
+2025-08-10 20:03:06,722 - INFO - Action: agent_run | Details: {"user_input": "scrap all of https://www.w3schools.com/css/ data "}
+2025-08-10 20:03:06,722 - INFO - {"timestamp": "2025-08-10T15:03:06.722265", "level": "info", "event_type": "operation_start", "message": "Starting operation: save_memory", "operation_id": "save_memory_1754838186722"}
+2025-08-10 20:03:06,735 - INFO - {"timestamp": "2025-08-10T15:03:06.734916", "level": "info", "event_type": "memory_update", "message": "Memory update: Memory saved to file", "operation_id": "save_memory_1754838186722", "metadata": {"file": "agent_memory.json"}, "knowledge_count": 30, "error_count": 21, "improvement_count": 0}
+2025-08-10 20:03:06,735 - INFO - {"timestamp": "2025-08-10T15:03:06.735344", "level": "info", "event_type": "operation_end", "message": "Completed operation: save_memory", "operation_id": "save_memory_1754838186722", "duration_ms": 13.080596923828125}
+2025-08-10 20:03:06,735 - INFO - {"timestamp": "2025-08-10T15:03:06.735739", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1754838186735", "metadata": {"text_length": 128}}
+2025-08-10 20:03:07,189 - INFO - {"timestamp": "2025-08-10T15:03:07.189619", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1754838186735", "duration_ms": 453.8388252258301, "metadata": {"text_length": 128}}
+2025-08-10 20:03:07,201 - INFO - {"timestamp": "2025-08-10T15:03:07.201186", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1754838187201", "metadata": {"text_length": 49}}
+2025-08-10 20:03:07,799 - INFO - {"timestamp": "2025-08-10T15:03:07.799518", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1754838187201", "duration_ms": 598.273754119873, "metadata": {"text_length": 49}}
+2025-08-10 20:03:07,834 - WARNING - No active WebSocket connection for user 1 to send log: Agent run started for goal: scrap all of https://www.w3schools.com/css/ data  (run_id=1754838175768, resumed_steps=0)
+2025-08-10 20:03:07,834 - WARNING - No active WebSocket connection for user 1 to send log: --- Agent Loop 1 for goal: 'scrap all of https://www.w3schools.com/css/ data ' ---
+2025-08-10 20:03:07,835 - WARNING - No active WebSocket connection for user 1 to send log: Generating next action with LLM...
+2025-08-10 20:03:09,328 - WARNING - Gemini quota exceeded for key AIzaSyDq72...: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. [violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+  quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+violations {
+  quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+  quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+  quota_dimensions {
+    key: "model"
+    value: "gemini-1.5-pro"
+  }
+  quota_dimensions {
+    key: "location"
+    value: "global"
+  }
+}
+, links {
+  description: "Learn more about Gemini API quotas"
+  url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+}
+, retry_delay {
+  seconds: 50
+}
+]
+2025-08-10 20:03:09,328 - WARNING - Gemini generation failed: All Gemini API keys have exceeded quota. Please try again later.. Falling back to Groq.
+2025-08-10 20:03:11,116 - WARNING - No active WebSocket connection for user 1 to send log: LLM Response: {
+  "thought": "To scrap all data from https://www.w3schools.com/css/, I will first open a browser window and navigate to the URL.",
+  "action": {
+    "name": "open_browser",
+    "params": {
+      "ur...
+2025-08-10 20:03:11,117 - WARNING - No active WebSocket connection for user 1 to send log: Agent Thought: To scrap all data from https://www.w3schools.com/css/, I will first open a browser window and navigate to the URL.
+2025-08-10 20:03:11,117 - WARNING - No active WebSocket connection for user 1 to send log: Agent Action: open_browser with params {'url': 'https://www.w3schools.com/css/'}
