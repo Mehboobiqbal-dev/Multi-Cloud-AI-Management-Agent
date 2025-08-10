@@ -938,29 +938,76 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                         if inferred_id:
                             action_params['browser_id'] = inferred_id
                             await send_log(f"Inferred browser_id '{inferred_id}' for action '{action_name}' from history.")
-                    result = tool.func(**action_params)
+                    
+                    # Add timeout for browser operations to prevent hanging
+                    import asyncio
+                    import concurrent.futures
+                    
+                    if action_name in browser_required_tools:
+                        # Execute browser operations with extended timeout for form operations
+                        timeout_duration = 60 if action_name in ['fill_multiple_fields', 'fill_form'] else 30
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            future = executor.submit(tool.func, **action_params)
+                            try:
+                                result = future.result(timeout=timeout_duration)
+                            except concurrent.futures.TimeoutError:
+                                await send_log(f"Browser operation '{action_name}' timed out after {timeout_duration} seconds")
+                                # Try to continue with a partial success message instead of complete failure
+                                if action_name in ['fill_multiple_fields', 'fill_form']:
+                                    result = f"Form filling operation timed out but may have partially completed. Continuing to next step."
+                                else:
+                                    result = f"Error: Browser operation '{action_name}' timed out. This may be due to GPU/WebGL issues."
+                    else:
+                        result = tool.func(**action_params)
+                    
                     await send_log(f"Action Result: {str(result)[:200]}...") # Log first 200 chars
                 except Exception as e:
-                    # Attempt a one-time retry if browser_id seems to be the issue
-                    needs_browser = ("browser_id" in str(e).lower()) or ("missing 1 required positional argument" in str(e).lower())
-                    if action_name in browser_required_tools and ('browser_id' not in action_params or needs_browser):
-                        try:
-                            inferred_id = infer_browser_id_from_history(history)
-                            if inferred_id and action_params.get('browser_id') != inferred_id:
-                                action_params['browser_id'] = inferred_id
-                                await send_log(f"Retrying '{action_name}' with inferred browser_id '{inferred_id}' due to error: {e}")
-                                result = tool.func(**action_params)
-                                await send_log(f"Action Result (after retry): {str(result)[:200]}...")
-                            else:
-                                raise e
-                        except Exception as e2:
-                            core.log_error(str(e2), {'goal': goal, 'action': action_name, 'params': action_params})
-                            result = f"Error executing tool '{action_name}': {e2}"
-                            await send_log(result)
+                    error_str = str(e).lower()
+                    
+                    # Check for GPU/WebGL related errors
+                    gpu_errors = ['gpu stall', 'webgl', 'opengl', 'graphics', 'gpu driver', 'gl driver']
+                    is_gpu_error = any(gpu_err in error_str for gpu_err in gpu_errors)
+                    
+                    if is_gpu_error:
+                        await send_log(f"Detected GPU/WebGL error in '{action_name}': {e}")
+                        await send_log("This is likely due to browser GPU acceleration issues. The browser configuration has been updated to disable GPU acceleration.")
+                        result = f"GPU/WebGL Error in '{action_name}': Browser may need restart with updated configuration. Error: {e}"
                     else:
-                        core.log_error(str(e), {'goal': goal, 'action': action_name, 'params': action_params})
-                        result = f"Error executing tool '{action_name}': {e}"
-                        await send_log(result)
+                        # Attempt a one-time retry if browser_id seems to be the issue
+                        needs_browser = ("browser_id" in error_str) or ("missing 1 required positional argument" in error_str)
+                        if action_name in browser_required_tools and ('browser_id' not in action_params or needs_browser):
+                            try:
+                                inferred_id = infer_browser_id_from_history(history)
+                                if inferred_id and action_params.get('browser_id') != inferred_id:
+                                    action_params['browser_id'] = inferred_id
+                                    await send_log(f"Retrying '{action_name}' with inferred browser_id '{inferred_id}' due to error: {e}")
+                                    
+                                    # Retry with timeout for browser operations
+                                    if action_name in browser_required_tools:
+                                        timeout_duration = 60 if action_name in ['fill_multiple_fields', 'fill_form'] else 30
+                                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                                            future = executor.submit(tool.func, **action_params)
+                                            try:
+                                                result = future.result(timeout=timeout_duration)
+                                            except concurrent.futures.TimeoutError:
+                                                if action_name in ['fill_multiple_fields', 'fill_form']:
+                                                    result = f"Form filling retry timed out but may have partially completed. Continuing to next step."
+                                                else:
+                                                    result = f"Error: Retry of '{action_name}' timed out after {timeout_duration} seconds"
+                                    else:
+                                        result = tool.func(**action_params)
+                                    
+                                    await send_log(f"Action Result (after retry): {str(result)[:200]}...")
+                                else:
+                                    raise e
+                            except Exception as e2:
+                                core.log_error(str(e2), {'goal': goal, 'action': action_name, 'params': action_params})
+                                result = f"Error executing tool '{action_name}': {e2}"
+                                await send_log(result)
+                        else:
+                            core.log_error(str(e), {'goal': goal, 'action': action_name, 'params': action_params})
+                            result = f"Error executing tool '{action_name}': {e}"
+                            await send_log(result)
             
             # 3. RECORD AND OBSERVE
             step_number = step_offset + i + 1

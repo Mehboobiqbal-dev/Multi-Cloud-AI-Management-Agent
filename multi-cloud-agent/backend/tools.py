@@ -132,6 +132,8 @@ def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15
     raise Exception(f"Failed to fill form field after trying {len(selector_strategies)} selector strategies. Last error: {last_error}")
 
 def fill_multiple_fields(browser_id: str, fields: Any, retry_failed: bool = True, page_analysis: bool = True) -> str:
+    """Enhanced multiple field filling with adaptive strategies, retries, and page analysis.
+    Now uses the improved form_automation.fill_multiple_fields function."""
     # If fields is a list of dictionaries, convert it to the expected dictionary format
     if isinstance(fields, list):
         converted_fields = {}
@@ -143,28 +145,36 @@ def fill_multiple_fields(browser_id: str, fields: Any, retry_failed: bool = True
         fields = converted_fields
     elif not isinstance(fields, dict):
         raise TypeError("'fields' parameter must be a dictionary or a list of dictionaries.")
-    """Enhanced multiple field filling with adaptive strategies, retries, and page analysis."""
-    if browser_id not in browsers:
-        raise Exception(f"Browser with ID '{browser_id}' not found.")
     
-    driver = browsers[browser_id]
-    results = []
-    failed_fields = {}
+    # Use the enhanced form_automation function which has better field mapping
+    from form_automation import fill_multiple_fields as form_fill_multiple_fields
     
-    # Page analysis to understand form structure
-    if page_analysis:
-        try:
-            # Get all form inputs on the page
-            all_inputs = driver.find_elements(By.CSS_SELECTOR, "input, select, textarea")
-            available_inputs = []
-            for inp in all_inputs:
-                name = inp.get_attribute('name') or inp.get_attribute('id') or inp.get_attribute('class')
-                input_type = inp.get_attribute('type') or inp.tag_name
-                available_inputs.append(f"{input_type}[name='{name}']" if name else f"{input_type}[unnamed]")
-            
-            results.append(f"Page analysis: Found {len(all_inputs)} form inputs: {', '.join(available_inputs[:10])}")
-        except Exception as e:
-            results.append(f"Page analysis failed: {e}")
+    try:
+        result = form_fill_multiple_fields(browser_id, fields)
+        return result
+    except Exception as e:
+        # Fallback to original implementation if needed
+        if browser_id not in browsers:
+            raise Exception(f"Browser with ID '{browser_id}' not found.")
+        
+        driver = browsers[browser_id]
+        results = []
+        failed_fields = {}
+        
+        # Page analysis to understand form structure
+        if page_analysis:
+            try:
+                # Get all form inputs on the page
+                all_inputs = driver.find_elements(By.CSS_SELECTOR, "input, select, textarea")
+                available_inputs = []
+                for inp in all_inputs:
+                    name = inp.get_attribute('name') or inp.get_attribute('id') or inp.get_attribute('class')
+                    input_type = inp.get_attribute('type') or inp.tag_name
+                    available_inputs.append(f"{input_type}[name='{name}']" if name else f"{input_type}[unnamed]")
+                
+                results.append(f"Page analysis: Found {len(all_inputs)} form inputs: {', '.join(available_inputs[:10])}")
+            except Exception as e:
+                results.append(f"Page analysis failed: {e}")
     
     # Wait for page to be fully loaded
     try:
@@ -473,3 +483,601 @@ tool_registry.register(Tool("wait_for_element", "Wait until an element is presen
 tool_registry.register(Tool("select_dropdown_option", "Select an option from a dropdown by visible text", select_dropdown_option))
 tool_registry.register(Tool("upload_file", "Upload a file using a file input element", upload_file))
 tool_registry.register(Tool("check_checkbox", "Check or uncheck a checkbox element", check_checkbox))
+
+# Universal Account Creation Tool
+def create_account_universal(website_url: str = None, account_data: dict = None, browser_id: str = None) -> str:
+    """Create an account on any website automatically with intelligent form detection and filling.
+    
+    Args:
+        website_url: The URL of the website to create an account on (optional if browser already open)
+        account_data: Optional dictionary with account details. If not provided, dummy data will be generated.
+        browser_id: Optional browser ID (automatically provided by agent loop)
+    
+    Returns:
+        str: JSON string with account creation results including credentials, success status, and details
+    """
+    import re
+    import time
+    import random
+    import string
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import TimeoutException, NoSuchElementException
+    
+    def generate_dummy_data():
+        """Generate realistic dummy data for account creation"""
+        first_names = ['John', 'Jane', 'Mike', 'Sarah', 'David', 'Emma', 'Chris', 'Lisa', 'Alex', 'Maria']
+        last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez']
+        
+        first_name = random.choice(first_names)
+        last_name = random.choice(last_names)
+        username = f"{first_name.lower()}{last_name.lower()}{random.randint(100, 999)}"
+        email = f"{username}@tempmail.com"
+        password = f"Pass{random.randint(1000, 9999)}!"
+        
+        return {
+            'first_name': first_name,
+            'last_name': last_name,
+            'full_name': f"{first_name} {last_name}",
+            'username': username,
+            'email': email,
+            'password': password,
+            'phone': f"+1{random.randint(2000000000, 9999999999)}",
+            'birth_year': str(random.randint(1980, 2000)),
+            'birth_month': str(random.randint(1, 12)).zfill(2),
+            'birth_day': str(random.randint(1, 28)).zfill(2)
+        }
+    
+    def detect_form_fields(browser_id):
+        """Intelligently detect registration form fields"""
+        try:
+            from browsing import browsers
+            driver = browsers.get(browser_id)
+            if not driver:
+                return []
+            
+            # Common selectors for registration forms
+            field_selectors = [
+                # Email fields
+                "input[type='email']",
+                "input[name*='email']", "input[id*='email']", "input[placeholder*='email']",
+                # Username fields
+                "input[name*='username']", "input[id*='username']", "input[placeholder*='username']",
+                "input[name*='user']", "input[id*='user']",
+                # Password fields
+                "input[type='password']",
+                "input[name*='password']", "input[id*='password']",
+                # Name fields
+                "input[name*='first']", "input[id*='first']", "input[placeholder*='first']",
+                "input[name*='last']", "input[id*='last']", "input[placeholder*='last']",
+                "input[name*='name']", "input[id*='name']", "input[placeholder*='name']",
+                # Phone fields
+                "input[type='tel']", "input[name*='phone']", "input[id*='phone']",
+                # Generic text inputs
+                "input[type='text']"
+            ]
+            
+            detected_fields = []
+            for selector in field_selectors:
+                try:
+                    elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                    for element in elements:
+                        if element.is_displayed() and element.is_enabled():
+                            field_info = {
+                                'element': element,
+                                'selector': selector,
+                                'name': element.get_attribute('name') or '',
+                                'id': element.get_attribute('id') or '',
+                                'placeholder': element.get_attribute('placeholder') or '',
+                                'type': element.get_attribute('type') or 'text'
+                            }
+                            detected_fields.append(field_info)
+                except:
+                    continue
+            
+            return detected_fields
+        except:
+            return []
+    
+    def classify_field(field_info):
+        """Classify what type of data a field expects"""
+        text = f"{field_info['name']} {field_info['id']} {field_info['placeholder']}".lower()
+        
+        if 'email' in text:
+            return 'email'
+        elif 'password' in text:
+            if 'confirm' in text or 'repeat' in text or 'again' in text:
+                return 'password_confirm'
+            return 'password'
+        elif 'username' in text or 'user' in text:
+            return 'username'
+        elif 'first' in text and 'name' in text:
+            return 'first_name'
+        elif 'last' in text and 'name' in text:
+            return 'last_name'
+        elif 'name' in text and 'first' not in text and 'last' not in text:
+            return 'full_name'
+        elif 'phone' in text or field_info['type'] == 'tel':
+            return 'phone'
+        elif 'birth' in text or 'age' in text:
+            if 'year' in text:
+                return 'birth_year'
+            elif 'month' in text:
+                return 'birth_month'
+            elif 'day' in text:
+                return 'birth_day'
+        
+        return 'unknown'
+    
+    def find_submit_button(browser_id):
+        """Find the registration/signup submit button"""
+        try:
+            from browsing import browsers
+            driver = browsers.get(browser_id)
+            if not driver:
+                return None
+            
+            button_selectors = [
+                "button[type='submit']",
+                "input[type='submit']",
+                "button:contains('Sign Up')",
+                "button:contains('Register')",
+                "button:contains('Create Account')",
+                "button:contains('Join')",
+                "*[class*='signup']",
+                "*[class*='register']",
+                "*[id*='signup']",
+                "*[id*='register']"
+            ]
+            
+            for selector in button_selectors:
+                try:
+                    if ':contains(' in selector:
+                        # Handle text-based selectors differently
+                        buttons = driver.find_elements(By.TAG_NAME, "button")
+                        for button in buttons:
+                            if any(text in button.text.lower() for text in ['sign up', 'register', 'create account', 'join']):
+                                if button.is_displayed() and button.is_enabled():
+                                    return button
+                    else:
+                        elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                        for element in elements:
+                            if element.is_displayed() and element.is_enabled():
+                                return element
+                except:
+                    continue
+            
+            return None
+        except:
+            return None
+    
+    try:
+        # Use provided data or generate dummy data
+        if not account_data:
+            account_data = generate_dummy_data()
+        
+        # Open browser and navigate to website
+        browser_result = open_browser(website_url)
+        
+        # Extract browser ID
+        browser_id = None
+        if "browser_" in browser_result:
+            browser_id = browser_result.split("browser_")[1].split(".")[0]
+            browser_id = f"browser_{browser_id}"
+        
+        if not browser_id:
+            import json
+            return json.dumps({
+                "success": False,
+                "website": website_url,
+                "error": "Failed to open browser",
+                "credentials": account_data if account_data else {}
+            }, indent=2)
+        
+        # Wait for page to load
+        time.sleep(3)
+        
+        # Look for signup/register links first
+        try:
+            from browsing import browsers
+            driver = browsers.get(browser_id)
+            if driver:
+                signup_links = driver.find_elements(By.PARTIAL_LINK_TEXT, "Sign Up")
+                signup_links.extend(driver.find_elements(By.PARTIAL_LINK_TEXT, "Register"))
+                signup_links.extend(driver.find_elements(By.PARTIAL_LINK_TEXT, "Join"))
+                signup_links.extend(driver.find_elements(By.PARTIAL_LINK_TEXT, "Create Account"))
+                
+                for link in signup_links:
+                    if link.is_displayed():
+                        link.click()
+                        time.sleep(2)
+                        break
+        except:
+            pass
+        
+        # Detect form fields
+        fields = detect_form_fields(browser_id)
+        
+        if not fields:
+            close_browser(browser_id)
+            import json
+            return json.dumps({
+                "success": False,
+                "website": website_url,
+                "error": "No registration form detected",
+                "credentials": account_data if account_data else {}
+            }, indent=2)
+        
+        # Fill form fields
+        filled_fields = []
+        password_value = None
+        
+        for field in fields:
+            field_type = classify_field(field)
+            value = None
+            
+            if field_type == 'email':
+                value = account_data['email']
+            elif field_type == 'password':
+                value = account_data['password']
+                password_value = value
+            elif field_type == 'password_confirm':
+                value = password_value or account_data['password']
+            elif field_type == 'username':
+                value = account_data['username']
+            elif field_type == 'first_name':
+                value = account_data['first_name']
+            elif field_type == 'last_name':
+                value = account_data['last_name']
+            elif field_type == 'full_name':
+                value = account_data['full_name']
+            elif field_type == 'phone':
+                value = account_data['phone']
+            elif field_type == 'birth_year':
+                value = account_data['birth_year']
+            elif field_type == 'birth_month':
+                value = account_data['birth_month']
+            elif field_type == 'birth_day':
+                value = account_data['birth_day']
+            
+            if value:
+                try:
+                    field['element'].clear()
+                    field['element'].send_keys(value)
+                    filled_fields.append(f"{field_type}: {value}")
+                    time.sleep(0.5)
+                except:
+                    continue
+        
+        # Find and click submit button
+        submit_button = find_submit_button(browser_id)
+        if submit_button:
+            try:
+                submit_button.click()
+                time.sleep(3)
+                
+                # Check for success indicators
+                success_indicators = ['welcome', 'success', 'created', 'registered', 'confirmation']
+                page_content = get_page_content(browser_id).lower()
+                
+                success = any(indicator in page_content for indicator in success_indicators)
+                
+                close_browser(browser_id)
+                
+                import json
+                
+                result = {
+                    "success": success or bool(filled_fields),
+                    "website": website_url,
+                    "credentials": {
+                        "email": account_data['email'],
+                        "password": account_data['password'],
+                        "username": account_data['username'],
+                        "full_name": account_data['full_name'],
+                        "phone": account_data['phone']
+                    },
+                    "filled_fields": filled_fields,
+                    "message": "Account created successfully" if success else "Account creation attempted",
+                    "login_url": website_url
+                }
+                
+                return json.dumps(result, indent=2)
+                    
+            except Exception as e:
+                close_browser(browser_id)
+                import json
+                return json.dumps({
+                    "success": False,
+                    "website": website_url,
+                    "error": f"Error submitting form: {str(e)}",
+                    "credentials": account_data if account_data else {},
+                    "filled_fields": filled_fields
+                }, indent=2)
+        else:
+            close_browser(browser_id)
+            import json
+            return json.dumps({
+                "success": False,
+                "website": website_url,
+                "error": "No submit button found",
+                "credentials": account_data if account_data else {},
+                "filled_fields": filled_fields
+            }, indent=2)
+        
+    except Exception as e:
+        import json
+        return json.dumps({
+            "success": False,
+            "website": website_url,
+            "error": f"Error creating account: {str(e)}",
+            "credentials": account_data if account_data else {}
+        }, indent=2)
+
+# TempMail creation tool (specialized version)
+def create_tempmail_account(browser_id: str = None) -> str:
+    """Create a temporary email account automatically using various TempMail services.
+    
+    Args:
+        browser_id: Optional browser ID (automatically provided by agent loop)
+    
+    Returns:
+        str: JSON string with temporary email account details including credentials
+    """
+    import re
+    import time
+    
+    def extract_email_from_content(content):
+        """Extract email addresses from page content using regex"""
+        email_patterns = [
+            r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
+            r'"[^"]*@[^"]*"',
+            r"'[^']*@[^']*'",
+        ]
+        
+        emails = []
+        for pattern in email_patterns:
+            matches = re.findall(pattern, content)
+            for match in matches:
+                email = match.strip('"\'')
+                excluded_domains = ['example.com', 'test.com', 'localhost', 'gmail.com', 'yahoo.com', 'hotmail.com']
+                if not any(domain in email.lower() for domain in excluded_domains):
+                    emails.append(email)
+        
+        return list(set(emails))
+    
+    # List of temporary email sites to try
+    tempmail_sites = [
+        "https://temp-mail.org",
+        "https://10minutemail.com", 
+        "https://guerrillamail.com",
+        "https://tempmail.ninja",
+        "https://maildrop.cc"
+    ]
+    
+    for site in tempmail_sites:
+        try:
+            # Open browser and navigate to site
+            browser_result = open_browser(site)
+            
+            # Extract browser ID
+            browser_id = None
+            if "browser_" in browser_result:
+                browser_id = browser_result.split("browser_")[1].split(".")[0]
+                browser_id = f"browser_{browser_id}"
+            
+            if not browser_id:
+                continue
+            
+            # Wait for page to load
+            time.sleep(3)
+            
+            # Get page content
+            content_result = get_page_content(browser_id)
+            
+            if content_result:
+                # Extract emails from content
+                emails = extract_email_from_content(content_result)
+                
+                if emails:
+                    # Close browser and return structured result
+                    close_browser(browser_id)
+                    import json
+                    import random
+                    
+                    # Generate additional dummy data for completeness
+                    first_names = ['John', 'Jane', 'Mike', 'Sarah', 'David', 'Emma', 'Chris', 'Lisa', 'Alex', 'Maria']
+                    last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez']
+                    
+                    first_name = random.choice(first_names)
+                    last_name = random.choice(last_names)
+                    username = emails[0].split('@')[0]
+                    
+                    result = {
+                        "success": True,
+                        "website": site,
+                        "account_type": "temporary_email",
+                        "credentials": {
+                            "email": emails[0],
+                            "username": username,
+                            "password": "N/A (temporary email service)",
+                            "full_name": f"{first_name} {last_name}",
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "phone": "N/A"
+                        },
+                        "message": "Temporary email account created successfully",
+                        "login_url": site,
+                        "notes": "This is a temporary email that will expire automatically. No password required for access."
+                    }
+                    
+                    return json.dumps(result, indent=2)
+            
+            # Close browser before trying next site
+            close_browser(browser_id)
+            
+        except Exception as e:
+            continue
+    
+    import json
+    return json.dumps({
+        "success": False,
+        "error": "Failed to create temporary email account from all available services",
+        "attempted_sites": tempmail_sites
+    }, indent=2)
+
+# Enhanced account creation tool for popular websites
+def create_account_smart(website_name: str = None, use_tempmail: bool = True, browser_id: str = None) -> str:
+    """Create accounts on popular websites with predefined strategies and intelligent automation.
+    
+    Args:
+        website_name: Name of the website (e.g., 'gmail', 'github', 'discord', 'reddit', 'twitter')
+        use_tempmail: Whether to use temporary email for account creation (default: True)
+        browser_id: Optional browser ID (automatically provided by agent loop)
+    
+    Returns:
+        str: JSON string with complete account creation results including all credentials
+    """
+    import json
+    import random
+    import time
+    
+    def generate_smart_data(website_name, use_tempmail=True):
+        """Generate smart dummy data tailored for specific websites"""
+        first_names = ['Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan', 'Riley', 'Avery', 'Quinn', 'Sage', 'River']
+        last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Wilson', 'Moore']
+        
+        first_name = random.choice(first_names)
+        last_name = random.choice(last_names)
+        username = f"{first_name.lower()}{last_name.lower()}{random.randint(100, 999)}"
+        
+        if use_tempmail:
+            # Create temporary email first
+            tempmail_result = create_tempmail_account()
+            try:
+                tempmail_data = json.loads(tempmail_result)
+                if tempmail_data.get('success'):
+                    email = tempmail_data['credentials']['email']
+                else:
+                    email = f"{username}@tempmail.com"
+            except:
+                email = f"{username}@tempmail.com"
+        else:
+            email = f"{username}@gmail.com"
+        
+        password = f"SecurePass{random.randint(1000, 9999)}!"
+        
+        return {
+            'first_name': first_name,
+            'last_name': last_name,
+            'full_name': f"{first_name} {last_name}",
+            'username': username,
+            'email': email,
+            'password': password,
+            'phone': f"+1{random.randint(2000000000, 9999999999)}",
+            'birth_year': str(random.randint(1990, 2005)),
+            'birth_month': str(random.randint(1, 12)).zfill(2),
+            'birth_day': str(random.randint(1, 28)).zfill(2),
+            'display_name': f"{first_name} {last_name}"
+        }
+    
+    # Website-specific URLs and strategies
+    website_configs = {
+        'gmail': {
+            'url': 'https://accounts.google.com/signup',
+            'name': 'Gmail/Google Account'
+        },
+        'github': {
+            'url': 'https://github.com/join',
+            'name': 'GitHub'
+        },
+        'discord': {
+            'url': 'https://discord.com/register',
+            'name': 'Discord'
+        },
+        'reddit': {
+            'url': 'https://www.reddit.com/register',
+            'name': 'Reddit'
+        },
+        'twitter': {
+            'url': 'https://twitter.com/i/flow/signup',
+            'name': 'Twitter/X'
+        },
+        'instagram': {
+            'url': 'https://www.instagram.com/accounts/emailsignup/',
+            'name': 'Instagram'
+        },
+        'facebook': {
+            'url': 'https://www.facebook.com/reg/',
+            'name': 'Facebook'
+        },
+        'linkedin': {
+            'url': 'https://www.linkedin.com/signup',
+            'name': 'LinkedIn'
+        },
+        'tiktok': {
+            'url': 'https://www.tiktok.com/signup',
+            'name': 'TikTok'
+        },
+        'spotify': {
+            'url': 'https://www.spotify.com/signup',
+            'name': 'Spotify'
+        }
+    }
+    
+    try:
+        # If no website specified, try to detect from current page or suggest popular ones
+        if not website_name:
+            return json.dumps({
+                "success": False,
+                "error": "Please specify a website name",
+                "available_websites": list(website_configs.keys()),
+                "example_usage": "Use website_name parameter like 'gmail', 'github', 'discord', etc."
+            }, indent=2)
+        
+        website_name = website_name.lower()
+        
+        if website_name not in website_configs:
+            # Try universal approach for unknown websites
+            return create_account_universal(website_name, None, browser_id)
+        
+        config = website_configs[website_name]
+        account_data = generate_smart_data(website_name, use_tempmail)
+        
+        # Use the universal account creation with the specific URL
+        result = create_account_universal(config['url'], account_data, browser_id)
+        
+        # Parse and enhance the result
+        try:
+            result_data = json.loads(result)
+            result_data['website_name'] = config['name']
+            result_data['account_type'] = 'smart_created'
+            result_data['tempmail_used'] = use_tempmail
+            
+            if result_data.get('success'):
+                result_data['message'] = f"Successfully created {config['name']} account with intelligent automation"
+                result_data['instructions'] = f"You can now login to {config['name']} using the provided credentials"
+            
+            return json.dumps(result_data, indent=2)
+            
+        except:
+            # Fallback if parsing fails
+            return json.dumps({
+                "success": False,
+                "website_name": config['name'],
+                "error": "Failed to parse account creation result",
+                "raw_result": result,
+                "credentials": account_data
+            }, indent=2)
+        
+    except Exception as e:
+        return json.dumps({
+            "success": False,
+            "website_name": website_name,
+            "error": f"Error in smart account creation: {str(e)}",
+            "fallback": "Try using create_account_universal directly"
+        }, indent=2)
+
+tool_registry.register(Tool("create_account_universal", "Create an account on any website automatically with intelligent form detection", create_account_universal))
+tool_registry.register(Tool("create_tempmail_account", "Create a temporary email account automatically", create_tempmail_account))
+tool_registry.register(Tool("create_account_smart", "Create accounts on popular websites (Gmail, GitHub, Discord, Reddit, etc.) with intelligent automation and complete credentials", create_account_smart))

@@ -9,9 +9,31 @@ import time
 import os
 import json
 from datetime import datetime
+import re
 
 # Import browsers dict from browsing.py
 from browsing import browsers, open_browser, close_browser
+
+def detect_website_type(driver: WebDriver) -> str:
+    """Detect the type of website to apply specific strategies."""
+    try:
+        current_url = driver.current_url.lower()
+        page_title = driver.title.lower()
+        
+        if 'gmail' in current_url or 'accounts.google' in current_url:
+            return 'gmail'
+        elif 'tempmail' in current_url or 'temp-mail' in current_url:
+            return 'tempmail'
+        elif 'outlook' in current_url or 'live.com' in current_url:
+            return 'outlook'
+        elif 'yahoo' in current_url:
+            return 'yahoo'
+        elif 'signup' in current_url or 'register' in current_url or 'create' in current_url:
+            return 'generic_signup'
+        else:
+            return 'unknown'
+    except Exception:
+        return 'unknown'
 
 def fill_form(browser_id: str, selector: str, value: str) -> str:
     """Fills a single form field in the specified browser using a CSS selector."""
@@ -27,25 +49,115 @@ def fill_form(browser_id: str, selector: str, value: str) -> str:
         return f"Error: Failed to fill form field '{selector}': {e}"
 
 def fill_multiple_fields(browser_id: str, fields: Dict[str, str]) -> str:
-    """Fills multiple form fields in one go. Expects a dictionary of CSS selectors to values."""
+    """Fills multiple form fields in one go. Expects a dictionary of field names/selectors to values.
+    Automatically tries multiple selector strategies for each field with website-specific optimizations."""
     if browser_id not in browsers:
         return f"Error: Browser with ID '{browser_id}' not found."
     
+    driver = browsers[browser_id]
     results = []
     errors = []
-    for selector, value in fields.items():
-        result = fill_form(browser_id, selector, value)
-        if result.startswith("Error:"):
-            errors.append(f"Failed to fill field {selector}: {result}")
+    
+    # Detect website type for specific strategies
+    website_type = detect_website_type(driver)
+    
+    # Website-specific field mappings
+    gmail_mappings = {
+        'firstName': ['input[name="firstName"]', 'input[id="firstName"]'],
+        'lastName': ['input[name="lastName"]', 'input[id="lastName"]'],
+        'Username': ['input[name="Username"]', 'input[id="Username"]', 'input[type="email"]'],
+        'Passwd': ['input[name="Passwd"]', 'input[id="Passwd"]', 'input[type="password"]'],
+        'ConfirmPasswd': ['input[name="ConfirmPasswd"]', 'input[id="ConfirmPasswd"]'],
+        'RecoveryEmail': ['input[name="RecoveryEmail"]', 'input[id="RecoveryEmail"]'],
+        'RecoveryPhone': ['input[name="RecoveryPhone"]', 'input[id="RecoveryPhone"]']
+    }
+    
+    # Common field name mappings for different websites
+    field_mappings = {
+        'firstName': ['input[name="firstName"]', 'input[id="firstName"]', 'input[name="first_name"]', 'input[placeholder*="first"]', 'input[aria-label*="first"]'],
+        'lastName': ['input[name="lastName"]', 'input[id="lastName"]', 'input[name="last_name"]', 'input[placeholder*="last"]', 'input[aria-label*="last"]'],
+        'Username': ['input[name="Username"]', 'input[id="Username"]', 'input[name="username"]', 'input[id="username"]', 'input[type="email"]', 'input[placeholder*="username"]', 'input[placeholder*="email"]'],
+        'Passwd': ['input[name="Passwd"]', 'input[id="Passwd"]', 'input[name="password"]', 'input[id="password"]', 'input[type="password"]', 'input[placeholder*="password"]'],
+        'ConfirmPasswd': ['input[name="ConfirmPasswd"]', 'input[id="ConfirmPasswd"]', 'input[name="confirm_password"]', 'input[name="password_confirm"]', 'input[placeholder*="confirm"]'],
+        'RecoveryEmail': ['input[name="RecoveryEmail"]', 'input[id="RecoveryEmail"]', 'input[name="recovery_email"]', 'input[placeholder*="recovery"]', 'input[placeholder*="alternate"]'],
+        'RecoveryPhone': ['input[name="RecoveryPhone"]', 'input[id="RecoveryPhone"]', 'input[name="phone"]', 'input[type="tel"]', 'input[placeholder*="phone"]'],
+        'email': ['input[type="email"]', 'input[name="email"]', 'input[id="email"]', 'input[placeholder*="email"]']
+    }
+    
+    # Use website-specific mappings if available
+    if website_type == 'gmail':
+        field_mappings.update(gmail_mappings)
+    
+    for field_name, value in fields.items():
+        field_filled = False
+        
+        # If it's already a CSS selector (contains brackets or dots), use it directly
+        if '[' in field_name or '.' in field_name or '#' in field_name:
+            selectors_to_try = [field_name]
         else:
-            results.append(f"Successfully filled field: {selector}")
+            # Use mapped selectors or create generic ones
+            selectors_to_try = field_mappings.get(field_name, [
+                f'input[name="{field_name}"]',
+                f'input[id="{field_name}"]',
+                f'input[placeholder*="{field_name.lower()}"]',
+                f'input[aria-label*="{field_name.lower()}"]'
+            ])
+        
+        # Try each selector until one works with enhanced error handling
+        for selector in selectors_to_try:
+            try:
+                # Wait for element to be present and interactable
+                element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))
+                
+                # Additional wait for element to be clickable/interactable
+                WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+                
+                if element.is_displayed() and element.is_enabled():
+                    # Scroll element into view
+                    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+                    time.sleep(0.3)
+                    
+                    # Try multiple filling strategies
+                    try:
+                        # Strategy 1: Standard clear and send_keys
+                        element.clear()
+                        element.send_keys(value)
+                    except Exception:
+                        try:
+                            # Strategy 2: JavaScript value setting
+                            driver.execute_script("arguments[0].value = arguments[1];", element, value)
+                            driver.execute_script("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element)
+                        except Exception:
+                            # Strategy 3: Click then type
+                            element.click()
+                            time.sleep(0.2)
+                            element.clear()
+                            element.send_keys(value)
+                    
+                    # Verify the value was set
+                    actual_value = element.get_attribute('value')
+                    if actual_value == value or (value and actual_value and value.lower() in actual_value.lower()):
+                        results.append(f"Successfully filled {field_name} using selector: {selector}")
+                        field_filled = True
+                        time.sleep(0.5)  # Small delay between fields
+                        break
+                    else:
+                        # Value verification failed, try next selector
+                        continue
+                        
+            except Exception as e:
+                # Log the specific error for debugging
+                continue
+        
+        if not field_filled:
+            errors.append(f"Failed to fill field '{field_name}' - no working selector found")
     
     if errors and not results:
         return f"Error: All fields failed - {'; '.join(errors)}"
     elif errors:
-        return f"Partial success - {'; '.join(results)}. Errors: {'; '.join(errors)}"
+        return f"Partial success - {len(results)} fields filled successfully. Errors: {'; '.join(errors)}"
     else:
-        return "\n".join(results)
+        return f"Successfully filled all {len(results)} fields: {', '.join([r.split(' using')[0].replace('Successfully filled ', '') for r in results])}"
 
 def click_button(browser_id: str, selector: str) -> str:
     """Clicks a button in the specified browser using a CSS selector."""
