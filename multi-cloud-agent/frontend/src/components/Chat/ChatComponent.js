@@ -23,6 +23,18 @@ const ChatComponent = ({ currentAgentRunId, onAgentControl }) => {
   const [loading, setLoading] = useState(false);
   const [agentStatus, setAgentStatus] = useState('idle');
   const messagesEndRef = useRef(null);
+  const localCounterRef = useRef(0);
+
+  // Generate a robust unique id (fallback if crypto.randomUUID isn't available)
+  const genId = () => {
+    try {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+    } catch (_) {}
+    const c = localCounterRef.current++;
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}-${c}`;
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -39,7 +51,7 @@ const ChatComponent = ({ currentAgentRunId, onAgentControl }) => {
     // Subscribe to WebSocket chat messages
     const unsubscribeChat = websocketService.subscribe('chat', (data) => {
       const newMsg = {
-        id: Date.now(),
+        id: genId(),
         sender: data.sender,
         message: data.message,
         message_type: data.message_type || 'text',
@@ -57,7 +69,7 @@ const ChatComponent = ({ currentAgentRunId, onAgentControl }) => {
       if (data.log) {
         // Add agent log as a message
         const logMsg = {
-          id: Date.now(),
+          id: genId(),
           sender: 'agent',
           message: data.log,
           message_type: 'log',
@@ -156,8 +168,8 @@ const ChatComponent = ({ currentAgentRunId, onAgentControl }) => {
       {/* Messages Area */}
       <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
         <List>
-          {messages.map((msg) => (
-            <ListItem key={msg.id} sx={{ py: 0.5 }}>
+          {messages.map((msg, idx) => (
+            <ListItem key={msg.id || `${msg.timestamp}-${msg.sender}-${idx}`} sx={{ py: 0.5 }}>
               <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'flex-start', 
