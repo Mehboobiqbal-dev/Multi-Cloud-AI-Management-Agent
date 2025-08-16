@@ -289,17 +289,19 @@ def open_browser(url: str, max_retries: int = None, retry_delay: float = None) -
 
 
 def get_page_content(browser_id: str) -> str:
-    """Gets the clean text content of the current page in the specified browser."""
+    """Gets the full HTML content of the current page in the specified browser."""
     if browser_id not in browsers:
         raise Exception(f"Browser with ID '{browser_id}' not found.")
     try:
         driver = browsers[browser_id]
-        # Prefer executing JS to get textContent which is faster in some cases
+        # Prefer executing JS to get full HTML for accurate parsing of links, images, tables, etc.
         try:
-            content = driver.execute_script("return document.body ? document.body.innerText : '';")
+            html = driver.execute_script(
+                "return document.documentElement ? document.documentElement.outerHTML : (document.body ? document.body.outerHTML : '');"
+            )
         except Exception:
-            content = driver.find_element(By.TAG_NAME, 'body').text
-        return '\n'.join([line for line in content.split('\n') if line.strip()])
+            html = driver.page_source
+        return html
     except Exception as e:
         raise Exception(f"Failed to get page content from browser '{browser_id}': {e}")
 

@@ -76,7 +76,7 @@ def open_browser(url: str) -> str:
     return browsing_open_browser(url)
 
 def get_page_content(browser_id: str) -> str:
-    """Gets the text content of the current page."""
+    """Gets the HTML content of the current page."""
     return browsing_get_page_content(browser_id)
 
 def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15) -> str:
@@ -463,7 +463,7 @@ tool_registry = ToolRegistry()
 # Register all tools
 tool_registry.register(Tool("search_web", "Search the web using DuckDuckGo or Google", search_web))
 tool_registry.register(Tool("open_browser", "Open a browser window and navigate to a URL", open_browser))
-tool_registry.register(Tool("get_page_content", "Get the text content of the current page", get_page_content))
+tool_registry.register(Tool("get_page_content", "Get the HTML content of the current page", get_page_content))
 tool_registry.register(Tool("fill_form", "Fill a single form field using CSS selector", fill_form))
 tool_registry.register(Tool("fill_multiple_fields", "Fill multiple form fields with enhanced retry logic", fill_multiple_fields))
 tool_registry.register(Tool("click_button", "Click a button using CSS selector", click_button))

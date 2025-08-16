@@ -236,8 +236,8 @@ class TaskDataManager:
         
         return file_path
     
-    def get_task_results(self, task_type: str = None, limit: int = 100) -> List[Dict]:
-        """Retrieve task results from database"""
+    def get_task_results(self, user_id: int, limit: int = 100, offset: int = 0, task_type: str = None) -> List[Dict]:
+        """Retrieve paginated task results (user_id accepted for compatibility, not stored in schema)."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
@@ -246,14 +246,14 @@ class TaskDataManager:
                 SELECT * FROM task_results 
                 WHERE task_type = ? 
                 ORDER BY created_at DESC 
-                LIMIT ?
-            ''', (task_type, limit))
+                LIMIT ? OFFSET ?
+            ''', (task_type, limit, offset))
         else:
             cursor.execute('''
                 SELECT * FROM task_results 
                 ORDER BY created_at DESC 
-                LIMIT ?
-            ''', (limit,))
+                LIMIT ? OFFSET ?
+            ''', (limit, offset))
         
         columns = [description[0] for description in cursor.description]
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -286,8 +286,8 @@ class TaskDataManager:
         conn.close()
         return results
     
-    def get_task_statistics(self) -> Dict:
-        """Get statistics about saved tasks"""
+    def get_task_statistics(self, user_id: int | None = None) -> Dict:
+        """Get statistics about saved tasks (user_id accepted for compatibility, not stored in schema)."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
@@ -330,18 +330,18 @@ class TaskDataManager:
         }
     
     def get_scraping_results(self, user_id: int, limit: int = 20, offset: int = 0) -> List[Dict]:
-        """Get scraping results with pagination for a specific user"""
+        """Get scraping results with pagination (currently not filtered by user)."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
         cursor.execute('''
             SELECT sd.*, tr.created_at, tr.status, tr.metadata
             FROM scraped_data sd
-            JOIN task_results tr ON sd.task_id = tr.task_id
-            WHERE tr.task_type = 'web_scraping' AND tr.user_id = ?
+            JOIN task_results tr ON sd.task_id = tr.id
+            WHERE tr.task_type = 'web_scraping'
             ORDER BY tr.created_at DESC
             LIMIT ? OFFSET ?
-        ''', (user_id, limit, offset))
+        ''', (limit, offset))
         
         columns = [description[0] for description in cursor.description]
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -350,15 +350,15 @@ class TaskDataManager:
         return results
     
     def get_task_by_id(self, task_id: str, user_id: int) -> Dict:
-        """Get detailed information about a specific task for a specific user"""
+        """Get detailed information about a specific task (not filtered by user)."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
         # Get task details
         cursor.execute('''
             SELECT * FROM task_results 
-            WHERE task_id = ? AND user_id = ?
-        ''', (task_id, user_id))
+            WHERE id = ?
+        ''', (task_id,))
         
         columns = [description[0] for description in cursor.description]
         task_row = cursor.fetchone()

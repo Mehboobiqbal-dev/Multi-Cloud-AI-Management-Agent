@@ -1,24 +1,9 @@
 {
   "knowledge": [
-    "{\"type\": \"user_goal\", \"content\": \"scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events\", \"timestamp\": \"2025-08-16T10:45:31.306764\"}",
-    {
-      "timestamp": "2025-08-16 10:48:24.160732",
-      "type": "action",
-      "content": {
-        "action": "agent_run",
-        "details": {
-          "user_input": "scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events"
-        }
-      }
-    }
-  ],
-  "errors": [
-    {
-      "timestamp": "2025-08-16 10:49:07.764543",
-      "error": "500: All LLM providers failed: 500: LLM request failed.",
-      "context": {
-        "goal": "scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events"
-      }
-    }
+    "\"{\\\"type\\\": \\\"user_goal\\\", \\\"content\\\": \\\"scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events\\\", \\\"timestamp\\\": \\\"2025-08-16T10:45:31.306764\\\"}\"",
+    "{\"timestamp\": \"2025-08-16 10:48:24.160732\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events\"}}}",
+    "{\"timestamp\": \"2025-08-16 10:56:54.086014\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events\"}}}",
+    "{\"timestamp\": \"2025-08-16 11:09:06.092858\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events\"}}}",
+    "{\"type\": \"user_goal\", \"content\": \"scrape all of it's data https://en.wikipedia.org/wiki/Portal:Current_events\", \"timestamp\": \"2025-08-16T11:38:32.969351\"}"
   ]
 }

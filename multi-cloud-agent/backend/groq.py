@@ -40,10 +40,11 @@ def generate_text(prompt: str) -> str:
             raise HTTPException(status_code=429, detail="LLM quota exceeded. Please wait and try again later.")
         if resp.status_code != 200:
             logging.error("Groq API error %s: %s", resp.status_code, resp.text)
-            raise HTTPException(status_code=500, detail="LLM request failed.")
+            truncated = (resp.text or "")[:500]
+            raise HTTPException(status_code=500, detail=f"Groq request failed ({resp.status_code}): {truncated}")
 
         data = resp.json()
         return data["choices"][0]["message"]["content"].strip()
     except requests.exceptions.RequestException as exc:
         logging.error("Exception while calling Groq API: %s", exc, exc_info=True)
-        raise HTTPException(status_code=500, detail="LLM request exception.")
+        raise HTTPException(status_code=500, detail=f"Groq request exception: {exc}")

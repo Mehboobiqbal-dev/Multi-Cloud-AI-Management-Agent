@@ -22,7 +22,15 @@ import {
   Tab,
   CircularProgress,
   Alert,
-  Pagination
+  Pagination,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Link
 } from '@mui/material';
 import {
   CheckCircle,
@@ -31,7 +39,11 @@ import {
   Web,
   AccountCircle,
   Description,
-  Timeline
+  Timeline,
+  ExpandMore,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Article as ArticleIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 

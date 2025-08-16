@@ -730,6 +730,7 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
 
 def generate_text(prompt: str) -> str:
     import time
+    gemini_error_detail = None
     
     # Try Gemini first with its internal API key failover
     try:
@@ -739,7 +740,8 @@ def generate_text(prompt: str) -> str:
             logging.warning(f"All Gemini API keys quota exceeded. Waiting 2 seconds before trying Groq fallback...")
             time.sleep(2)  # Brief delay to avoid immediate successive calls
         else:
-            logging.warning(f"Gemini generation failed: {e.detail}. Falling back to Groq.")
+            gemini_error_detail = getattr(e, 'detail', str(e))
+            logging.warning(f"Gemini generation failed: {gemini_error_detail}. Falling back to Groq.")
         
         # Try Groq as fallback
         max_retries = 3
@@ -754,15 +756,20 @@ def generate_text(prompt: str) -> str:
                         logging.warning(f"Groq 429 on attempt {attempt+1}, retrying in {delay} seconds...")
                         time.sleep(delay)
                     else:
-                        logging.error(f"Groq generation also failed after {max_retries} attempts: {groq_e}")
+                        logging.error(f"Groq generation also failed after {max_retries} attempts: {groq_e.detail if hasattr(groq_e, 'detail') else groq_e}")
                         # Provide more helpful error message
                         raise HTTPException(
                             status_code=429, 
                             detail="All LLM providers (Gemini + Groq) have exceeded quota limits. Please wait a few minutes and try again, or add more API keys to your .env file."
                         )
                 else:
-                    logging.error(f"Groq generation failed: {groq_e}")
-                    raise HTTPException(status_code=500, detail=f"All LLM providers failed: {str(groq_e)}")
+                    detail = getattr(groq_e, 'detail', str(groq_e))
+                    logging.error(f"Groq generation failed: {detail}")
+                    raise HTTPException(status_code=500, detail=(
+                        f"All LLM providers failed. "
+                        f"Gemini error: {gemini_error_detail or 'n/a'}. "
+                        f"Groq error: {detail}"
+                    ))
     except Exception as e:
         logging.error(f"An unexpected error occurred with Gemini: {e}")
         raise HTTPException(status_code=500, detail=f"An unexpected LLM error occurred: {e}")
