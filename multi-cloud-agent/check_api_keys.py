@@ -46,52 +46,13 @@ def check_gemini_keys():
     print(f"\n📊 Gemini Summary: {working_keys}/{len(gemini_keys)} keys working")
     return working_keys > 0
 
+# Groq support has been removed - using Gemini only
+# This function is kept for backward compatibility but does nothing
 def check_groq_key():
-    """Check Groq API key"""
-    print("\n🔍 Checking Groq API Key...")
-    
-    groq_key = os.getenv('LLM_API_KEY')
-    if not groq_key:
-        print("❌ No Groq API key found in LLM_API_KEY")
-        return False
-    
-    if not groq_key.startswith('gsk_'):
-        print(f"⚠️  Warning: Groq key should start with 'gsk_', found: {groq_key[:10]}...")
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {groq_key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": "llama3-70b-8192",
-            "messages": [{"role": "user", "content": "Hello"}],
-            "max_tokens": 10
-        }
-        
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=10
-        )
-        
-        if response.status_code == 200:
-            print(f"✅ Groq key ({groq_key[:10]}...): Working")
-            return True
-        elif response.status_code == 429:
-            print(f"⚠️  Groq key ({groq_key[:10]}...): Quota exceeded")
-            return False
-        elif response.status_code == 401:
-            print(f"❌ Groq key ({groq_key[:10]}...): Invalid key")
-            return False
-        else:
-            print(f"❌ Groq key ({groq_key[:10]}...): HTTP {response.status_code}")
-            return False
-            
-    except Exception as e:
-        print(f"❌ Groq key ({groq_key[:10]}...): Error - {e}")
-        return False
+    """Groq support has been removed"""
+    print("\n🔍 Groq API support has been removed")
+    print("✅ Using Gemini APIs only for better reliability")
+    return True
 
 def main():
     print("🚀 API Key Status Checker")
@@ -103,27 +64,23 @@ def main():
         sys.exit(1)
     
     gemini_ok = check_gemini_keys()
-    groq_ok = check_groq_key()
+    check_groq_key()  # Just for informational purposes
     
     print("\n" + "=" * 40)
     print("📋 Summary:")
     
-    if gemini_ok and groq_ok:
-        print("✅ Both Gemini and Groq keys are working!")
+    if gemini_ok:
+        print("✅ Gemini keys are working!")
         print("🎉 Your agent should work properly.")
-    elif gemini_ok:
-        print("✅ Gemini keys working, but Groq key has issues.")
-        print("⚠️  Agent will work until Gemini quota is exhausted.")
-    elif groq_ok:
-        print("✅ Groq key working, but Gemini keys have issues.")
-        print("💡 Consider using Groq as primary (it's faster anyway!).")
+        print("💡 The system now uses Gemini APIs exclusively for better reliability.")
     else:
-        print("❌ No working API keys found!")
-        print("🔧 Please check your .env file and API key configuration.")
+        print("❌ No working Gemini API keys found!")
+        print("🔧 Please check your .env file and Gemini API key configuration.")
         print("\n💡 Quick fixes:")
-        print("   1. Get a free Groq key: https://console.groq.com/")
-        print("   2. Get Gemini keys: https://makersuite.google.com/app/apikey")
+        print("   1. Get Gemini keys: https://makersuite.google.com/app/apikey")
+        print("   2. Add them to GEMINI_API_KEYS in your .env file")
         print("   3. Check setup_api_keys.md for detailed instructions")
+        print("   4. Restart your backend server after updating keys")
 
 if __name__ == "__main__":
     main()

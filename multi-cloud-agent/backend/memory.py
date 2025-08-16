@@ -12,12 +12,8 @@ from core.circuit_breaker import get_circuit_breaker, CircuitBreakerConfig, Circ
 from core.local_embeddings import local_embedding_fallback, LocalEmbeddingError
 from core.structured_logging import structured_logger, LogContext, operation_context
 
-# Configure the generative AI model with the API key from settings
-if settings.GEMINI_API_KEY:
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-else:
-    print("Warning: GEMINI_API_KEY not set. Memory features will be limited.")
-    # We'll continue without raising an exception to allow the app to start
+# No global configuration - embeddings will be generated with key rotation
+# Key configuration is handled per request in _generate_external_embedding method
 
 class Memory:
     def __init__(self, embedding_dim: int = 768):
@@ -72,41 +68,86 @@ class Memory:
             return self._generate_fallback_embedding(text, context)
 
     def _generate_external_embedding(self, text: str) -> List[float]:
-        """Generate embedding using external service (Gemini)."""
+        """Generate embedding using external service (Gemini) with API key failover."""
+        # Build the list of API keys to try
+        api_keys = []
+        
+        if settings.GEMINI_API_KEYS_LIST:
+            api_keys.extend(settings.GEMINI_API_KEYS_LIST)
+            logging.info(f"Added {len(settings.GEMINI_API_KEYS_LIST)} keys from GEMINI_API_KEYS_LIST for embeddings")
+        
+        if settings.GEMINI_API_KEY and settings.GEMINI_API_KEY not in api_keys:
+            api_keys.append(settings.GEMINI_API_KEY)
+            logging.info(f"Added single GEMINI_API_KEY as backup for embeddings")
+        
+        if not api_keys:
+            raise Exception("No Gemini API keys configured for embeddings.")
+
+        logging.info(f"Starting Gemini embedding generation with {len(api_keys)} available API keys")
+        
+        last_exception = None
+        quota_exhausted_count = 0
+        keys_attempted = 0
         max_retries = getattr(settings, "MAX_RETRIES", 3)
         retry_delay = float(getattr(settings, "INITIAL_RETRY_DELAY", 2.0))
+
+        for i, key in enumerate(api_keys):
+            keys_attempted += 1
+            key_prefix = key[:10] if len(key) >= 10 else key[:6]
+            
+            for attempt in range(max_retries):
+                try:
+                    logging.info(f"Attempting Gemini embedding with key #{i+1} ({key_prefix}...), attempt {attempt+1}")
+                    
+                    genai.configure(api_key=key)
+                    result = genai.embed_content(
+                        model=self.embedding_model,
+                        content=text,
+                        task_type="retrieval_document"
+                    )
+                    logging.info(f"✅ Successfully generated embedding using key #{i+1} ({key_prefix}...)")
+                    return result['embedding']
+                    
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    
+                    # Check for quota/rate limit errors
+                    if "quota" in error_msg or "429" in error_msg or "resource_exhausted" in error_msg:
+                        quota_exhausted_count += 1
+                        logging.warning(f"❌ Gemini embedding quota exceeded for key #{i+1} ({key_prefix}...): {e}")
+                        last_exception = e
+                        break  # Move to next key
+                    
+                    # Check for non-retriable errors (argument errors)
+                    if any(msg in error_msg for msg in ["invalid argument", "bad request", "400", "unexpected keyword argument"]):
+                        logging.error(f"❌ Non-retriable error with key #{i+1} ({key_prefix}...): {e}")
+                        last_exception = e
+                        break  # Move to next key
+                    
+                    # Check for connection-related errors
+                    is_connection_error = any(msg in error_msg for msg in [
+                        "failed to connect", "timeout", "connection refused", 
+                        "network", "socket", "unreachable", "tcp handshaker shutdown", "dns", "gateway"
+                    ])
+                    
+                    if is_connection_error and attempt < max_retries - 1:
+                        structured_logger.log_retry_attempt('external_embedding', attempt + 1, str(e))
+                        time.sleep(retry_delay)
+                        retry_delay = min(retry_delay * 2, float(getattr(settings, "MAX_RETRY_DELAY", 60.0)))
+                        continue  # Retry with same key
+                    
+                    # Other errors or final attempt failed
+                    logging.warning(f"❌ Gemini embedding error with key #{i+1} ({key_prefix}...): {e}")
+                    last_exception = e
+                    break  # Move to next key
+
+        # If we reach here, all keys failed
+        logging.error(f"All {keys_attempted} Gemini embedding API keys failed. Quota exhausted: {quota_exhausted_count}, Other errors: {keys_attempted - quota_exhausted_count}")
         
-        for attempt in range(max_retries):
-            try:
-                result = genai.embed_content(
-                    model=self.embedding_model,
-                    content=text,
-                    task_type="retrieval_document"
-                )
-                return result['embedding']
-                
-            except Exception as e:
-                error_msg = str(e).lower()
-                
-                # Check for non-retriable errors (argument errors)
-                if any(msg in error_msg for msg in ["invalid argument", "bad request", "400", "unexpected keyword argument"]):
-                    # Don't retry for argument errors
-                    raise e
-                
-                # Check for connection-related errors
-                is_connection_error = any(msg in error_msg for msg in [
-                    "failed to connect", "timeout", "connection refused", 
-                    "network", "socket", "unreachable", "tcp handshaker shutdown", "dns", "gateway"
-                ])
-                
-                if is_connection_error and attempt < max_retries - 1:
-                    structured_logger.log_retry_attempt('external_embedding', attempt + 1, str(e))
-                    time.sleep(retry_delay)
-                    retry_delay = min(retry_delay * 2, float(getattr(settings, "MAX_RETRY_DELAY", 60.0)))
-                    continue
-                
-                # Final attempt failed
-                raise e
+        if quota_exhausted_count == keys_attempted and quota_exhausted_count > 0:
+            raise Exception(f"All {keys_attempted} Gemini embedding API keys have exceeded quota. Please try again later.")
+        
+        raise Exception(f"Gemini embedding generation failed for all {keys_attempted} keys: {last_exception}")
 
     def _generate_fallback_embedding(self, text: str, context: Optional[LogContext] = None) -> np.ndarray:
         """Generate embedding using local fallback."""

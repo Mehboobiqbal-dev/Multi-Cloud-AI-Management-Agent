@@ -3,7 +3,7 @@ import json
 import time
 from typing import Dict
 from tools import tool_registry
-from groq import generate_text
+from gemini import generate_text
 from self_learning import SelfLearningCore
 from core.config import settings
 from core.structured_logging import structured_logger, LogContext, operation_context

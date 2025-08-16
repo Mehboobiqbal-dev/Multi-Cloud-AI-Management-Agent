@@ -42,10 +42,11 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: Optional[str] = os.environ.get("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: Optional[str] = os.environ.get("GOOGLE_CLIENT_SECRET", "")
     
-    # LLM settings
-    LLM_PROVIDER: str = os.environ.get("LLM_PROVIDER", "groq")  # groq, ollama, openai
+    # Legacy LLM settings (deprecated - use Gemini instead)
+    # These are kept for backward compatibility but not used
+    LLM_PROVIDER: str = os.environ.get("LLM_PROVIDER", "gemini")
     LLM_API_KEY: Optional[str] = os.environ.get("LLM_API_KEY", "")
-    LLM_MODEL_NAME: str = os.environ.get("LLM_MODEL_NAME", "llama3-8b-8192")
+    LLM_MODEL_NAME: str = os.environ.get("LLM_MODEL_NAME", "deprecated")
     
     # Gemini settings (for backward compatibility)
     GEMINI_API_KEYS: str = os.environ.get("GEMINI_API_KEYS", "")
@@ -114,9 +115,16 @@ if settings.ENVIRONMENT == "production":
     required_vars = [
         ("DATABASE_URL", settings.DATABASE_URL),
         ("SESSION_SECRET", settings.SESSION_SECRET),
-        ("LLM_API_KEY", settings.LLM_API_KEY),
     ]
     
+    # Check for Gemini API keys (either individual key or list)
+    if not settings.GEMINI_API_KEY and not settings.GEMINI_API_KEYS_LIST:
+        raise ValueError("Missing required environment variable in production: GEMINI_API_KEY or GEMINI_API_KEYS")
+    
     for var_name, var_value in required_vars:
-        if not var_value:
-            raise ValueError(f"Missing required environment variable in production: {var_name}")
+        if not var_value or var_value == "your-secret-key-change-in-production":
+            raise ValueError(f"Missing or default value for required environment variable in production: {var_name}")
+    
+    # Disable reload in production
+    settings.RELOAD = False
+    settings.DEBUG = False

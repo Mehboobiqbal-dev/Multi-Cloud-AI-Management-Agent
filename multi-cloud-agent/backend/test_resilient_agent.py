@@ -88,7 +88,7 @@ def test_form_automation_resilience():
             })
     
     with patch('tools.tool_registry.get_tool', side_effect=mock_get_tool), \
-         patch('groq.generate_text', side_effect=mock_generate_text):
+         patch('gemini.generate_text', side_effect=mock_generate_text):
         
         start_time = time.time()
         result = run_agent_loop(goal, max_loops=10)
@@ -130,7 +130,7 @@ def test_consecutive_failure_handling():
         })
     
     with patch('tools.tool_registry.get_tool', side_effect=mock_get_tool), \
-         patch('groq.generate_text', side_effect=mock_generate_text):
+         patch('gemini.generate_text', side_effect=mock_generate_text):
         
         result = run_agent_loop(goal, max_loops=10)
         

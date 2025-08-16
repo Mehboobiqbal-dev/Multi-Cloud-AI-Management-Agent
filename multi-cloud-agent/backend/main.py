@@ -43,7 +43,6 @@ import ecommerce
 import email_messaging
 import form_automation
 import gemini
-import groq
 import intent_extractor
 import knowledge_base
 import memory
@@ -729,50 +728,18 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
         raise HTTPException(status_code=500, detail=f"Error executing tool: {str(e)}")
 
 def generate_text(prompt: str) -> str:
-    import time
-    gemini_error_detail = None
-    
-    # Try Gemini first with its internal API key failover
+    """
+    Generate text using Gemini API with built-in failover across multiple API keys.
+    """
     try:
         return gemini.generate_text(prompt)
     except HTTPException as e:
-        if e.status_code == 429:
-            logging.warning(f"All Gemini API keys quota exceeded. Waiting 2 seconds before trying Groq fallback...")
-            time.sleep(2)  # Brief delay to avoid immediate successive calls
-        else:
-            gemini_error_detail = getattr(e, 'detail', str(e))
-            logging.warning(f"Gemini generation failed: {gemini_error_detail}. Falling back to Groq.")
-        
-        # Try Groq as fallback
-        max_retries = 3
-        initial_delay = 2  # Increased initial delay
-        for attempt in range(max_retries):
-            try:
-                return groq.generate_text(prompt)
-            except HTTPException as groq_e:
-                if groq_e.status_code == 429:
-                    if attempt < max_retries - 1:
-                        delay = initial_delay * (2 ** attempt)
-                        logging.warning(f"Groq 429 on attempt {attempt+1}, retrying in {delay} seconds...")
-                        time.sleep(delay)
-                    else:
-                        logging.error(f"Groq generation also failed after {max_retries} attempts: {groq_e.detail if hasattr(groq_e, 'detail') else groq_e}")
-                        # Provide more helpful error message
-                        raise HTTPException(
-                            status_code=429, 
-                            detail="All LLM providers (Gemini + Groq) have exceeded quota limits. Please wait a few minutes and try again, or add more API keys to your .env file."
-                        )
-                else:
-                    detail = getattr(groq_e, 'detail', str(groq_e))
-                    logging.error(f"Groq generation failed: {detail}")
-                    raise HTTPException(status_code=500, detail=(
-                        f"All LLM providers failed. "
-                        f"Gemini error: {gemini_error_detail or 'n/a'}. "
-                        f"Groq error: {detail}"
-                    ))
+        # Re-raise the HTTPException with appropriate error details
+        logging.error(f"Gemini generation failed: {getattr(e, 'detail', str(e))}")
+        raise e
     except Exception as e:
         logging.error(f"An unexpected error occurred with Gemini: {e}")
-        raise HTTPException(status_code=500, detail=f"An unexpected LLM error occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"LLM generation failed: {str(e)}")
 
 @app.post('/agent/run', response_model=schemas.AgentRunResponse, tags=["Agent"])
 @limiter.limit("5/minute")
@@ -1132,11 +1099,6 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
 def root():
     return {"message": "Multi-Cloud AI Management API is running!", "status": "healthy"}
 
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
-
 @app.get('/chat/history')
 async def get_chat_history(user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
     messages = db.query(ChatHistory).filter(ChatHistory.user_id == user.id).order_by(ChatHistory.timestamp.asc()).all()
@@ -1415,3 +1377,10 @@ async def download_scraped_content(task_id: str, format: str = 'json', user: sch
     except Exception as e:
         structured_logger.error(f"Error downloading content: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Download error: {str(e)}")
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    # Disable reload in production for better performance and stability
+    reload = os.environ.get("ENVIRONMENT", "development") == "development"
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=reload)
