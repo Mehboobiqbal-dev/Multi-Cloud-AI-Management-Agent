@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './LoginForm.module.css';
 
@@ -31,11 +31,13 @@ const LoginForm = () => {
 
   return (
     <div className={styles['login-container']}>
-      <h2 className={styles['login-title']}>{isSignup ? 'Sign Up' : 'Login'}</h2>
+      <h2 className={styles['login-title']}>
+        {isSignup ? '🚀 Create Account' : '👋 Welcome Back'}
+      </h2>
       
       {error && (
         <div className={styles['error-message']}>
-          {error}
+          ⚠️ {error}
         </div>
       )}
       
@@ -44,7 +46,7 @@ const LoginForm = () => {
           <div className={styles['form-group']}>
             <input
               type="text"
-              placeholder="Full Name"
+              placeholder="👤 Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
@@ -55,7 +57,7 @@ const LoginForm = () => {
         <div className={styles['form-group']}>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="📧 Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
@@ -65,10 +67,10 @@ const LoginForm = () => {
         <div className={styles['form-group']}>
           <input
             type="password"
-            placeholder="Password"
+            placeholder="🔒 Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
+            autoComplete={isSignup ? 'new-password' : 'current-password'}
             required
           />
         </div>
@@ -77,14 +79,18 @@ const LoginForm = () => {
           disabled={loading}
           className={styles['submit-button']}
         >
-          {loading ? 'Processing...' : (isSignup ? 'Sign Up' : 'Login')}
+          {loading ? (
+            <span>⏳ Processing...</span>
+          ) : (
+            <span>{isSignup ? '🚀 Create Account' : '🔐 Sign In'}</span>
+          )}
         </button>
       </form>
       <button
         onClick={() => setIsSignup(!isSignup)}
         className={styles['toggle-button']}
       >
-        {isSignup ? 'Already have an account? Login' : 'Need an account? Sign Up'}
+        {isSignup ? '👈 Already have an account? Login' : '✨ Need an account? Sign Up'}
       </button>
     </div>
   );
