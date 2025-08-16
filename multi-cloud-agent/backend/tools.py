@@ -90,9 +90,9 @@ def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15
     selector_strategies = [
         selector,  # Original selector
         f"input{selector}",  # Add input prefix if missing
-        f"[name='{selector.replace('[name=', '').replace('\"', '').replace(\"'\", '').replace(']', '')}']",  # Extract name and rebuild
-        f"#{selector.replace('#', '').replace('[id=\"', '').replace('"]', '').replace('[id=\'', '').replace('\']\'', '')}",  # Try as ID
-        f".{selector.replace('.', '').replace('[class=\"', '').replace('"]', '').replace('[class=\'', '').replace('\']\'', '')}",  # Try as class
+        f"[name='{selector.replace('[name=', '').replace('"', '').replace("'", '').replace(']', '')}']",  # Extract name and rebuild
+        f"#{selector.replace('#', '').replace('[id=', '').replace('"', '').replace("'", '').replace(']', '')}",  # Try as ID
+        f".{selector.replace('.', '').replace('[class=', '').replace('"', '').replace("'", '').replace(']', '')}",  # Try as class
     ]
     
     last_error = None
