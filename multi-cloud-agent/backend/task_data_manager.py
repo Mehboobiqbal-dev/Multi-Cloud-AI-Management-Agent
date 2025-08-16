@@ -246,6 +246,25 @@ class TaskDataManager:
         
         return file_path
     
+    def get_scraped_content(self, task_id: str) -> Dict:
+        """Get scraped content by task ID"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM scraped_data WHERE task_id = ?
+        ''', (task_id,))
+        
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result:
+            columns = ['id', 'task_id', 'url', 'scrape_type', 'title', 'content_type', 
+                      'data_size', 'word_count', 'link_count', 'image_count', 'table_count', 
+                      'form_count', 'scraped_at', 'raw_data', 'full_scraped_content']
+            return dict(zip(columns, result))
+        return None
+    
     def get_task_results(self, user_id: int, limit: int = 100, offset: int = 0, task_type: str = None) -> List[Dict]:
         """Retrieve paginated task results (user_id accepted for compatibility, not stored in schema)."""
         conn = sqlite3.connect(self.db_path)

@@ -43,9 +43,13 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Article as ArticleIcon,
-  Refresh
+  Refresh,
+  Chat,
+  Download
 } from '@mui/icons-material';
 import { format } from 'date-fns';
+import AIContentChat from './AIContentChat';
+import DownloadManager from './DownloadManager';
 
 const TaskResults = () => {
   const [tasks, setTasks] = useState([]);
@@ -58,6 +62,8 @@ const TaskResults = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [showDownloadManager, setShowDownloadManager] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -654,6 +660,22 @@ const TaskResults = () => {
         )}
       </DialogContent>
       <DialogActions>
+        <Button
+          startIcon={<Chat />}
+          onClick={() => setShowAIChat(true)}
+          variant="outlined"
+          color="primary"
+        >
+          AI Chat
+        </Button>
+        <Button
+          startIcon={<Download />}
+          onClick={() => setShowDownloadManager(true)}
+          variant="outlined"
+          color="secondary"
+        >
+          Download
+        </Button>
         <Button onClick={() => setDialogOpen(false)}>Close</Button>
       </DialogActions>
     </Dialog>
@@ -792,6 +814,24 @@ const TaskResults = () => {
       </Box>
       
       <TaskDetailDialog />
+      
+      {/* AI Content Chat Modal */}
+      {showAIChat && selectedTask && (
+        <AIContentChat
+          open={showAIChat}
+          onClose={() => setShowAIChat(false)}
+          taskData={selectedTask}
+        />
+      )}
+      
+      {/* Download Manager Modal */}
+      {showDownloadManager && selectedTask && (
+        <DownloadManager
+          open={showDownloadManager}
+          onClose={() => setShowDownloadManager(false)}
+          taskData={selectedTask}
+        />
+      )}
     </Box>
   );
 };

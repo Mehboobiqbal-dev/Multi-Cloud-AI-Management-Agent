@@ -1261,3 +1261,157 @@ async def websocket_chat_endpoint(websocket: WebSocket, user: schemas.User = Dep
         if user_id in active_connections:
             del active_connections[user_id]
         logging.error(f"WebSocket chat error for client {user_id}: {e}", exc_info=True)
+
+@app.post('/tasks/{task_id}/chat')
+async def chat_with_scraped_content(task_id: str, message: Dict[str, str], user: schemas.User = Depends(get_current_user)):
+    """Chat with AI about scraped content"""
+    try:
+        # Get scraped content from database
+        scraped_data = task_manager.get_scraped_content(task_id)
+        if not scraped_data:
+            raise HTTPException(status_code=404, detail="Scraped content not found")
+        
+        # Parse the full scraped content
+        full_content = json.loads(scraped_data.get('full_scraped_content', '{}'))
+        
+        # Extract relevant content for AI context
+        context_data = {
+            'url': scraped_data.get('url', ''),
+            'title': scraped_data.get('title', ''),
+            'text_content': full_content.get('data', {}).get('text_content', {}),
+            'metadata': full_content.get('data', {}).get('metadata', {}),
+            'statistics': full_content.get('statistics', {})
+        }
+        
+        # Create AI prompt with context
+        user_message = message.get('message', '')
+        system_prompt = f"""You are an AI assistant helping analyze scraped web content. 
+        
+Content Context:
+        - URL: {context_data['url']}
+        - Title: {context_data['title']}
+        - Word Count: {context_data['statistics'].get('word_count', 0)}
+        - Page Size: {context_data['statistics'].get('page_size_chars', 0)} characters
+        
+Text Content Summary:
+{json.dumps(context_data['text_content'], indent=2)[:2000]}...
+        
+Please answer the user's question about this content."""
+        
+        # Use OpenAI to generate response
+        client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=1000,
+            temperature=0.7
+        )
+        
+        ai_response = response.choices[0].message.content
+        
+        return {
+            "success": True,
+            "response": ai_response,
+            "context": {
+                "url": context_data['url'],
+                "title": context_data['title'],
+                "word_count": context_data['statistics'].get('word_count', 0)
+            }
+        }
+        
+    except Exception as e:
+        structured_logger.error(f"Error in AI chat: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI chat error: {str(e)}")
+
+@app.get('/tasks/{task_id}/download')
+async def download_scraped_content(task_id: str, format: str = 'json', user: schemas.User = Depends(get_current_user)):
+    """Download scraped content in various formats"""
+    try:
+        # Get scraped content from database
+        scraped_data = task_manager.get_scraped_content(task_id)
+        if not scraped_data:
+            raise HTTPException(status_code=404, detail="Scraped content not found")
+        
+        # Parse the full scraped content
+        full_content = json.loads(scraped_data.get('full_scraped_content', '{}'))
+        
+        if format.lower() == 'json':
+            from fastapi.responses import Response
+            return Response(
+                content=json.dumps(full_content, indent=2, ensure_ascii=False),
+                media_type="application/json",
+                headers={"Content-Disposition": f"attachment; filename=scraped_content_{task_id}.json"}
+            )
+        
+        elif format.lower() == 'txt':
+            # Extract text content
+            text_content = full_content.get('data', {}).get('text_content', {})
+            text_output = f"Title: {text_content.get('title', '')}\n\n"
+            
+            # Add headings
+            headings = text_content.get('headings', [])
+            if headings:
+                text_output += "Headings:\n"
+                for heading in headings:
+                    text_output += f"- {heading}\n"
+                text_output += "\n"
+            
+            # Add paragraphs
+            paragraphs = text_content.get('paragraphs', [])
+            if paragraphs:
+                text_output += "Content:\n"
+                for para in paragraphs:
+                    text_output += f"{para}\n\n"
+            
+            from fastapi.responses import Response
+            return Response(
+                content=text_output,
+                media_type="text/plain",
+                headers={"Content-Disposition": f"attachment; filename=scraped_content_{task_id}.txt"}
+            )
+        
+        elif format.lower() == 'csv':
+            import csv
+            from io import StringIO
+            
+            # Create CSV with structured data
+            output = StringIO()
+            writer = csv.writer(output)
+            
+            # Write headers
+            writer.writerow(['Type', 'Content'])
+            
+            # Write title
+            text_content = full_content.get('data', {}).get('text_content', {})
+            if text_content.get('title'):
+                writer.writerow(['Title', text_content['title']])
+            
+            # Write headings
+            for heading in text_content.get('headings', []):
+                writer.writerow(['Heading', heading])
+            
+            # Write paragraphs
+            for para in text_content.get('paragraphs', []):
+                writer.writerow(['Paragraph', para])
+            
+            # Write links
+            links = full_content.get('data', {}).get('links', [])
+            for link in links:
+                writer.writerow(['Link', f"{link.get('text', '')} - {link.get('url', '')}"]) 
+            
+            from fastapi.responses import Response
+            return Response(
+                content=output.getvalue(),
+                media_type="text/csv",
+                headers={"Content-Disposition": f"attachment; filename=scraped_content_{task_id}.csv"}
+            )
+        
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported format. Use 'json', 'txt', or 'csv'")
+            
+    except Exception as e:
+        structured_logger.error(f"Error downloading content: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Download error: {str(e)}")

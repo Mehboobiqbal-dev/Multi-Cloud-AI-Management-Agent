@@ -21,6 +21,7 @@ requests
 python-dotenv
 python-multipart
 itsdangerous
+urllib3
 
 # Data validation and settings
 pydantic
@@ -58,6 +59,9 @@ tweepy
 google-api-python-client
 gtts
 beautifulsoup4
+lxml
+faker
+playwright
 
 # Enhanced logging and monitoring
 structlog>=22.0.0
@@ -75,6 +79,12 @@ pytest-cov>=4.0.0
 black>=22.0.0
 flake8>=5.0.0
 mypy>=0.990
+
+# Additional production dependencies
+webdriver-manager
+fastapi-limiter
+starlette
+aiofiles
 
 # Optional / custom modules (commented out to reduce weight or missing pip packages)
 # clear_users
