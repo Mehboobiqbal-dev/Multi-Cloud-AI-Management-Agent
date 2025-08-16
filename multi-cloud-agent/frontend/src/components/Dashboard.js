@@ -7,17 +7,10 @@ import {
   Toolbar,
   Typography,
   Button,
-  Container,
   Box,
   TextField,
   Paper,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  Grid,
-  Tabs,
-  Tab,
   Drawer,
   CssBaseline,
   IconButton,
@@ -132,10 +125,7 @@ function Dashboard({ navigate }) {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleAgentControl = (action) => {
-    // Placeholder for pause/resume future behavior
-    console.log('Agent control:', action, 'for run id', currentRunId);
-  };
+
 
   const drawerWidth = 280;
 
@@ -150,13 +140,42 @@ function Dashboard({ navigate }) {
           />
         );
       case 'tasks':
+      case 'task-results':
         return <TaskResults />;
       case 'credentials':
+      case 'cloud-credentials':
         return <CloudCredentials />;
       case 'automation':
+      case 'form-automation':
         return <FormAutomation />;
       case 'tools':
+      case 'tool-manager':
         return <ToolManager />;
+      case 'dashboard':
+        return (
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+              Dashboard Overview
+            </Typography>
+            <TaskResults />
+          </Box>
+        );
+      case 'web-browsing':
+      case 'plan-execution':
+      case 'memory':
+      case 'analytics':
+      case 'history':
+      case 'settings':
+        return (
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+              {activeView.charAt(0).toUpperCase() + activeView.slice(1).replace('-', ' ')}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              This feature is coming soon!
+            </Typography>
+          </Box>
+        );
       case 'legacy':
         return (
           <Box sx={{ p: 3 }}>
@@ -261,7 +280,6 @@ function Dashboard({ navigate }) {
             edge="start"
             sx={{
               marginRight: 5,
-              ...(sidebarOpen && { display: 'none' }),
             }}
           >
             <MenuIcon />
@@ -295,6 +313,7 @@ function Dashboard({ navigate }) {
           </IconButton>
         </Toolbar>
         <Sidebar
+          open={sidebarOpen}
           activeView={activeView}
           onNavigationChange={handleNavigationChange}
           websocketConnected={websocketConnected}

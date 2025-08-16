@@ -4,7 +4,6 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText,
   ListItemButton,
   Divider,
   Typography,
@@ -121,12 +120,12 @@ const navigationItems = [
   }
 ];
 
-function Sidebar({ open, onNavigate, currentSection, onClose }) {
+function Sidebar({ open, onNavigationChange, activeView, onClose }) {
   const theme = useTheme();
 
   const handleItemClick = (item) => {
     if (item.type !== 'divider') {
-      onNavigate(item.id);
+      onNavigationChange(item.id);
       if (onClose) onClose();
     }
   };
@@ -155,7 +154,7 @@ function Sidebar({ open, onNavigate, currentSection, onClose }) {
     }
 
     const Icon = item.icon;
-    const isActive = currentSection === item.id;
+    const isActive = activeView === item.id;
 
     return (
       <ListItem key={item.id} disablePadding>
@@ -166,10 +165,12 @@ function Sidebar({ open, onNavigate, currentSection, onClose }) {
             mb: 0.5,
             borderRadius: 2,
             minHeight: 48,
-            backgroundColor: isActive ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+            backgroundColor: isActive
+              ? alpha(theme.palette.primary.main, 0.12)
+              : 'transparent',
             color: isActive ? theme.palette.primary.main : 'text.primary',
             '&:hover': {
-              backgroundColor: isActive 
+              backgroundColor: isActive
                 ? alpha(theme.palette.primary.main, 0.16)
                 : alpha(theme.palette.action.hover, 0.08)
             },
@@ -179,42 +180,44 @@ function Sidebar({ open, onNavigate, currentSection, onClose }) {
           <ListItemIcon
             sx={{
               color: 'inherit',
-              minWidth: 40
+              minWidth: 32 // FIXED: prevents icons from taking too much space
             }}
           >
             <Icon fontSize="small" />
           </ListItemIcon>
-          <ListItemText
-            primary={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="body2" fontWeight={isActive ? 600 : 400}>
-                  {item.label}
-                </Typography>
-                {item.badge && (
-                  <Chip
-                    label={item.badge}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                    sx={{ height: 20, fontSize: '0.7rem' }}
-                  />
-                )}
-              </Box>
-            }
-            secondary={
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: '0.7rem',
-                  lineHeight: 1.2,
-                  mt: 0.5
-                }}
-              >
-                {item.description}
-              </Typography>
-            }
-          />
+
+          {/* Custom text rendering */}
+          <Box sx={{ flex: 1 }}>
+            <Typography
+              variant="body2"
+              fontWeight={isActive ? 600 : 400}
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              {item.label}
+              {item.badge && (
+                <Chip
+                  label={item.badge}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ height: 20, fontSize: '0.7rem' }}
+                />
+              )}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.7rem',
+                lineHeight: 1.2,
+                mt: 0.3
+              }}
+            >
+              {item.description}
+            </Typography>
+          </Box>
         </ListItemButton>
       </ListItem>
     );
@@ -237,11 +240,12 @@ function Sidebar({ open, onNavigate, currentSection, onClose }) {
         }
       }}
     >
+      {/* Header */}
       <Box
         sx={{
           p: 2,
           borderBottom: `1px solid ${theme.palette.divider}`,
-          backgroundColor: alpha(theme.palette.primary.main, 0.04)
+          backgroundColor: alpha(theme.palette.primary.main, 0.08)
         }}
       >
         <Typography
@@ -266,13 +270,13 @@ function Sidebar({ open, onNavigate, currentSection, onClose }) {
           Intelligent Automation Platform
         </Typography>
       </Box>
-      
+
+      {/* List of nav items */}
       <Box sx={{ overflow: 'auto', flex: 1, py: 1 }}>
-        <List>
-          {navigationItems.map(renderListItem)}
-        </List>
+        <List>{navigationItems.map(renderListItem)}</List>
       </Box>
-      
+
+      {/* Footer */}
       <Box
         sx={{
           p: 2,

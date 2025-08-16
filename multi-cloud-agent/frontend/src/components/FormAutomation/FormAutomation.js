@@ -20,38 +20,22 @@ import {
   ListItemIcon,
   ListItemText,
   Chip,
-  Paper,
-  Divider,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Switch,
-  FormControlLabel,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  IconButton,
-  Tooltip
+  IconButton
 } from '@mui/material';
 import {
   Work as WorkIcon,
-  SmartToy as AutoModeIcon,
   Business as LinkedInIcon,
-  Public as WebIcon,
   PlayArrow as PlayIcon,
-  Stop as StopIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Save as SaveIcon,
-  ExpandMore,
   CheckCircle,
   Error,
-  Warning,
-  Info,
-  Upload as UploadIcon,
-  Download as DownloadIcon,
   ViewList as BatchIcon
 } from '@mui/icons-material';
 import api from '../../services/api';
@@ -113,7 +97,7 @@ function FormAutomation() {
   ];
 
   const platforms = Object.keys(jobPlatforms);
-  const currentPlatform = platforms[0]; // Default to first platform
+
 
   useEffect(() => {
     loadTemplates();
@@ -209,8 +193,8 @@ function FormAutomation() {
   const handleBatchApplication = async () => {
     setExecuting(true);
     try {
-      const result = await api.batchApplyJobs({ jobs: batchJobs });
-      setMessage({ type: 'success', text: `Batch application completed! ${result.successful || 0} successful, ${result.failed || 0} failed.` });
+      const response = await api.batchApplyJobs({ jobs: batchJobs });
+      setMessage({ type: 'success', text: `Batch application completed! ${response.successful || 0} successful, ${response.failed || 0} failed.` });
       setBatchDialog(false);
       loadExecutionHistory();
     } catch (error) {

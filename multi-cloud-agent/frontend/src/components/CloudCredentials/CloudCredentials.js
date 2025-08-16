@@ -23,8 +23,7 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText,
-  Tooltip
+  ListItemText
 } from '@mui/material';
 import {
   CloudQueue as AWSIcon,
@@ -91,11 +90,10 @@ function CloudCredentials() {
 
   const providers = Object.keys(providerConfigs);
   const currentProvider = providers[activeTab];
-  const config = providerConfigs[currentProvider];
 
   useEffect(() => {
     loadCredentials();
-  }, []);
+  }, [loadCredentials]);
 
   const loadCredentials = async () => {
     setLoading(true);

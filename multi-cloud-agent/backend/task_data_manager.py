@@ -54,9 +54,18 @@ class TaskDataManager:
                 form_count INTEGER,
                 scraped_at TIMESTAMP,
                 raw_data TEXT,
+                full_scraped_content TEXT,
                 FOREIGN KEY (task_id) REFERENCES task_results (id)
             )
         ''')
+        
+        # Add full_scraped_content column if it doesn't exist
+        cursor.execute("PRAGMA table_info(scraped_data)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'full_scraped_content' not in columns:
+            cursor.execute('''
+                ALTER TABLE scraped_data ADD COLUMN full_scraped_content TEXT
+            ''')
         
         # Create account creation results table
         cursor.execute('''
@@ -165,24 +174,25 @@ class TaskDataManager:
             INSERT INTO scraped_data 
             (id, task_id, url, scrape_type, title, content_type, data_size, 
              word_count, link_count, image_count, table_count, form_count, 
-             scraped_at, raw_data)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             scraped_at, raw_data, full_scraped_content)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             scrape_id,
             task_id,
             url,
             scrape_type,
             title,
-            'web_page',
+            'web_page', # content_type
             data_size,
             word_count,
             link_count,
             image_count,
             table_count,
             form_count,
-            scraping_data.get('scraped_at'),
-            json.dumps(scraping_data, ensure_ascii=False)
-        ))
+            datetime.now().isoformat(),
+            json.dumps(scraping_data), # raw_data
+            json.dumps(scraping_data) # full_scraped_content
+         ))
         
         conn.commit()
         conn.close()
@@ -372,7 +382,7 @@ class TaskDataManager:
         # Get additional data based on task type
         if task_details['task_type'] == 'web_scraping':
             cursor.execute('''
-                SELECT * FROM scraped_data WHERE task_id = ?
+                SELECT id, task_id, url, scrape_type, title, content_type, data_size, word_count, link_count, image_count, table_count, form_count, scraped_at, raw_data, full_scraped_content FROM scraped_data WHERE task_id = ?
             ''', (task_id,))
             scraping_columns = [description[0] for description in cursor.description]
             scraping_row = cursor.fetchone()

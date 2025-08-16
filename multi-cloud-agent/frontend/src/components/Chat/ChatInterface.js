@@ -7,8 +7,6 @@ import {
   Typography,
   Avatar,
   Chip,
-  Card,
-  CardContent,
   Button,
   Dialog,
   DialogTitle,
@@ -18,15 +16,12 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
   CircularProgress,
-  Alert,
   Tooltip,
-  Menu,
-  MenuItem,
   FormControl,
   InputLabel,
   Select,
+  MenuItem,
   Switch,
   FormControlLabel,
   Accordion,
@@ -40,7 +35,6 @@ import {
   History as HistoryIcon,
   Clear as ClearIcon,
   Download as DownloadIcon,
-  Upload as UploadIcon,
   Settings as SettingsIcon,
   Code as CodeIcon,
   Terminal as TerminalIcon,
@@ -49,13 +43,8 @@ import {
   SmartToy as AutoModeIcon,
   ExpandMore,
   ContentCopy as CopyIcon,
-  Refresh as RefreshIcon,
-  Stop as StopIcon,
-  PlayArrow as PlayIcon,
   Mic as MicIcon,
-  MicOff as MicOffIcon,
-  VolumeUp as VolumeUpIcon,
-  VolumeOff as VolumeOffIcon
+  MicOff as MicOffIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import api from '../../services/api';
@@ -122,6 +111,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     theme: 'light',
     fontSize: 'medium'
   });
+
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
