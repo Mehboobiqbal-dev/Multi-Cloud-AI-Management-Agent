@@ -55,6 +55,7 @@ import security
 import social_media
 # import voice_control
 import universal_assistant
+from task_data_manager import task_manager
 import json
 import re
 
@@ -448,13 +449,14 @@ YOUR PLAN:
         else:
             plan_text = response_text
 
-        response_data = json.loads(plan_text)
+        from core.utils import parse_json_tolerant
+        response_data = parse_json_tolerant(plan_text)
         plan = response_data.get("plan")
 
         if not isinstance(plan, list):
             raise json.JSONDecodeError("The 'plan' key must contain a list of steps.", plan_text, 0)
 
-    except (json.JSONDecodeError, TypeError, AttributeError) as e:
+    except (json.JSONDecodeError, TypeError, AttributeError, ValueError) as e:
         logging.error(f"Failed to generate or parse a valid plan from LLM response: {e}", exc_info=True)
         return {
             "plan": [{"step": 1, "action": "ask_user", "params": {"question": "I had trouble formulating a plan. Could you please rephrase or provide more detail?"}}]
@@ -727,14 +729,21 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
         raise HTTPException(status_code=500, detail=f"Error executing tool: {str(e)}")
 
 def generate_text(prompt: str) -> str:
+    import time
+    
     # Try Gemini first with its internal API key failover
     try:
         return gemini.generate_text(prompt)
     except HTTPException as e:
-        # If Gemini fails due to quota or other issues, try Groq as a fallback
-        logging.warning(f"Gemini generation failed: {e.detail}. Falling back to Groq.")
+        if e.status_code == 429:
+            logging.warning(f"All Gemini API keys quota exceeded. Waiting 2 seconds before trying Groq fallback...")
+            time.sleep(2)  # Brief delay to avoid immediate successive calls
+        else:
+            logging.warning(f"Gemini generation failed: {e.detail}. Falling back to Groq.")
+        
+        # Try Groq as fallback
         max_retries = 3
-        initial_delay = 1  # seconds
+        initial_delay = 2  # Increased initial delay
         for attempt in range(max_retries):
             try:
                 return groq.generate_text(prompt)
@@ -743,13 +752,16 @@ def generate_text(prompt: str) -> str:
                     if attempt < max_retries - 1:
                         delay = initial_delay * (2 ** attempt)
                         logging.warning(f"Groq 429 on attempt {attempt+1}, retrying in {delay} seconds...")
-                        import time
                         time.sleep(delay)
                     else:
                         logging.error(f"Groq generation also failed after {max_retries} attempts: {groq_e}")
-                        raise HTTPException(status_code=500, detail=f"All LLM providers failed: {str(groq_e)}")
+                        # Provide more helpful error message
+                        raise HTTPException(
+                            status_code=429, 
+                            detail="All LLM providers (Gemini + Groq) have exceeded quota limits. Please wait a few minutes and try again, or add more API keys to your .env file."
+                        )
                 else:
-                    logging.error(f"Groq generation also failed: {groq_e}")
+                    logging.error(f"Groq generation failed: {groq_e}")
                     raise HTTPException(status_code=500, detail=f"All LLM providers failed: {str(groq_e)}")
     except Exception as e:
         logging.error(f"An unexpected error occurred with Gemini: {e}")
@@ -848,7 +860,7 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
 
         # Define the agent loop prompt template
         AGENT_LOOP_PROMPT = """
-        You are a highly intelligent, self-sufficient AI agent capable of performing any task on the internet autonomously without needing user input. Always think step by step and persist until the goal is achieved. If the goal is null, unclear, or not provided, infer from history or default to useful autonomous tasks like searching the web for trending topics, analyzing information, or performing exploratory actions independently. Never attempt to ask the user for clarification; instead, make reasonable assumptions or choose a default goal.
+        You are a highly intelligent, self-sufficient AI agent capable of performing any task on the internet autonomously. Always think step by step and persist until the goal is achieved. If the goal is null, unclear, or not provided, infer from history or choose a reasonable default goal. Do not ask for generic clarifications; instead, proceed with reasonable assumptions. Only ask the user when absolutely necessary for credentials or one-time secrets that are required to proceed (e.g., login email/password, 2FA codes), using the special action "request_credentials".
         If an action fails, analyze the error message from history and try an alternative strategy (e.g., waiting, using alternative selectors, reloading the page, or using different tools). Continue iterating until "finish_task".
         For any browser-related tool (e.g., get_page_content, fill_form, fill_multiple_fields, click_button, submit_form, close_browser, wait_for_element, select_dropdown_option, upload_file, check_checkbox), you MUST include the "browser_id" parameter. Infer it from the most recent open_browser result in history like "Browser opened with ID: browser_X". If you can't find it explicitly, assume the latest browser_X used in history.
         
@@ -868,7 +880,7 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
         }}
         
         For completion, use "finish_task" with {{"final_answer": "result"}}.
-        Never use non-existent tools like 'ask_user'. Persist through errors and adapt autonomously.
+        Use "request_credentials" only when authentication credentials are absolutely required to continue. Persist through errors and adapt autonomously for all other scenarios.
         """
     
         # Continue from previous step count
@@ -878,33 +890,28 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             
             # 1. THINK and CHOOSE NEXT ACTION
             history_str = "\n".join([f"  - Step {h['step']}: I used '{h['action']['name']}' which resulted in: '{h['result']}'" for h in history]) if history else "  - No actions taken yet."
-            thought = "No thought recorded due to an error."
+            # Build the prompt for the next action
             prompt = AGENT_LOOP_PROMPT.format(
                 goal=goal,
                 history=history_str,
                 tools=json.dumps(tool_registry.get_all_tools_dict(), indent=2)
             )
-            
+            # Ensure we have a safe default thought in case parsing fails
+            thought = "No thought recorded due to an error."
             try:
                 await send_log(f"Generating next action with LLM...")
                 response_text = generate_text(prompt)
                 await send_log(f"LLM Response: {response_text[:200]}...") # Log first 200 chars
-                # Extract JSON from the response
-                import re
-                json_match = re.search(r'```json\n([\s\S]*?)\n```', response_text)
-                if json_match:
-                    json_string = json_match.group(1)
-                    decision_data = json.loads(json_string)
-                else:
-                    # Fallback if no JSON block is found, try to parse the whole response
-                    # This might still fail if the response is not pure JSON
-                    decision_data = json.loads(response_text)
+                # Extract JSON from the response with tolerant parsing
+                from core.utils import parse_json_tolerant
+                logging.info(f"Attempting to parse agent decision from response: {response_text[:200]}...")
+                decision_data = parse_json_tolerant(response_text)
 
                 thought = decision_data.get("thought", "No thought provided.")
                 action_data = decision_data.get("action", {})
                 action_name = action_data.get("name")
                 action_params = action_data.get("params", {})
-            except (json.JSONDecodeError, AttributeError) as e:
+            except (json.JSONDecodeError, AttributeError, ValueError) as e:
                 logging.error(f"Failed to parse agent decision from response: '{response_text}'. Error: {e}", exc_info=True)
                 # Mark session as failed for this attempt, but keep history
                 session_obj.status = 'failed'
@@ -938,6 +945,26 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                         if inferred_id:
                             action_params['browser_id'] = inferred_id
                             await send_log(f"Inferred browser_id '{inferred_id}' for action '{action_name}' from history.")
+                    
+                    # Filter out invalid parameters for specific tools
+                    tool_param_filters = {
+                        'open_browser': ['url', 'max_retries', 'retry_delay'],
+                        'get_page_content': ['browser_id'],
+                        'fill_form': ['browser_id', 'selector', 'value', 'wait_timeout'],
+                        'click_button': ['browser_id', 'selector'],
+                        'close_browser': ['browser_id'],
+                        'submit_form': ['browser_id', 'selector'],
+                        'wait_for_element': ['browser_id', 'selector', 'timeout'],
+                        'search_web': ['query', 'engine']
+                    }
+                    
+                    if action_name in tool_param_filters:
+                        valid_param_names = tool_param_filters[action_name]
+                        valid_params = {k: v for k, v in action_params.items() if k in valid_param_names}
+                        if len(valid_params) != len(action_params):
+                            removed_params = set(action_params.keys()) - set(valid_params.keys())
+                            await send_log(f"Removed invalid parameters for {action_name}: {removed_params}")
+                            action_params = valid_params
                     
                     # Add timeout for browser operations to prevent hanging
                     import asyncio
@@ -1028,7 +1055,39 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
             critique = generate_text(critique_prompt)
             await send_log(f"Self-Critique: {critique[:200]}...") # Log first 200 chars
 
-            # 4. CHECK FOR COMPLETION
+            # 4. CHECK FOR COMPLETION OR USER INPUT NEEDED
+            if action_name == "request_credentials" or action_name == "ask_user":
+                # Pause the agent and request user input
+                assistance_message = action_params.get("message", 
+                    action_params.get("question", 
+                        "Please provide the required credentials or information to continue."))
+                
+                await send_log(f"Agent requires user input: {assistance_message}")
+                await send_log(json.dumps({
+                    "topic": "agent_updates", 
+                    "payload": {
+                        "status": "requires_input", 
+                        "data": {
+                            "message": assistance_message,
+                            "request_type": action_name,
+                            "run_id": session_obj.run_id
+                        }
+                    }
+                }))
+                
+                session_obj.status = 'requires_input'
+                session_obj.awaiting_assistance = True
+                session_obj.assistance_request = assistance_message
+                session_obj.history = json.dumps(history)
+                db.commit()
+                
+                return schemas.AgentRunResponse(
+                    status="requires_input", 
+                    message=assistance_message, 
+                    history=history, 
+                    final_result=None
+                )
+            
             if action_name == "finish_task":
                 await send_log(f"Agent finished goal: '{goal}'")
                 await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"final_result": result}}}))
@@ -1090,7 +1149,14 @@ async def post_chat_message(payload: Dict[str, Any], user: schemas.User = Depend
     agent_run_id = payload.get('agent_run_id')
     if not message:
         raise HTTPException(status_code=400, detail="Message is required")
-    chat = ChatHistory(user_id=user.id, sender='user', message=message, message_type=message_type, agent_run_id=agent_run_id)
+
+    # Ensure the message is a string before saving
+    if isinstance(message, dict):
+        message_str = json.dumps(message)
+    else:
+        message_str = str(message)
+
+    chat = ChatHistory(user_id=user.id, sender='user', message=message_str, message_type=message_type, agent_run_id=agent_run_id)
     db.add(chat)
     db.commit()
     # Forward to WebSocket subscribers if present
@@ -1101,6 +1167,45 @@ async def post_chat_message(payload: Dict[str, Any], user: schemas.User = Depend
         except Exception:
             pass
     return {"status": "ok"}
+
+@app.get('/tasks/results')
+async def get_task_results(user: schemas.User = Depends(get_current_user), limit: int = 50, offset: int = 0):
+    """Get paginated list of task results for the current user"""
+    try:
+        results = task_manager.get_task_results(user_id=user.id, limit=limit, offset=offset)
+        return {"success": True, "results": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get('/tasks/statistics')
+async def get_task_statistics(user: schemas.User = Depends(get_current_user)):
+    """Get task statistics for the current user"""
+    try:
+        stats = task_manager.get_task_statistics(user_id=user.id)
+        return {"success": True, "statistics": stats}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get('/tasks/scraping')
+async def get_scraping_results(user: schemas.User = Depends(get_current_user), limit: int = 20, offset: int = 0):
+    """Get paginated list of scraping results for the current user"""
+    try:
+        results = task_manager.get_scraping_results(user_id=user.id, limit=limit, offset=offset)
+        return {"success": True, "results": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get('/tasks/{task_id}')
+async def get_task_details(task_id: str, user: schemas.User = Depends(get_current_user)):
+    """Get detailed information about a specific task"""
+    try:
+        task_details = task_manager.get_task_by_id(task_id=task_id, user_id=user.id)
+        if task_details:
+            return {"success": True, "task": task_details}
+        else:
+            raise HTTPException(status_code=404, detail="Task not found")
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 # Modify websocket chat endpoint to accept run_id and assistance
 @app.websocket("/ws/chat")
@@ -1117,8 +1222,15 @@ async def websocket_chat_endpoint(websocket: WebSocket, user: schemas.User = Dep
             agent_run_id = message_data.get("agent_run_id")
             if not message:
                 continue
+            
+            # Ensure message is a string before saving
+            if isinstance(message, dict):
+                message_str = json.dumps(message)
+            else:
+                message_str = str(message)
+
             # Save user message to chat history
-            user_message = ChatHistory(user_id=user_id, sender="user", message=message, message_type=message_type, agent_run_id=agent_run_id)
+            user_message = ChatHistory(user_id=user_id, sender="user", message=message_str, message_type=message_type, agent_run_id=agent_run_id)
             db.add(user_message)
             db.commit()
             # Add message to memory if available

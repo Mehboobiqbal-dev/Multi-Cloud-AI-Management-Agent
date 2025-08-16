@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from google.api_core.exceptions import ResourceExhausted
 from typing import List
 import google.generativeai as genai
+from rate_limiter import rate_limiter
 
 # Generation Config
 generation_config = {
@@ -42,6 +43,17 @@ def generate_text(prompt: str) -> str:
 
     for key in api_keys:
         try:
+            # Apply rate limiting per API key
+            key_id = f"gemini_{key[:10]}"
+            remaining = rate_limiter.get_remaining_requests(key_id, max_requests=50, window_seconds=60)
+            
+            if remaining <= 0:
+                logging.warning(f"Rate limit reached for Gemini key {key[:10]}..., skipping")
+                continue
+                
+            # Wait if needed to avoid hitting rate limits
+            rate_limiter.wait_if_needed(key_id, max_requests=50, window_seconds=60)
+            
             genai.configure(api_key=key)
             model = genai.GenerativeModel(
                 model_name=settings.GEMINI_MODEL_NAME,
@@ -49,7 +61,7 @@ def generate_text(prompt: str) -> str:
                 safety_settings=safety_settings
             )
             response = model.generate_content(prompt)
-            logging.info(f"Successfully generated text using key: {key[:10]}...")
+            logging.info(f"Successfully generated text using key: {key[:10]}... (remaining: {remaining-1})")
             return response.text
         except ResourceExhausted as e:
             quota_exhausted = True

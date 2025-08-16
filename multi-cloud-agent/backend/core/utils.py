@@ -41,6 +41,120 @@ def parse_json(json_str: str) -> Dict[str, Any]:
         logger.error(f"Failed to parse JSON: {e}")
         raise ValueError(f"Invalid JSON: {e}")
 
+
+def parse_json_tolerant(response_text: str) -> Dict[str, Any]:
+    """
+    Tolerant JSON parser that can handle malformed JSON from LLM responses.
+    
+    This function implements comprehensive cleaning and extraction logic to handle:
+    - JSON blocks wrapped in ```json``` 
+    - Backticks around URLs and other values
+    - Invalid control characters
+    - Comments and other non-JSON content
+    - Unescaped newlines
+    - Whitespace issues
+    
+    Args:
+        response_text: Raw text response that may contain JSON
+        
+    Returns:
+        Parsed JSON as a dictionary
+        
+    Raises:
+        ValueError: If no valid JSON can be extracted and parsed
+    """
+    if not response_text or not response_text.strip():
+        raise ValueError("Empty response text")
+    
+    # Try to find ```json``` block first
+    json_match = re.search(r'```json\n([\s\S]*?)\n```', response_text)
+    if json_match:
+        json_string = json_match.group(1)
+    else:
+        # Fallback: try to find any JSON object with proper nesting
+        json_matches = []
+        
+        # Find all potential JSON starts
+        start_positions = [m.start() for m in re.finditer(r'\{', response_text)]
+        
+        for start_pos in start_positions:
+            brace_count = 0
+            end_pos = start_pos
+            
+            # Find matching closing brace
+            for i in range(start_pos, len(response_text)):
+                if response_text[i] == '{':
+                    brace_count += 1
+                elif response_text[i] == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_pos = i + 1
+                        break
+            
+            if brace_count == 0:  # Found complete JSON object
+                json_candidate = response_text[start_pos:end_pos]
+                json_matches.append(json_candidate)
+        
+        if json_matches:
+            # Try to parse each found JSON object, starting with the largest (most complete)
+            json_matches.sort(key=len, reverse=True)
+            for potential_json_string in json_matches:
+                try:
+                    # Attempt to clean and parse
+                    cleaned_json = _clean_json_string(potential_json_string)
+                    # Try to load to check validity
+                    json.loads(cleaned_json)
+                    json_string = cleaned_json
+                    break # Found a valid JSON string, use this one
+                except json.JSONDecodeError:
+                    continue # Not valid JSON, try next one
+        
+        if 'json_string' not in locals(): # If no valid JSON found after all attempts
+            json_string = response_text # Last resort, use entire response
+    
+    # Clean the final extracted JSON string
+    json_string = _clean_json_string(json_string)
+    
+    try:
+        return json.loads(json_string)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse cleaned JSON: {e}")
+        logger.debug(f"Cleaned JSON string: {json_string[:500]}...")
+        raise ValueError(f"Invalid JSON after cleaning: {e}")
+
+
+def _clean_json_string(json_string: str) -> str:
+    """
+    Clean a JSON string by removing problematic patterns.
+    
+    Args:
+        json_string: Raw JSON string to clean
+        
+    Returns:
+        Cleaned JSON string
+    """
+    # Remove line-start comments only (avoid removing 'https://' inside strings)
+    cleaned = re.sub(r'^\s*//.*$', '', json_string, flags=re.MULTILINE)
+    
+    # Remove backticks from quoted strings more comprehensively
+    # Handle: "url": "`https://example.com`" -> "url": "https://example.com"
+    cleaned = re.sub(r'"\s*`([^`]*)`\s*"', r'"\1"', cleaned)
+    
+    # Handle backticks within quoted strings: "some `text` here" -> "some text here"
+    cleaned = re.sub(r'"([^"]*)`([^`]*)`([^"]*?)"', r'"\1\2\3"', cleaned)
+    
+    # Handle the specific case: " `url` " -> "url"  
+    cleaned = re.sub(r'"\s+`([^`]+)`\s+"', r'"\1"', cleaned)
+    
+    # Trim whitespace inside quoted values after a colon
+    cleaned = re.sub(r':\s*"\s+([^"]*?)\s+"\s*', r': "\1"', cleaned)
+    
+    # IMPORTANT: Do NOT escape structural newlines globally; JSON allows whitespace/newlines between tokens.
+    # Only remove invalid control characters that are not valid JSON whitespace.
+    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]', '', cleaned)
+    
+    return cleaned.strip()
+
 def to_json(data: Any) -> str:
     """
     Convert data to a JSON string.

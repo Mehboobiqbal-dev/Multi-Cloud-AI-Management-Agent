@@ -1078,6 +1078,10 @@ def create_account_smart(website_name: str = None, use_tempmail: bool = True, br
             "fallback": "Try using create_account_universal directly"
         }, indent=2)
 
+# Import scraping function
+from scraping_analysis import scrape_website_comprehensive
+
 tool_registry.register(Tool("create_account_universal", "Create an account on any website automatically with intelligent form detection", create_account_universal))
 tool_registry.register(Tool("create_tempmail_account", "Create a temporary email account automatically", create_tempmail_account))
 tool_registry.register(Tool("create_account_smart", "Create accounts on popular websites (Gmail, GitHub, Discord, Reddit, etc.) with intelligent automation and complete credentials", create_account_smart))
+tool_registry.register(Tool("scrape_website_comprehensive", "Comprehensively scrape any website with intelligent data extraction (text, links, images, tables, forms, structured data)", scrape_website_comprehensive))

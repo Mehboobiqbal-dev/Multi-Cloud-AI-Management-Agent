@@ -100,10 +100,18 @@ const ChatComponent = ({ currentAgentRunId, onAgentControl }) => {
 
     setLoading(true);
     try {
+      // Send message to chat history
       await api.sendChatMessage(newMessage, 'text', currentAgentRunId);
+      
+      // Trigger agent execution with the user input
+      await api.runAgent({
+        user_input: newMessage,
+        run_id: currentAgentRunId || Date.now().toString()
+      });
+      
       setNewMessage('');
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('Failed to send message or run agent:', error);
     } finally {
       setLoading(false);
     }

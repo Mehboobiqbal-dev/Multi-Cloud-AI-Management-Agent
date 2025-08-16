@@ -159,6 +159,17 @@ def open_browser(url: str, max_retries: int = None, retry_delay: float = None) -
     """
     browser_id = f"browser_{len(browsers)}"
     
+    # Sanitize and normalize the URL input to prevent crashes due to invalid characters (e.g., backticks)
+    if url:
+        try:
+            match = re.search(r"(https?://[^\s`'\"]+)", url)
+            if match:
+                url = match.group(1)
+            else:
+                url = url.strip().strip("`'\"")
+        except Exception:
+            url = str(url).strip().strip("`'\"")
+
     # Use centralized settings if not provided
     if max_retries is None:
         max_retries = getattr(settings, "MAX_RETRIES", 3)
@@ -175,7 +186,8 @@ def open_browser(url: str, max_retries: int = None, retry_delay: float = None) -
             # Comprehensive GPU and WebGL disabling
             options.add_argument("--disable-gpu")
             options.add_argument("--disable-gpu-sandbox")
-            options.add_argument("--disable-software-rasterizer")
+            # NOTE: Do NOT disable software rasterizer; we want SwiftShader for headless stability
+            # options.add_argument("--disable-software-rasterizer")
             options.add_argument("--disable-gpu-rasterization")
             options.add_argument("--disable-gpu-memory-buffer-compositor-resources")
             options.add_argument("--disable-gpu-memory-buffer-video-frames")
@@ -191,6 +203,20 @@ def open_browser(url: str, max_retries: int = None, retry_delay: float = None) -
             options.add_argument("--disable-webgl-draft-extensions")
             options.add_argument("--use-gl=swiftshader")
             options.add_argument("--enable-unsafe-swiftshader")
+            # Additional GPU context fixes for virtualization
+            options.add_argument("--disable-gpu-process-crash-limit")
+            options.add_argument("--disable-gpu-process-for-dx12-vulkan-info-collection")
+            options.add_argument("--disable-vulkan")
+            options.add_argument("--disable-vulkan-fallback-to-gl-for-testing")
+            options.add_argument("--disable-features=VizDisplayCompositor,VizHitTestSurfaceLayer")
+            options.add_argument("--disable-gl-drawing-for-tests")
+            options.add_argument("--disable-gl-error-limit")
+            options.add_argument("--disable-canvas-aa")
+            options.add_argument("--disable-2d-canvas-clip-aa")
+            options.add_argument("--disable-gl-extensions")
+            options.add_argument("--use-angle=swiftshader")
+            options.add_argument("--ignore-gpu-blocklist")
+            options.add_argument("--disable-gpu-driver-bug-workarounds")
             options.add_argument("--disable-infobars")
             options.add_argument("--disable-extensions")
             options.add_argument("--mute-audio")
@@ -248,8 +274,9 @@ def open_browser(url: str, max_retries: int = None, retry_delay: float = None) -
             if attempt < max_retries - 1:
                 # Check if it's a connection-related error
                 is_connection_error = any(msg in error_msg.lower() for msg in [
-                    "failed to connect", "connection refused", "timeout", 
-                    "socket", "network", "unreachable", "chrome not reachable"
+                    "failed to connect", "connection refused", "timeout",
+                    "socket", "network", "unreachable", "chrome not reachable",
+                    "connection aborted", "connection reset", "err_connection_reset", "err_connection_closed"
                 ])
                 
                 if is_connection_error:

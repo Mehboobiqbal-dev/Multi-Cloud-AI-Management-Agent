@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "url": "https://docs.google.com/spreadsheets/d/1A_8Fq4Iw43_8twAiRUbvnEiDeili9_Iy99NvRmMo__Y/edit?gid=689553729#gid=689553729",
+  "scraped_at": "2025-08-12T19:37:41.672562",
+  "scrape_type": "all",
+  "data": {
+    "text_content": {
+      "title": "",
+      "headings": [],
+      "paragraphs": [],
+      "lists": [],
+      "full_text": "This browser version is no longer supported. Please upgrade to a supported browser.\nLearn more\nDismiss\nMobile and Desktop Team Stand Up and Review Meetings\n1\nSign in\nFileEditViewInsertFormatDataToolsExtensionsHelp\n £%\n123 Default (Arial)\n*\nMarch\nApril\nMay\nJuly\nAugust\nTurn on screen reader support\nTo enable screen reader support, press Ctrl+Alt+Z To learn about keyboard shortcuts, press Ctrl+slash\nAnonymous Quokka has joined the document."
+    },
+    "links": [],
+    "images": [],
+    "tables": [],
+    "forms": [],
+    "structured_data": []
+  },
+  "statistics": {
+    "total_links": 0,
+    "total_images": 0,
+    "total_tables": 0,
+    "total_forms": 0,
+    "total_headings": 0,
+    "total_paragraphs": 0,
+    "page_size_chars": 441,
+    "word_count": 64
+  }
+}

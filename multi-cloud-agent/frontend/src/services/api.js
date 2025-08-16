@@ -75,8 +75,14 @@ const api = {
   saveCredentials(credData) {
     return apiClient.post('/credentials', credData);
   },
-  runAgent(user_input) {
-    const run_id = Date.now().toString(); // Simple unique ID
+  runAgent(data) {
+    // Accept either old format (string) or new format (object)
+    if (typeof data === 'string') {
+      const run_id = Date.now().toString();
+      return apiClient.post('/agent/run', { user_input: data, run_id });
+    }
+    // New format with run_id parameter
+    const { user_input, run_id = Date.now().toString() } = data;
     return apiClient.post('/agent/run', { user_input, run_id });
   },
   getHistory() {
@@ -166,4 +172,80 @@ const api = {
   }
 };
 
-export default api;
+// Form automation endpoints
+export const applyJobUpwork = (data) => api.post('/form/apply_job_upwork', data);
+export const applyJobFiverr = (data) => api.post('/form/apply_job_fiverr', data);
+export const applyJobLinkedin = (data) => api.post('/form/apply_job_linkedin', data);
+export const batchApplyJobs = (data) => api.post('/form/batch_apply_jobs', data);
+export const automateRegistration = (data) => api.post('/form/automate_registration', data);
+export const automateLogin = (data) => api.post('/form/automate_login', data);
+
+// Tool management endpoints
+export const getAvailableTools = () => api.get('/tools');
+export const callTool = (data) => api.post('/call_tool', data);
+
+// Chat endpoints
+export const sendChatMessage = (data) => api.post('/chat/message', data);
+export const getChatHistory = () => api.get('/chat/history');
+
+// Cloud credentials endpoints
+export const getCredentials = () => api.get('/credentials');
+export const saveCredentials = (data) => api.post('/credentials', data);
+export const testCredentials = (data) => api.post('/credentials/test', data);
+
+// Agent endpoints
+export const runAgent = (data) => api.post('/agent/run', data);
+export const getAgentStatus = (runId) => api.get(`/agent/status/${runId}`);
+export const stopAgent = (runId) => api.post(`/agent/stop/${runId}`);
+
+// Health check
+export const healthCheck = () => api.get('/healthz');
+
+// Additional function exports
+export const getTaskResults = () => apiClient.get('/tasks/results');
+export const getTaskStatistics = () => apiClient.get('/tasks/statistics');
+export const getScrapingResults = () => apiClient.get('/tasks/scraping');
+export const getTaskDetails = (taskId) => apiClient.get(`/tasks/${taskId}`);
+
+export default {
+  // Auth
+  signup: api.signup,
+  login: api.login,
+  getCurrentUser: api.getMe,
+  
+  // Credentials
+  getCredentials: api.getCredentials,
+  saveCredentials: api.saveCredentials,
+  testCredentials,
+  
+  // Agent
+  runAgent: api.runAgent,
+  getAgentStatus,
+  stopAgent,
+  
+  // Chat
+  getChatHistory: api.getChatHistory,
+  sendChatMessage: api.sendChatMessage,
+  
+  // Tools
+  getAvailableTools,
+  callTool: api.callTool,
+  
+  // Form automation
+  applyJobUpwork: api.applyJobUpwork,
+  applyJobFiverr: api.applyJobFiverr,
+  applyJobLinkedin: api.applyJobLinkedin,
+  batchApplyJobs: api.batchApplyJobs,
+  automateRegistration: api.registrationAutomation,
+  automateLogin: api.loginAutomation,
+  
+  // Tasks
+  getHistory: api.getHistory,
+  getTaskResults,
+  getTaskStatistics,
+  getScrapingResults,
+  getTaskDetails,
+  
+  // Health
+  healthCheck
+};

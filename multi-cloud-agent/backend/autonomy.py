@@ -67,7 +67,13 @@ def run_agent_loop(goal: str, max_loops: int = 30) -> Dict:
                         {"step": i + 1, "attempt": decision_attempt + 1}
                     )
                     response_text = generate_text(prompt)
-                    decision_data = json.loads(response_text)
+                    # Use centralized tolerant JSON parsing
+                    from core.utils import parse_json_tolerant
+                    try:
+                        decision_data = parse_json_tolerant(response_text)
+                    except Exception:
+                        # Final fallback: try raw JSON parse
+                        decision_data = json.loads(response_text)
                     break
                 except Exception as e:
                     structured_logger.log_error(

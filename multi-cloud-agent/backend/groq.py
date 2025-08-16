@@ -3,6 +3,7 @@ import requests
 import logging
 from fastapi import HTTPException
 from core.config import settings
+from rate_limiter import rate_limiter
 
 # Fetch the API key and model name from settings or environment variables
 API_KEY = settings.LLM_API_KEY or os.getenv("LLM_API_KEY")
@@ -14,6 +15,12 @@ if not API_KEY:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 def generate_text(prompt: str) -> str:
+    # Apply rate limiting for Groq API
+    remaining = rate_limiter.get_remaining_requests("groq", max_requests=30, window_seconds=60)
+    if remaining <= 0:
+        logging.warning("Groq rate limit reached, waiting...")
+        rate_limiter.wait_if_needed("groq", max_requests=30, window_seconds=60)
+    
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",

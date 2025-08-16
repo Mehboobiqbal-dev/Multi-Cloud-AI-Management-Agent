@@ -44,6 +44,12 @@ def _load_model():
         
         try:
             with operation_context('load_local_embedding_model'):
+                # Respect configuration flag to disable local embeddings
+                if not getattr(settings, 'ENABLE_LOCAL_EMBEDDINGS', False):
+                    _load_error = "Local embeddings disabled by configuration"
+                    _model_loaded = True
+                    raise LocalEmbeddingError(_load_error)
+                
                 # Try to import sentence-transformers
                 try:
                     from sentence_transformers import SentenceTransformer
@@ -264,6 +270,12 @@ class LocalEmbeddingFallback:
     def _check_availability(self):
         """Check if local embeddings are available."""
         try:
+            # If disabled by configuration, mark unavailable without attempting to load
+            if not getattr(settings, 'ENABLE_LOCAL_EMBEDDINGS', False):
+                logger.info("Local embedding fallback disabled by configuration")
+                self.available = False
+                return
+            
             self.available = is_available()
             if self.available:
                 logger.info("Local embedding fallback is available")

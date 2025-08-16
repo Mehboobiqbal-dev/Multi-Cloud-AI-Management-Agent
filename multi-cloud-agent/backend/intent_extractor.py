@@ -21,7 +21,8 @@ def extract_intents(prompt: str) -> List[Dict[str, Any]]:
         """
 
         response = model.generate_content(system_prompt)
-        return json.loads(response.text)
+        from core.utils import parse_json_tolerant
+        return parse_json_tolerant(response.text)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Intent extraction failed: {e}")
