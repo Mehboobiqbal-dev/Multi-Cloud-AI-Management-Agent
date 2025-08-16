@@ -501,10 +501,10 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
             <Box sx={{ textAlign: 'center', py: 4 }}>
               <BotIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
               <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
-                Welcome to AI Assistant
+                👋 Welcome to Elch
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                I can help you with cloud deployments, job applications, code reviews, and automation tasks.
+                I'm Elch, your intelligent AI agent. I can help you with cloud deployments, job applications, code reviews, and automation tasks.
                 Choose a quick action below or type your own message.
               </Typography>
             </Box>

@@ -110,7 +110,7 @@ class AgentRunResponse(BaseResponseSchema):
         json_schema_extra = {
             "example": {
                 "status": "success",
-                "message": "Plan executed successfully",
+                "message": "Elch has executed the plan successfully",
                 "final_result": "VM created and nginx installed",
                 "history": [
                     {

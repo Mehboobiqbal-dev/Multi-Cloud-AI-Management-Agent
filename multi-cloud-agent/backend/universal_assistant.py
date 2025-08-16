@@ -43,7 +43,7 @@ def handle_prompt(request: PromptRequest, db: Session = Depends(get_db)):
 
         return {
             "status": "success",
-            "message": "Plan executed successfully.",
+            "message": "Elch has executed the plan successfully.",
             "steps": executed_steps,
             "evaluation_score": evaluation_score
         }

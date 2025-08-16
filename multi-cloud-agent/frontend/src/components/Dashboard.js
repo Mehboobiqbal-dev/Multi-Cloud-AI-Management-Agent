@@ -284,8 +284,9 @@ function Dashboard({ navigate }) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Multi-Cloud AI Management Agent
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <img src="/elch-logo.svg" alt="Elch" style={{ width: 32, height: 32 }} />
+            Elch - AI Agent
           </Typography>
           <Button color="inherit" onClick={logout}>
             Logout
