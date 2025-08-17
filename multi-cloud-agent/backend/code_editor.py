@@ -62,23 +62,27 @@ class CodeEditor:
     
     def clone_repository(self, repo_url: str, local_path: str, branch: str = 'main') -> str:
         """Clone a Git repository to local path."""
-        try:
-            repo = Repo.clone_from(repo_url, local_path, branch=branch)
-            return f"Successfully cloned repository {repo_url} to {local_path} (branch: {branch})"
-        except git.exc.GitCommandError as e:
-            return f"Failed to clone repository: {str(e)}"
-        except Exception as e:
-            return f"Error cloning repository: {str(e)}"
+        # Git functionality temporarily disabled for deployment
+        return f"Git functionality is currently disabled. Cannot clone repository {repo_url}"
+        # try:
+        #     repo = Repo.clone_from(repo_url, local_path, branch=branch)
+        #     return f"Successfully cloned repository {repo_url} to {local_path} (branch: {branch})"
+        # except git.exc.GitCommandError as e:
+        #     return f"Failed to clone repository: {str(e)}"
+        # except Exception as e:
+        #     return f"Error cloning repository: {str(e)}"
 
     def pull_repository(self, repo_path: str) -> str:
         """Pull latest changes from remote repository."""
-        try:
-            repo = Repo(repo_path)
-            origin = repo.remotes.origin
-            origin.pull()
-            return f"Successfully pulled latest changes for repository at {repo_path}"
-        except Exception as e:
-            return f"Failed to pull repository: {str(e)}"
+        # Git functionality temporarily disabled for deployment
+        return f"Git functionality is currently disabled. Cannot pull repository {repo_path}"
+        # try:
+        #     repo = Repo(repo_path)
+        #     origin = repo.remotes.origin
+        #     origin.pull()
+        #     return f"Successfully pulled latest changes for repository at {repo_path}"
+        # except Exception as e:
+        #     return f"Failed to pull repository: {str(e)}"
 
     def analyze_repository_structure(self, repo_path: str) -> str:
         """Analyze repository structure and provide overview."""

@@ -10,7 +10,7 @@ python-jose[cryptography]==3.3.0
 cryptography==41.0.7
 bcrypt==4.0.1
 slowapi==0.1.9
-GitPython==3.1.40
+# GitPython==3.1.40  # Temporarily disabled for deployment
 
 # Database
 sqlalchemy==2.0.23
