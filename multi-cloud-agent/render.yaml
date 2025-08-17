@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: elch-backend
+    env: python
+    plan: starter  # Use 'free' for free tier or 'starter' for paid
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT --timeout 120 --keep-alive 2 --max-requests 1000 --max-requests-jitter 50 --preload --log-level info --access-logfile - --error-logfile -
+    healthCheckPath: /healthz
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: RELOAD
+        value: false
+      - key: WORKERS
+        value: 4
+      - key: HOST
+        value: 0.0.0.0
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: SESSION_SECRET
+        generateValue: true  # Render will generate a secure secret
+      - key: FERNET_KEY
+        generateValue: true  # Render will generate a secure key
+      - key: CIRCUIT_BREAKER_FAILURE_THRESHOLD
+        value: 5
+      - key: CIRCUIT_BREAKER_RECOVERY_TIMEOUT
+        value: 60
+      - key: MAX_RETRIES
+        value: 3
+      - key: RATE_LIMIT_PER_MINUTE
+        value: 60
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ENABLE_PERFORMANCE_MONITORING
+        value: true
+      - key: ENABLE_SELF_LEARNING
+        value: true
+      - key: ENABLE_LOCAL_EMBEDDINGS
+        value: true
+      # Database will be set via Render PostgreSQL addon
+      # These environment variables need to be set manually in Render dashboard:
+      # - DATABASE_URL (from PostgreSQL addon)
+      # - GEMINI_API_KEYS (your Gemini API keys, comma-separated)
+      # - GOOGLE_CLIENT_ID (optional, for OAuth)
+      # - GOOGLE_CLIENT_SECRET (optional, for OAuth)
+
+databases:
+  - name: elch-postgres
+    plan: starter  # Use 'free' for free tier

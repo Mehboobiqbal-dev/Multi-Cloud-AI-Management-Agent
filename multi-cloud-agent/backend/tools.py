@@ -201,14 +201,15 @@ def fill_multiple_fields(browser_id: str, fields: Any, retry_failed: bool = True
         
         for selector, value in failed_fields.copy().items():
             # Generate alternative selectors based on common patterns
+            clean_name = selector.replace('[name="', '').replace('"]', '').replace('_', '').replace('-', '')
             alt_selectors = [
                 selector,
                 selector.lower(),
                 selector.replace('_', ''),
                 selector.replace('_', '-'),
-                f"input[name*='{selector.replace('[name=\"', '').replace('"]', '').replace('_', '').replace('-', '')}']",
-                f"input[id*='{selector.replace('[name=\"', '').replace('"]', '').replace('_', '').replace('-', '')}']",
-                f"*[name*='{selector.replace('[name=\"', '').replace('"]', '').replace('_', '').replace('-', '')}']"
+                f"input[name*='{clean_name}']",
+                f"input[id*='{clean_name}']",
+                f"*[name*='{clean_name}']"
             ]
             
             retry_success = False

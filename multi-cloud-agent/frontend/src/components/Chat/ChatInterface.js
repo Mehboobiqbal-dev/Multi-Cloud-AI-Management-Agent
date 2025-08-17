@@ -44,7 +44,10 @@ import {
   ExpandMore,
   ContentCopy as CopyIcon,
   Mic as MicIcon,
-  MicOff as MicOffIcon
+  MicOff as MicOffIcon,
+  Assignment as TaskIcon,
+  Visibility as ViewIcon,
+  GetApp as DownloadTaskIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import api from '../../services/api';
@@ -104,6 +107,10 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const [chatHistory, setChatHistory] = useState([]);
   const [historyDialog, setHistoryDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
+  const [taskResultsDialog, setTaskResultsDialog] = useState(false);
+  const [taskResults, setTaskResults] = useState([]);
+  const [taskStatistics, setTaskStatistics] = useState(null);
+  const [loadingTasks, setLoadingTasks] = useState(false);
   const [settings, setSettings] = useState({
     autoScroll: true,
     soundEnabled: false,
@@ -193,6 +200,52 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     }
   };
 
+  const loadTaskResults = async () => {
+    setLoadingTasks(true);
+    try {
+      const [resultsResponse, statsResponse] = await Promise.all([
+        api.getTaskResults(),
+        api.getTaskStatistics()
+      ]);
+      
+      if (resultsResponse.success) {
+        setTaskResults(resultsResponse.results || []);
+      }
+      
+      if (statsResponse.success) {
+        setTaskStatistics(statsResponse.statistics || {});
+      }
+    } catch (error) {
+      console.error('Failed to load task results:', error);
+    } finally {
+      setLoadingTasks(false);
+    }
+  };
+
+  const handleViewTaskResults = () => {
+    setTaskResultsDialog(true);
+    loadTaskResults();
+  };
+
+  const handleTaskAction = (taskId, action) => {
+    if (action === 'view') {
+      // Open task details in a new message
+      const taskMessage = {
+        id: Date.now(),
+        type: 'assistant',
+        content: `📋 **Task Results Loaded**\n\nTask ID: ${taskId}\n\nYou can now ask me questions about this task or request specific details. For example:\n- "Show me the details of this task"\n- "What was the result?"\n- "Download the task data"`,
+        timestamp: new Date().toISOString(),
+        metadata: { taskId, source: 'task_viewer' }
+      };
+      setMessages(prev => [...prev, taskMessage]);
+      setTaskResultsDialog(false);
+    } else if (action === 'chat') {
+      setInputValue(`Tell me about task ${taskId} and its results`);
+      setTaskResultsDialog(false);
+      inputRef.current?.focus();
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -251,6 +304,29 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
       // Speak response if voice is enabled
       if (settings.voiceEnabled) {
         speakText(botMessage.content);
+      }
+
+      // Check for task completion and show notification
+      if (agentResponse.task_completed || 
+          (agentResponse.metadata && agentResponse.metadata.task_status === 'completed') ||
+          botMessage.content.toLowerCase().includes('task completed') ||
+          botMessage.content.toLowerCase().includes('successfully completed')) {
+        
+        // Add task completion notification message
+        setTimeout(() => {
+          const taskNotificationMessage = {
+            id: Date.now() + 2,
+            type: 'assistant',
+            content: `🎉 **Task Completed Successfully!**\n\nYour task has been completed. You can now:\n\n📋 **View Task Results** - Click the task icon in the header to see all your completed tasks\n💬 **Ask Questions** - Ask me about the task details or results\n📥 **Download Data** - Get any files or data generated during the task\n\nWould you like to view your task results now?`,
+            timestamp: new Date().toISOString(),
+            metadata: { 
+              type: 'task_completion_notification',
+              showTaskButton: true,
+              taskId: agentResponse.task_id || currentRunId
+            }
+          };
+          setMessages(prev => [...prev, taskNotificationMessage]);
+        }, 1000);
       }
 
     } catch (error) {
@@ -376,6 +452,33 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
               {message.content}
             </Typography>
             
+            {/* Task Completion Action Button */}
+            {message.metadata && message.metadata.type === 'task_completion_notification' && (
+              <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<TaskIcon />}
+                  onClick={handleViewTaskResults}
+                  sx={{ borderRadius: 2 }}
+                >
+                  View Task Results
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<BotIcon />}
+                  onClick={() => {
+                    setInputValue('Tell me more about the completed task and its results');
+                    inputRef.current?.focus();
+                  }}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Ask About Task
+                </Button>
+              </Box>
+            )}
+            
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
               <Typography
                 variant="caption"
@@ -462,6 +565,11 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 1 }}>
+            <Tooltip title="View Task Results">
+              <IconButton onClick={handleViewTaskResults}>
+                <TaskIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Chat History">
               <IconButton onClick={() => setHistoryDialog(true)}>
                 <HistoryIcon />
@@ -681,6 +789,114 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSettingsDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Task Results Dialog */}
+      <Dialog open={taskResultsDialog} onClose={() => setTaskResultsDialog(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TaskIcon />
+            Task Results
+            {taskStatistics && (
+              <Chip 
+                label={`${taskStatistics.total_tasks || 0} tasks`} 
+                size="small" 
+                color="primary" 
+              />
+            )}
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {loadingTasks ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box>
+              {taskStatistics && (
+                <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                  <Typography variant="h6" gutterBottom>Statistics</Typography>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Chip label={`Total: ${taskStatistics.total_tasks || 0}`} variant="outlined" />
+                    <Chip label={`Successful: ${taskStatistics.successful_tasks || 0}`} color="success" variant="outlined" />
+                    <Chip label={`Failed: ${taskStatistics.failed_tasks || 0}`} color="error" variant="outlined" />
+                  </Box>
+                </Box>
+              )}
+              
+              {taskResults.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                  No task results available
+                </Typography>
+              ) : (
+                <List>
+                  {taskResults.map((task, index) => (
+                    <ListItem key={task.id || index} divider>
+                      <ListItemIcon>
+                        <TaskIcon color={task.status === 'completed' ? 'success' : task.status === 'failed' ? 'error' : 'primary'} />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="subtitle1">
+                              Task {task.id || `#${index + 1}`}
+                            </Typography>
+                            <Chip 
+                              label={task.status || 'unknown'} 
+                              size="small" 
+                              color={task.status === 'completed' ? 'success' : task.status === 'failed' ? 'error' : 'default'}
+                            />
+                          </Box>
+                        }
+                        secondary={
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">
+                              {task.description || task.task_type || 'No description available'}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {task.created_at ? format(new Date(task.created_at), 'MMM dd, yyyy HH:mm') : 'Unknown date'}
+                            </Typography>
+                            <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                              <Button
+                                size="small"
+                                startIcon={<ViewIcon />}
+                                onClick={() => handleTaskAction(task.id || index, 'view')}
+                              >
+                                View Details
+                              </Button>
+                              <Button
+                                size="small"
+                                startIcon={<BotIcon />}
+                                onClick={() => handleTaskAction(task.id || index, 'chat')}
+                              >
+                                Ask AI
+                              </Button>
+                              {task.file_path && (
+                                <Button
+                                  size="small"
+                                  startIcon={<DownloadTaskIcon />}
+                                  onClick={() => window.open(`/api/tasks/${task.id}/download`, '_blank')}
+                                >
+                                  Download
+                                </Button>
+                              )}
+                            </Box>
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTaskResultsDialog(false)}>Close</Button>
+          <Button onClick={loadTaskResults} disabled={loadingTasks}>
+            Refresh
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
