@@ -4,8 +4,8 @@ import subprocess
 import json
 import logging
 from pathlib import Path
-import git
-from git import Repo
+# import git
+# from git import Repo
 import ast
 import re
 from dataclasses import dataclass
