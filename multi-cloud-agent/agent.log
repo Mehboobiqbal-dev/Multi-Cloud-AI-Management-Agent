@@ -3950,3 +3950,281 @@ sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is mal
 2025-08-17 14:50:58,241 - INFO - Created circuit breaker 'plan_execution'
 2025-08-17 14:50:58,281 - INFO - Database initialized successfully
 2025-08-17 14:50:58,281 - INFO - Database initialized successfully.
+2025-08-17 14:59:34,611 - INFO - {"timestamp": "2025-08-17T09:59:34.611801", "level": "info", "event_type": "self_learning", "message": "Self-learning: Agent action: agent_run", "metadata": {"action_type": "agent_run"}, "user_input": "give a  full code for game of card"}
+2025-08-17 14:59:34,612 - INFO - Action: agent_run | Details: {"user_input": "give a  full code for game of card"}
+2025-08-17 14:59:34,612 - INFO - {"timestamp": "2025-08-17T09:59:34.612496", "level": "info", "event_type": "operation_start", "message": "Starting operation: save_memory", "operation_id": "save_memory_1755424774612"}
+2025-08-17 14:59:34,614 - INFO - {"timestamp": "2025-08-17T09:59:34.614699", "level": "info", "event_type": "memory_update", "message": "Memory update: Memory saved to file", "operation_id": "save_memory_1755424774612", "metadata": {"file": "agent_memory.json"}, "knowledge_count": 1, "error_count": 0, "improvement_count": 0}
+2025-08-17 14:59:34,615 - INFO - {"timestamp": "2025-08-17T09:59:34.615247", "level": "info", "event_type": "operation_end", "message": "Completed operation: save_memory", "operation_id": "save_memory_1755424774612", "duration_ms": 2.7375221252441406}
+2025-08-17 14:59:34,615 - INFO - Created circuit breaker 'embedding_generation'
+2025-08-17 14:59:34,616 - INFO - {"timestamp": "2025-08-17T09:59:34.616399", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755424774616", "metadata": {"text_length": 113}}
+2025-08-17 14:59:34,616 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 14:59:34,617 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 14:59:34,617 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 14:59:36,676 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 14:59:36,677 - INFO - {"timestamp": "2025-08-17T09:59:36.677742", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755424774616", "duration_ms": 2061.3627433776855, "metadata": {"text_length": 113}}
+2025-08-17 14:59:36,685 - INFO - {"timestamp": "2025-08-17T09:59:36.684965", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755424776684", "metadata": {"text_length": 34}}
+2025-08-17 14:59:36,685 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 14:59:36,685 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 14:59:36,685 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 14:59:38,280 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 14:59:38,281 - INFO - {"timestamp": "2025-08-17T09:59:38.281030", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755424776684", "duration_ms": 1596.0800647735596, "metadata": {"text_length": 34}}
+2025-08-17 14:59:38,362 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 14:59:38,363 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 14:59:38,363 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 50 requests remaining
+2025-08-17 14:59:40,888 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 14:59:40,899 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "I need to find a suitable code implementation for a card game.  I will search the web for a Python implementation of a card game, focusing on clarity and completeness.",
+  "act...
+2025-08-17 15:04:45,322 - WARNING - There was an error managing chromedriver (error decoding response body); using driver found in the cache
+2025-08-17 15:05:04,951 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:05:04,951 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:05:04,952 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 50 requests remaining
+2025-08-17 15:05:12,367 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 15:05:12,369 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:05:12,369 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:05:12,369 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 15:05:19,587 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 48 requests remaining
+2025-08-17 15:05:19,588 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "The initial web search failed.  I will try a different approach. I will generate the code directly instead of searching for it online.  This will involve creating a simple text...
+2025-08-17 15:05:19,604 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:05:19,604 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:05:19,604 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 48 requests remaining
+2025-08-17 15:05:25,786 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 47 requests remaining
+2025-08-17 15:05:25,787 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:05:25,787 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:05:25,787 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 47 requests remaining
+2025-08-17 15:05:32,307 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 46 requests remaining
+2025-08-17 15:05:32,308 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "The previous attempts to search the web and create a file failed.  I will try to generate the code directly, as the search failed to provide a suitable result. I will generate ...
+2025-08-17 15:05:32,331 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:05:32,331 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:05:32,331 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 46 requests remaining
+2025-08-17 15:05:40,829 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 45 requests remaining
+2025-08-17 15:05:40,830 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:05:40,830 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:05:40,830 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 45 requests remaining
+2025-08-17 15:05:42,822 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 44 requests remaining
+2025-08-17 15:05:42,822 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "The previous attempts to create a file failed due to a path issue. I will try a different approach. I will search for a simple card game code online, copy it, and then write it...
+2025-08-17 15:11:04,188 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:04,188 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:04,188 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 50 requests remaining
+2025-08-17 15:11:09,978 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 15:11:09,980 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:09,980 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:09,980 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 15:11:13,096 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 48 requests remaining
+2025-08-17 15:11:13,097 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "Previous attempts to search the web and create files failed.  I will try a different approach.  I will generate Python code for a simple card game using my programming knowledg...
+2025-08-17 15:11:13,108 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:13,108 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:13,108 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 48 requests remaining
+2025-08-17 15:11:23,438 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 47 requests remaining
+2025-08-17 15:11:23,439 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:23,440 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:23,440 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 47 requests remaining
+2025-08-17 15:11:30,584 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 46 requests remaining
+2025-08-17 15:11:30,585 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "Previous attempts to search the web and create files failed.  The file creation errors suggest a problem with the specified path. I will try a different approach. I will genera...
+2025-08-17 15:11:30,602 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:30,602 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:30,602 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 46 requests remaining
+2025-08-17 15:11:34,003 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 45 requests remaining
+2025-08-17 15:11:34,005 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:34,005 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:34,005 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 45 requests remaining
+2025-08-17 15:11:42,186 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 44 requests remaining
+2025-08-17 15:11:42,187 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "I successfully created a file named `/tmp/card_game.py`.  I will now attempt to populate it with Python code for a simple card game.",
+  "action": {
+    "name": "write_file",
+ ...
+2025-08-17 15:11:42,205 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:42,205 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:42,205 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 44 requests remaining
+2025-08-17 15:11:51,847 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 43 requests remaining
+2025-08-17 15:11:51,848 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:51,848 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:51,848 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 43 requests remaining
+2025-08-17 15:11:56,264 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 42 requests remaining
+2025-08-17 15:11:56,265 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "I have successfully created a file named /tmp/card_game.py.  I will now write the code for a simple card game into this file.",
+  "action": {
+    "name": "write_file",
+    "par...
+2025-08-17 15:11:56,278 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:11:56,278 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:11:56,278 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 42 requests remaining
+2025-08-17 15:12:05,207 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:05,209 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:12:05,209 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:12:05,210 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 42 requests remaining
+2025-08-17 15:12:10,573 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:10,574 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "I have already created a file named `/tmp/card_game.py`. I will now attempt to fill it with Python code for a simple card game.",
+  "action": {
+    "name": "write_file",
+    "p...
+2025-08-17 15:12:10,588 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:12:10,588 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:12:10,589 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 42 requests remaining
+2025-08-17 15:12:19,372 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:19,373 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:12:19,374 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:12:19,374 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 42 requests remaining
+2025-08-17 15:12:21,577 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:21,578 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "Steps 1-5 indicate failures in web search and file creation due to path issues. Step 6 shows successful file creation at /tmp/card_game.py. Steps 7-9 show successful writes to ...
+2025-08-17 15:12:21,623 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:12:21,623 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:12:21,623 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:29,847 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 40 requests remaining
+2025-08-17 15:12:29,848 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:12:29,849 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:12:29,849 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:35,126 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 40 requests remaining
+2025-08-17 15:12:35,127 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "The code for a simple card game has been successfully written to /tmp/card_game.py.  I will mark the task as complete.",
+  "action": {
+    "name": "finish_task",
+    "params": ...
+2025-08-17 15:12:35,139 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:12:35,140 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:12:35,140 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 42 requests remaining
+2025-08-17 15:12:43,158 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 41 requests remaining
+2025-08-17 15:12:46,506 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 15:12:46,506 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 15:12:46,772 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 15:12:46,773 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 15:12:47,021 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 15:12:47,023 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 15:12:47,030 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 15:12:47,033 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 15:12:47,061 - INFO - Database initialized successfully
+2025-08-17 15:12:47,062 - INFO - Database initialized successfully.
+2025-08-17 15:12:47,062 - INFO - Created circuit breaker 'embedding_generation'
+2025-08-17 15:12:47,063 - INFO - {"timestamp": "2025-08-17T10:12:47.062940", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755425567062", "metadata": {"text_length": 127}}
+2025-08-17 15:12:47,063 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 15:12:47,063 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 15:12:47,063 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 15:12:47,070 - INFO - Database initialized successfully
+2025-08-17 15:12:47,070 - INFO - Database initialized successfully.
+2025-08-17 15:12:47,071 - INFO - Created circuit breaker 'embedding_generation'
+2025-08-17 15:12:47,071 - INFO - {"timestamp": "2025-08-17T10:12:47.071472", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755425567071", "metadata": {"text_length": 127}}
+2025-08-17 15:12:47,071 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 15:12:47,071 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 15:12:47,071 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 15:12:48,411 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 15:12:48,412 - INFO - {"timestamp": "2025-08-17T10:12:48.412038", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755425567062", "duration_ms": 1349.0631580352783, "metadata": {"text_length": 127}}
+2025-08-17 15:12:48,815 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 15:12:48,816 - INFO - {"timestamp": "2025-08-17T10:12:48.815917", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755425567071", "duration_ms": 1744.4260120391846, "metadata": {"text_length": 127}}
+2025-08-17 15:13:03,782 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 15:13:04,207 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 15:13:04,458 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 15:13:04,461 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 15:13:04,498 - INFO - Database initialized successfully
+2025-08-17 15:13:04,498 - INFO - Database initialized successfully.
+2025-08-17 15:13:04,498 - INFO - Created circuit breaker 'embedding_generation'
+2025-08-17 15:13:04,499 - INFO - {"timestamp": "2025-08-17T10:13:04.499076", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755425584498", "metadata": {"text_length": 127}}
+2025-08-17 15:13:04,499 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 15:13:04,499 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 15:13:04,499 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 15:13:06,120 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 15:13:06,121 - INFO - {"timestamp": "2025-08-17T10:13:06.121372", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755425584498", "duration_ms": 1622.298002243042, "metadata": {"text_length": 127}}
+2025-08-17 15:16:56,239 - INFO - {"timestamp": "2025-08-17T10:16:56.239396", "level": "info", "event_type": "self_learning", "message": "Self-learning: Agent action: agent_run", "metadata": {"action_type": "agent_run"}, "user_input": "give code of video car game"}
+2025-08-17 15:16:56,239 - INFO - Action: agent_run | Details: {"user_input": "give code of video car game"}
+2025-08-17 15:16:56,240 - INFO - {"timestamp": "2025-08-17T10:16:56.240697", "level": "info", "event_type": "operation_start", "message": "Starting operation: save_memory", "operation_id": "save_memory_1755425816240"}
+2025-08-17 15:16:56,243 - INFO - {"timestamp": "2025-08-17T10:16:56.243446", "level": "info", "event_type": "memory_update", "message": "Memory update: Memory saved to file", "operation_id": "save_memory_1755425816240", "metadata": {"file": "agent_memory.json"}, "knowledge_count": 2, "error_count": 0, "improvement_count": 0}
+2025-08-17 15:16:56,244 - INFO - {"timestamp": "2025-08-17T10:16:56.244210", "level": "info", "event_type": "operation_end", "message": "Completed operation: save_memory", "operation_id": "save_memory_1755425816240", "duration_ms": 3.7522315979003906}
+2025-08-17 15:16:56,245 - INFO - {"timestamp": "2025-08-17T10:16:56.245197", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755425816245", "metadata": {"text_length": 106}}
+2025-08-17 15:16:56,245 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 15:16:56,245 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 15:16:56,245 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 15:16:57,512 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 15:16:57,513 - INFO - {"timestamp": "2025-08-17T10:16:57.512885", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755425816245", "duration_ms": 1267.688274383545, "metadata": {"text_length": 106}}
+2025-08-17 15:16:57,516 - INFO - {"timestamp": "2025-08-17T10:16:57.516510", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755425817516", "metadata": {"text_length": 27}}
+2025-08-17 15:16:57,517 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 15:16:57,517 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 15:16:57,517 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 15:16:58,709 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 15:16:58,710 - INFO - {"timestamp": "2025-08-17T10:16:58.710191", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755425817516", "duration_ms": 1193.7353610992432, "metadata": {"text_length": 27}}
+2025-08-17 15:16:58,994 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:16:58,995 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:16:58,995 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 50 requests remaining
+2025-08-17 15:17:02,314 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 15:17:02,318 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "I need to generate code for a video car game.  I will use the `generate_code` tool to accomplish this. I'll specify the desired game features in the prompt.",
+  "action": {
+   ...
+2025-08-17 15:17:02,323 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:17:02,324 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:17:02,324 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 49 requests remaining
+2025-08-17 15:17:09,311 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 48 requests remaining
+2025-08-17 15:17:09,343 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:17:09,344 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:17:09,344 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 48 requests remaining
+2025-08-17 15:17:20,675 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 47 requests remaining
+2025-08-17 15:17:20,677 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:17:20,677 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:17:20,677 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 47 requests remaining
+2025-08-17 15:17:28,112 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 46 requests remaining
+2025-08-17 15:17:28,113 - INFO - Attempting to parse agent decision from response: ```json
+{
+  "thought": "The previous `generate_code` action produced a simple car racing game in Python.  I will mark the task as complete with this code.",
+  "action": {
+    "name": "finish_task",
+  ...
+2025-08-17 15:17:28,132 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST
+2025-08-17 15:17:28,133 - INFO - Starting Gemini generation with 13 available API keys
+2025-08-17 15:17:28,133 - INFO - Attempting Gemini generation with key #1 (AIzaSyDq72...) - 46 requests remaining
+2025-08-17 15:17:38,042 - INFO - \u2705 Successfully generated text using key #1 (AIzaSyDq72...) - 45 requests remaining
+2025-08-17 16:08:31,298 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 16:08:31,300 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 16:08:31,557 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 16:08:31,561 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 16:08:31,829 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 16:08:31,832 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 16:08:31,837 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 16:08:31,839 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 16:08:31,866 - INFO - Database initialized successfully
+2025-08-17 16:08:31,867 - INFO - Database initialized successfully.
+2025-08-17 16:08:31,867 - INFO - Created circuit breaker 'embedding_generation'
+2025-08-17 16:08:31,868 - INFO - {"timestamp": "2025-08-17T11:08:31.868019", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755428911867", "metadata": {"text_length": 155}}
+2025-08-17 16:08:31,868 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 16:08:31,868 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 16:08:31,868 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 16:08:31,872 - INFO - Database initialized successfully
+2025-08-17 16:08:31,872 - INFO - Database initialized successfully.
+2025-08-17 16:08:31,873 - INFO - Created circuit breaker 'embedding_generation'
+2025-08-17 16:08:31,873 - INFO - {"timestamp": "2025-08-17T11:08:31.873351", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755428911873", "metadata": {"text_length": 155}}
+2025-08-17 16:08:31,873 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 16:08:31,873 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 16:08:31,873 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 16:08:33,541 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 16:08:33,543 - INFO - {"timestamp": "2025-08-17T11:08:33.543728", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755428911867", "duration_ms": 1675.7876873016357, "metadata": {"text_length": 155}}
+2025-08-17 16:08:33,544 - INFO - {"timestamp": "2025-08-17T11:08:33.544275", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755428913544", "metadata": {"text_length": 120}}
+2025-08-17 16:08:33,544 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 16:08:33,544 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 16:08:33,544 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 16:08:33,678 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 16:08:33,679 - INFO - {"timestamp": "2025-08-17T11:08:33.679014", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755428911873", "duration_ms": 1805.6912422180176, "metadata": {"text_length": 155}}
+2025-08-17 16:08:33,679 - INFO - {"timestamp": "2025-08-17T11:08:33.679544", "level": "info", "event_type": "operation_start", "message": "Starting operation: generate_embedding", "operation_id": "generate_embedding_1755428913679", "metadata": {"text_length": 120}}
+2025-08-17 16:08:33,679 - INFO - Added 13 keys from GEMINI_API_KEYS_LIST for embeddings
+2025-08-17 16:08:33,679 - INFO - Starting Gemini embedding generation with 13 available API keys
+2025-08-17 16:08:33,680 - INFO - Attempting Gemini embedding with key #1 (AIzaSyDq72...), attempt 1
+2025-08-17 16:08:34,604 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 16:08:34,604 - INFO - {"timestamp": "2025-08-17T11:08:34.604688", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755428913679", "duration_ms": 925.1604080200195, "metadata": {"text_length": 120}}
+2025-08-17 16:08:34,758 - INFO - \u2705 Successfully generated embedding using key #1 (AIzaSyDq72...)
+2025-08-17 16:08:34,759 - INFO - {"timestamp": "2025-08-17T11:08:34.759006", "level": "info", "event_type": "operation_end", "message": "Completed operation: generate_embedding", "operation_id": "generate_embedding_1755428913544", "duration_ms": 1214.7259712219238, "metadata": {"text_length": 120}}
