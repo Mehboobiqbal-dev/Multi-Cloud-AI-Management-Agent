@@ -75,14 +75,14 @@ const TaskResults = () => {
       };
 
       // Fetch statistics
-      const statsResponse = await fetch('http://localhost:8000/tasks/statistics', { headers });
+      const statsResponse = await fetch('https://multi-cloud-ai-management-agent.onrender.com/tasks/statistics', { headers });
       const statsData = await statsResponse.json();
       if (statsData.success) {
         setStatistics(statsData.statistics);
       }
 
       // Fetch task results
-      const tasksResponse = await fetch(`http://localhost:8000/tasks/results?limit=20&offset=${(page - 1) * 20}`, { headers });
+      const tasksResponse = await fetch(`https://multi-cloud-ai-management-agent.onrender.com/tasks/results?limit=20&offset=${(page - 1) * 20}`, { headers });
       const tasksData = await tasksResponse.json();
       if (tasksData.success) {
         setTasks(tasksData.results);
@@ -90,7 +90,7 @@ const TaskResults = () => {
       }
 
       // Fetch scraping results
-      const scrapingResponse = await fetch('http://localhost:8000/tasks/scraping?limit=10', { headers });
+      const scrapingResponse = await fetch('https://multi-cloud-ai-management-agent.onrender.com/tasks/scraping?limit=10', { headers });
       const scrapingData = await scrapingResponse.json();
       if (scrapingData.success) {
         setScrapingResults(scrapingData.results);
@@ -116,7 +116,7 @@ const TaskResults = () => {
   const handleTaskClick = async (taskId) => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`http://localhost:8000/tasks/${taskId}`, {
+      const response = await fetch(`https://multi-cloud-ai-management-agent.onrender.com/tasks/${taskId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

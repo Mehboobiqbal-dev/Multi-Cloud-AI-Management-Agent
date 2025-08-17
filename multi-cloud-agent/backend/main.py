@@ -122,7 +122,7 @@ active_connections: Dict[int, WebSocket] = {}
 # Add CORS middleware first
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:52828", "https://multi-cloud-ai-management-agent.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

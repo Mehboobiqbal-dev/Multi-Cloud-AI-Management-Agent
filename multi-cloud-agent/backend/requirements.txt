@@ -10,6 +10,7 @@ python-jose[cryptography]
 cryptography
 bcrypt==3.2.2
 slowapi
+GitPython
 
 # Database
 sqlalchemy
@@ -17,6 +18,7 @@ psycopg2-binary
 
 # HTTP and networking
 httpx
+
 requests
 python-dotenv
 python-multipart

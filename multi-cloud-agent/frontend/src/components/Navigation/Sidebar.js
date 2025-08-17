@@ -256,7 +256,7 @@ function Sidebar({ open, onNavigationChange, activeView, onClose }) {
             textAlign: 'center'
           }}
         >
-          Multi-Cloud AI Agent
+          Elech
         </Typography>
         <Typography
           variant="caption"

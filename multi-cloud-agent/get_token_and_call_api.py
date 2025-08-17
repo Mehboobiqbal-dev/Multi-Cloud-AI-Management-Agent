@@ -7,7 +7,7 @@ USER_PASSWORD = "testpassword"
 USER_NAME = "Test User"
 
 # API endpoint URLs
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://multi-cloud-ai-management-agent.onrender.com/"
 signup_url = f"{BASE_URL}/signup"
 token_url = f"{BASE_URL}/token"
 agent_run_url = f"{BASE_URL}/agent/run"

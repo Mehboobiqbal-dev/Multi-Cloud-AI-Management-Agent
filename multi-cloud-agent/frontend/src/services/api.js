@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? '/api' : 'http://127.0.0.1:8000',
+  baseURL: (process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'https://multi-cloud-ai-management-agent.onrender.com')).replace(/\/$/, ''),
 
   headers: {
     'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ apiClient.interceptors.response.use(
     return response.data;
   },
   error => {
-    // Handle network errors gracefully
+    // Handle network errors gracefullyS
     if (!error.response) {
       console.error('Network error:', error.message);
       return Promise.reject(new Error('Network error: Please check your connection'));
@@ -131,7 +131,7 @@ const api = {
       // Try to determine if we need to use a fallback URL
       if (!url) {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const apiHost = process.env.REACT_APP_API_URL || '127.0.0.1:8000';
+        const apiHost = (process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000').replace(/^https?:\/\//, '');
         url = `${protocol}//${apiHost}/ws`;
       }
       
