@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libgomp1 \
     build-essential \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
