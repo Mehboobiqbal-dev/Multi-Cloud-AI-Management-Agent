@@ -108,8 +108,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 async def lifespan(app: FastAPI):
     try:
-        init_db()
-        logging.info("Database initialized successfully.")
+        logging.info("Database initialization handled by init_db_script.py.")
         load_agent_memory() # Load memory on startup
     except Exception as e:
         logging.error(f"Fatal error during database initialization: {e}", exc_info=True)

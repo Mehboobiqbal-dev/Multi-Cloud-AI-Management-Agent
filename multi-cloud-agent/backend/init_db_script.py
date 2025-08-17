@@ -11,10 +11,24 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Remove the database file if it exists
 db_file = 'database.db'
-if os.path.exists(db_file):
-    logger.info(f"Removing existing database file: {db_file}")
-    os.remove(db_file)
-    logger.info(f"Database file removed successfully")
+db_file_path = os.path.abspath(db_file)
+logger.info(f"Attempting to initialize database at: {db_file_path}")
+if os.path.exists(db_file_path):
+    logger.info(f"Existing database file found: {db_file_path}. Attempting to remove...")
+    try:
+        os.remove(db_file_path)
+        logger.info(f"Database file removed successfully: {db_file_path}")
+    except OSError as e:
+        logger.error(f"Error removing database file {db_file_path}: {e}")
+        # Depending on the error, you might want to exit or handle it differently
+else:
+    logger.info(f"No existing database file found at: {db_file_path}. Proceeding with creation.")
+
+# Verify file does not exist after attempted removal
+if os.path.exists(db_file_path):
+    logger.warning(f"Database file still exists after attempted removal: {db_file_path}. This might indicate a permission issue or another process holding the file.")
+else:
+    logger.info(f"Database file confirmed not to exist after removal attempt: {db_file_path}.")
 
 # Import the necessary modules
 from core.db import Base, engine

@@ -18,7 +18,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source
-COPY . .
+COPY . /app
 
 # Make scripts executable
 RUN chmod +x start.sh railway-start.sh

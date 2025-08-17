@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     ALLOWED_HEADERS: List[str] = ["*"]
     
     # Database settings
-    DATABASE_URL: str = os.environ.get("DATABASE_URL", "sqlite:///./database.db")
+    DATABASE_URL: str = os.environ.get("DATABASE_URL", f"sqlite:///{_project_root}/backend/database.db")
     
     # Security settings
     SESSION_SECRET: str = os.environ.get("SESSION_SECRET", "your-secret-key-change-in-production")
