@@ -138,3 +138,27 @@ class LoginAutomationRequest(BaseModel):
     password: str
     submit_selector: str
     success_indicator: Optional[str] = None
+
+class TaskResult(BaseModel):
+    id: int
+    goal: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+    result: Optional[str] = None
+    steps_completed: int = 0
+    total_steps: int = 0
+    user_id: int
+
+class TaskStatistics(BaseModel):
+    total: int = 0
+    completed: int = 0
+    failed: int = 0
+    running: int = 0
+    paused: int = 0
+    success_rate: float = 0.0
+    average_duration_seconds: float = 0.0
+    period_days: int = 30
+    start_date: str
+    end_date: str

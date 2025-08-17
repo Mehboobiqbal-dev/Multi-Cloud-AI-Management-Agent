@@ -2568,3 +2568,1385 @@ sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is mal
 2025-08-15 21:53:04,193 - INFO - 1 change detected
 2025-08-15 21:53:04,546 - INFO - 1 change detected
 2025-08-15 21:53:04,948 - INFO - 1 change detected
+2025-08-17 14:18:23,166 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:18:23,448 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:24:36,974 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:24:37,459 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:25:03,417 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:25:03,681 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:25:24,217 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:25:24,734 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:25:46,339 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:25:47,000 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:26:06,173 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:26:06,435 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:28:19,960 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:28:20,210 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:32:03,088 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:32:03,121 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:32:03,393 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:32:03,425 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:32:03,617 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:32:03,621 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:32:03,639 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:32:03,641 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:32:03,663 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:32:03,700 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:32:03,700 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:32:03,663 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:33:26,645 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:33:26,686 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:33:26,945 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:33:26,979 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:33:46,005 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:33:46,006 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:33:46,264 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:33:46,264 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:36:00,132 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:36:00,291 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:36:00,410 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:36:00,543 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:36:00,612 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:36:00,614 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:36:00,646 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:00,647 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:00,810 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:36:00,814 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:36:00,893 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:00,894 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:20,284 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:36:20,368 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:36:20,572 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:36:20,648 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:36:20,814 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:36:20,817 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:36:20,862 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:20,882 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:36:20,862 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:20,885 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:36:20,920 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:20,921 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:58,795 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:36:59,005 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:36:59,169 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:36:59,172 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:36:59,207 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:36:59,208 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:40:47,982 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:40:47,997 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:40:48,195 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:40:48,206 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:40:48,425 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:40:48,427 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:40:48,432 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:40:48,435 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:40:48,464 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:40:48,472 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:40:48,465 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:40:48,472 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:41:04,915 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:41:04,916 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:41:05,202 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:41:05,203 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:41:05,473 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:41:05,473 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:41:05,476 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:41:05,477 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:41:05,525 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:41:05,527 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:41:05,527 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:41:05,525 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:42:05,457 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:42:05,528 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:42:05,770 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:42:05,833 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:42:06,053 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:42:06,057 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:42:06,103 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:42:06,113 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:42:06,116 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:42:06,104 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:42:06,185 - ERROR - Error initializing database: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:42:06,186 - ERROR - Fatal error during database initialization: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.DatabaseError: database disk image is malformed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\main.py", line 111, in lifespan
+    init_db()
+    ~~~~~~~^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\backend\core\db.py", line 70, in init_db
+    Base.metadata.create_all(bind=engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 3246, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2453, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 963, in visit_metadata
+    [t for t in tables if self._can_create_table(t)]
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\sql\ddl.py", line 928, in _can_create_table
+    return not self.checkfirst or not self.dialect.has_table(
+                                      ~~~~~~~~~~~~~~~~~~~~~~^
+        self.connection, table.name, schema=effective_schema
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "<string>", line 2, in has_table
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\reflection.py", line 89, in cache
+    return fn(self, con, *args, **kw)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2296, in has_table
+    info = self._get_table_pragma(
+        connection, "table_info", table_name, schema=schema
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\dialects\sqlite\base.py", line 2934, in _get_table_pragma
+    cursor = connection.exec_driver_sql(statement)
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1773, in exec_driver_sql
+    ret = self._execute_context(
+        dialect,
+    ...<5 lines>...
+        distilled_parameters,
+    )
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1840, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1980, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 2349, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\base.py", line 1961, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DELL\Multi-Cloud-AI-Management-Agent\multi-cloud-agent\env\Lib\site-packages\sqlalchemy\engine\default.py", line 944, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
+[SQL: PRAGMA main.table_info("users")]
+(Background on this error at: https://sqlalche.me/e/20/4xp6)
+2025-08-17 14:44:13,019 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:44:13,273 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:44:13,618 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:44:13,621 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:44:13,774 - INFO - Database initialized successfully
+2025-08-17 14:44:13,774 - INFO - Database initialized successfully.
+2025-08-17 14:48:24,603 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:48:24,611 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:48:27,032 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:48:41,421 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:48:41,462 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:35,066 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:35,489 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:50:35,552 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:35,716 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:50:35,719 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:50:35,789 - INFO - Database initialized successfully
+2025-08-17 14:50:35,790 - INFO - Database initialized successfully.
+2025-08-17 14:50:35,856 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:50:35,974 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:36,190 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:50:36,194 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:50:36,247 - INFO - Database initialized successfully
+2025-08-17 14:50:36,247 - INFO - Database initialized successfully.
+2025-08-17 14:50:36,307 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:50:36,620 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:50:36,624 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:50:36,689 - INFO - Database initialized successfully
+2025-08-17 14:50:36,689 - INFO - Database initialized successfully.
+2025-08-17 14:50:57,092 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:57,305 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:57,415 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:50:57,515 - INFO - Created circuit breaker 'agent_execution'
+2025-08-17 14:50:57,583 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:50:57,855 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:50:57,858 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:50:57,955 - INFO - Database initialized successfully
+2025-08-17 14:50:57,956 - INFO - Database initialized successfully.
+2025-08-17 14:50:57,951 - INFO - Created circuit breaker 'tool_execution'
+2025-08-17 14:50:58,174 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:50:58,177 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:50:58,214 - INFO - Database initialized successfully
+2025-08-17 14:50:58,215 - INFO - Database initialized successfully.
+2025-08-17 14:50:58,238 - INFO - Created circuit breaker 'prompt_generation'
+2025-08-17 14:50:58,241 - INFO - Created circuit breaker 'plan_execution'
+2025-08-17 14:50:58,281 - INFO - Database initialized successfully
+2025-08-17 14:50:58,281 - INFO - Database initialized successfully.

@@ -89,12 +89,20 @@ def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15
     driver = browsers[browser_id]
     
     # Multiple selector strategies to try
+    # Precompute normalized selector parts to avoid f-string backslash issues
+    try:
+        _name_sel = re.sub(r"\[name=|[\"']|\]", "", selector)
+        _id_sel = re.sub(r"#|\[id=|[\"']|\]", "", selector)
+        _class_sel = re.sub(r"\.|\[class=|[\"']|\]", "", selector)
+    except Exception:
+        _name_sel = _id_sel = _class_sel = selector
+    
     selector_strategies = [
         selector,  # Original selector
         f"input{selector}",  # Add input prefix if missing
-        f"[name='{re.sub(r'\[name=|\"|\'|\]', '', selector)}']",  # Extract name and rebuild
-        f"#{re.sub(r'#|\[id=|\"|\'|\]', '', selector)}",  # Try as ID
-        f".{re.sub(r'\.|\[class=|\"|\'|\]', '', selector)}",  # Try as class
+        f"[name='{_name_sel}']",  # Extract name and rebuild
+        f"#{_id_sel}",  # Try as ID
+        f".{_class_sel}",  # Try as class
     ]
     
     last_error = None

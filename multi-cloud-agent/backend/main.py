@@ -9,7 +9,7 @@ from core.structured_logging import structured_logger, LogContext, operation_con
 from core.circuit_breaker import circuit_breaker, CircuitBreakerConfig, CircuitBreakerManager
 
 from fastapi import FastAPI, Depends, HTTPException, Request, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
@@ -55,6 +55,7 @@ import social_media
 # import voice_control
 import universal_assistant
 from task_data_manager import task_manager
+from response_formatter import ResponseFormatter
 import json
 import re
 
@@ -100,7 +101,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+from auth import get_current_user
 
 # Configure logging for production
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -236,24 +237,6 @@ async def auth(request: Request, provider: str, db: Session = Depends(get_db)):
     response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True, max_age=1800, samesite="lax")
     return response
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> schemas.User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, settings.SESSION_SECRET, algorithms=[settings.ALGORITHM])
-        user_id: int = payload.get("user_id")
-        if user_id is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-        
-    user = db.query(User).filter(User.id == user_id).first()
-    if user is None:
-        raise credentials_exception
-    return user
 
 async def get_current_user_from_ws(
     websocket: WebSocket,
@@ -300,6 +283,10 @@ async def websocket_endpoint(websocket: WebSocket, user: schemas.User = Depends(
         logging.error(f"WebSocket error for client {user_id}: {e}", exc_info=True)
 
 app.include_router(universal_assistant.router, prefix="/assistant", tags=["assistant"], dependencies=[Depends(get_current_user)])
+
+# Import and register task routes
+from routes.tasks import router as tasks_router
+app.include_router(tasks_router, dependencies=[Depends(get_current_user)])
 
 @app.get('/me', response_model=schemas.User)
 async def me(user: schemas.User = Depends(get_current_user)):
@@ -1055,30 +1042,104 @@ async def agent_run(request: Request, agent_req: schemas.AgentStateRequest, user
                 session_obj.history = json.dumps(history)
                 db.commit()
                 
+                # Format structured response
+                formatted_response = ResponseFormatter.format_agent_response(
+                    status="requires_input",
+                    message=assistance_message,
+                    history=history,
+                    final_result=None,
+                    goal=goal,
+                    current_step=step_number
+                )
+                
                 return schemas.AgentRunResponse(
                     status="requires_input", 
-                    message=assistance_message, 
+                    message=formatted_response['content'], 
                     history=history, 
                     final_result=None
                 )
             
             if action_name == "finish_task":
                 await send_log(f"Agent finished goal: '{goal}'")
-                await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"final_result": result}}}))
+                
+                # Format structured completion response
+                formatted_response = ResponseFormatter.format_agent_response(
+                    status="success",
+                    message="Agent completed the goal successfully.",
+                    history=history,
+                    final_result=result,
+                    goal=goal,
+                    current_step=step_number
+                )
+                
+                # Send structured websocket update
+                completion_notification = ResponseFormatter.format_task_completion_notification(
+                    goal=goal,
+                    result=result,
+                    history=history
+                )
+                
+                await send_log(json.dumps({
+                    "topic": "agent_updates", 
+                    "payload": {
+                        "status": "complete", 
+                        "data": {
+                            "final_result": result,
+                            "formatted_response": formatted_response,
+                            "notification": completion_notification
+                        }
+                    }
+                }))
+                
                 session_obj.status = 'completed'
                 session_obj.history = json.dumps(history)
                 db.commit()
-                return schemas.AgentRunResponse(status="success", message="Agent completed the goal.", history=history, final_result=result)
+                
+                return schemas.AgentRunResponse(
+                    status="success", 
+                    message=formatted_response['content'], 
+                    history=history, 
+                    final_result=result
+                )
             
 
         await send_log(f"Agent reached max loops for goal: '{goal}'")
         core.post_task_review(goal, False, {'loops': max_loops})
+        
+        # Format structured response for max loops reached
+        formatted_response = ResponseFormatter.format_agent_response(
+            status="paused",
+            message="Agent reached maximum loops without finishing the goal. The task has been paused and can be resumed.",
+            history=history,
+            final_result=None,
+            goal=goal,
+            current_step=len(history)
+        )
+        
         # Keep session resumable
         session_obj.status = 'paused'
         session_obj.history = json.dumps(history)
         db.commit()
-        await send_log(json.dumps({"topic": "agent_updates", "payload": {"status": "complete", "data": {"message": "Agent reached maximum loops without finishing the goal. Call /agent/run again with the same run_id to resume."}}}))
-        return schemas.AgentRunResponse(status="error", message="Agent reached maximum loops without finishing the goal.", history=history, final_result=None)
+        
+        await send_log(json.dumps({
+            "topic": "agent_updates", 
+            "payload": {
+                "status": "paused", 
+                "data": {
+                    "message": "Agent reached maximum loops without finishing the goal. Call /agent/run again with the same run_id to resume.",
+                    "formatted_response": formatted_response,
+                    "resumable": True,
+                    "run_id": session_obj.run_id
+                }
+            }
+        }))
+        
+        return schemas.AgentRunResponse(
+            status="paused", 
+            message=formatted_response['content'], 
+            history=history, 
+            final_result=None
+        )
     except Exception as e:
         error_message = f"An unexpected error occurred during agent run: {e}"
         logging.error(error_message, exc_info=True)

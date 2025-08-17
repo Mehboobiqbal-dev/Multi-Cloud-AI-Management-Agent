@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import create_engine
 from models import User
-from db import SessionLocal
+from core.db import SessionLocal
 
 def clear_all_users():
     """Function to clear all users from the database"""
