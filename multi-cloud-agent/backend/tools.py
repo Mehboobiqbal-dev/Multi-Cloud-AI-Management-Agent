@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Any, Callable, List
 from cloud_handlers import handle_clouds
 from selenium import webdriver
@@ -35,6 +36,7 @@ from form_automation import (
     upload_file as fa_upload_file,
     check_checkbox as fa_check_checkbox,
 )
+from code_editor import code_editor
 
 def search_web(query: str, engine: str = 'duckduckgo') -> str:
     """Searches the web using DuckDuckGo or Google through browser automation."""
@@ -90,9 +92,9 @@ def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15
     selector_strategies = [
         selector,  # Original selector
         f"input{selector}",  # Add input prefix if missing
-        f"[name='{selector.replace('[name=', '').replace('"', '').replace("'", '').replace(']', '')}']",  # Extract name and rebuild
-        f"#{selector.replace('#', '').replace('[id=', '').replace('"', '').replace("'", '').replace(']', '')}",  # Try as ID
-        f".{selector.replace('.', '').replace('[class=', '').replace('"', '').replace("'", '').replace(']', '')}",  # Try as class
+        f"[name='{re.sub(r'\[name=|\"|\'|\]', '', selector)}']",  # Extract name and rebuild
+        f"#{re.sub(r'#|\[id=|\"|\'|\]', '', selector)}",  # Try as ID
+        f".{re.sub(r'\.|\[class=|\"|\'|\]', '', selector)}",  # Try as class
     ]
     
     last_error = None
@@ -438,6 +440,142 @@ def post_to_twitter(content: str, api_key: str, api_secret: str, access_token: s
     except Exception as e:
         raise Exception(f"Failed to post tweet: {e}")
 
+# --- Code Editing Tools ---
+def clone_repository(repo_url: str, local_path: str, branch: str = 'main') -> str:
+    """Clone a Git repository to local path."""
+    return code_editor.clone_repository(repo_url, local_path, branch)
+
+def pull_repository(repo_path: str) -> str:
+    """Pull latest changes from remote repository."""
+    return code_editor.pull_repository(repo_path)
+
+def analyze_repository_structure(repo_path: str) -> str:
+    """Analyze repository structure and provide overview."""
+    return code_editor.analyze_repository_structure(repo_path)
+
+def analyze_code_file(file_path: str) -> str:
+    """Analyze a single code file for structure and complexity."""
+    analysis = code_editor.analyze_code_file(file_path)
+    
+    result = f"Code Analysis for {file_path}:\n"
+    result += f"File Type: {analysis.file_type}\n"
+    result += f"Lines of Code: {analysis.lines_of_code}\n"
+    result += f"Complexity Score: {analysis.complexity_score}/100\n\n"
+    
+    if analysis.classes:
+        result += f"Classes ({len(analysis.classes)}): {', '.join(analysis.classes)}\n"
+    
+    if analysis.functions:
+        result += f"Functions ({len(analysis.functions)}): {', '.join(analysis.functions[:10])}"
+        if len(analysis.functions) > 10:
+            result += f" ... and {len(analysis.functions) - 10} more"
+        result += "\n"
+    
+    if analysis.imports:
+        result += f"Imports ({len(analysis.imports)}): {', '.join(analysis.imports[:10])}"
+        if len(analysis.imports) > 10:
+            result += f" ... and {len(analysis.imports) - 10} more"
+        result += "\n"
+    
+    if analysis.issues:
+        result += f"\nIssues:\n"
+        for issue in analysis.issues:
+            result += f"  - {issue}\n"
+    
+    return result
+
+def search_code_patterns(repo_path: str, pattern: str, file_extensions: str = None) -> str:
+    """Search for code patterns across repository."""
+    extensions = None
+    if file_extensions:
+        extensions = [ext.strip() for ext in file_extensions.split(',')]
+    return code_editor.search_code_patterns(repo_path, pattern, extensions)
+
+def create_implementation_plan(repo_path: str, feature_description: str) -> str:
+    """Create an implementation plan for a new feature."""
+    return code_editor.create_implementation_plan(repo_path, feature_description)
+
+def apply_code_changes(file_path: str, changes_json: str) -> str:
+    """Apply a series of code changes to a file. Changes should be JSON string with format:
+    [{"type": "insert|replace|delete", "line": line_number, "content": "new_content"}]"""
+    try:
+        import json
+        changes = json.loads(changes_json)
+        return code_editor.apply_code_changes(file_path, changes)
+    except json.JSONDecodeError as e:
+        return f"Invalid JSON format for changes: {e}"
+    except Exception as e:
+        return f"Failed to apply changes: {e}"
+
+def run_tests(repo_path: str, test_command: str = None) -> str:
+    """Run tests in the repository."""
+    return code_editor.run_tests(repo_path, test_command)
+
+def create_new_file(file_path: str, content: str, file_type: str = None) -> str:
+    """Create a new code file with proper structure."""
+    try:
+        import os
+        from pathlib import Path
+        
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Add appropriate headers/templates based on file type
+        if not file_type:
+            file_type = Path(file_path).suffix.lower()
+        
+        final_content = content
+        
+        # Add templates for common file types
+        if file_type == '.py' and not content.strip().startswith('#!/usr/bin/env python'):
+            if 'class ' in content or 'def ' in content:
+                final_content = '#!/usr/bin/env python3\n"""\nModule description here.\n"""\n\n' + content
+        
+        elif file_type in ['.js', '.ts'] and not content.strip().startswith('/**'):
+            if 'function ' in content or 'class ' in content:
+                final_content = '/**\n * Module description here.\n */\n\n' + content
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(final_content)
+        
+        return f"Successfully created file {file_path} with {len(final_content.split())} lines"
+        
+    except Exception as e:
+        return f"Failed to create file: {e}"
+
+def refactor_code(file_path: str, refactor_type: str, target: str = None) -> str:
+    """Refactor code in a file. Types: extract_function, rename_variable, optimize_imports."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        if refactor_type == 'optimize_imports':
+            # Simple import optimization for Python
+            if file_path.endswith('.py'):
+                lines = content.split('\n')
+                imports = []
+                other_lines = []
+                
+                for line in lines:
+                    if line.strip().startswith(('import ', 'from ')):
+                        imports.append(line)
+                    else:
+                        other_lines.append(line)
+                
+                # Sort and deduplicate imports
+                imports = sorted(list(set(imports)))
+                optimized_content = '\n'.join(imports + [''] + other_lines)
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(optimized_content)
+                
+                return f"Optimized imports in {file_path}"
+        
+        return f"Refactoring type '{refactor_type}' not yet implemented"
+        
+    except Exception as e:
+        return f"Failed to refactor code: {e}"
+
 # --- Tool Registry ---
 class Tool:
     def __init__(self, name: str, description: str, func: Callable):
@@ -484,6 +622,18 @@ tool_registry.register(Tool("wait_for_element", "Wait until an element is presen
 tool_registry.register(Tool("select_dropdown_option", "Select an option from a dropdown by visible text", select_dropdown_option))
 tool_registry.register(Tool("upload_file", "Upload a file using a file input element", upload_file))
 tool_registry.register(Tool("check_checkbox", "Check or uncheck a checkbox element", check_checkbox))
+
+# Register code editing tools
+tool_registry.register(Tool("clone_repository", "Clone a Git repository to local path", clone_repository))
+tool_registry.register(Tool("pull_repository", "Pull latest changes from remote repository", pull_repository))
+tool_registry.register(Tool("analyze_repository_structure", "Analyze repository structure and provide overview", analyze_repository_structure))
+tool_registry.register(Tool("analyze_code_file", "Analyze a single code file for structure and complexity", analyze_code_file))
+tool_registry.register(Tool("search_code_patterns", "Search for code patterns across repository", search_code_patterns))
+tool_registry.register(Tool("create_implementation_plan", "Create an implementation plan for a new feature", create_implementation_plan))
+tool_registry.register(Tool("apply_code_changes", "Apply a series of code changes to a file", apply_code_changes))
+tool_registry.register(Tool("run_tests", "Run tests in the repository", run_tests))
+tool_registry.register(Tool("create_new_file", "Create a new code file with proper structure", create_new_file))
+tool_registry.register(Tool("refactor_code", "Refactor code in a file", refactor_code))
 
 # Universal Account Creation Tool
 def create_account_universal(website_url: str = None, account_data: dict = None, browser_id: str = None) -> str:

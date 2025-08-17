@@ -38,6 +38,15 @@ class Memory:
         Generates an embedding for the given text using Google's service.
         Implements circuit breaker and local fallback for enhanced resilience.
         """
+        if not text.strip():
+            return np.zeros(self.embedding_dim, dtype=np.float32)
+        
+        # Truncate text if it exceeds Gemini's 36KB limit (approximately 30,000 characters)
+        max_chars = 30000
+        if len(text) > max_chars:
+            text = text[:max_chars]
+            logging.warning(f"Text truncated from {len(text)} to {max_chars} characters for embedding generation")
+        
         # Get circuit breaker for embeddings
         circuit_breaker = get_circuit_breaker(
             'embedding_generation',
