@@ -120,9 +120,22 @@ app = FastAPI(lifespan=lifespan)
 active_connections: Dict[int, WebSocket] = {}
 
 # Add CORS middleware first
+# Get the Railway app URL from environment variables
+railway_app_url = os.getenv("RAILWAY_APP_URL")
+
+# Define allowed origins
+allowed_origins = [
+    "http://localhost:52828",
+    "https://multi-cloud-ai-management-agent.onrender.com"
+]
+
+# Add the Railway app URL to the allowed origins if it exists
+if railway_app_url:
+    allowed_origins.append(f"https://{railway_app_url}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:52828", "https://multi-cloud-ai-management-agent.onrender.com"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
