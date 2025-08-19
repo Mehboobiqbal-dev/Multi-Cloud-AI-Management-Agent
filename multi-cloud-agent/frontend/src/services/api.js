@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: (process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'https://multi-cloud-ai-management-agent.onrender.com')).replace(/\/$/, ''),
+  baseURL: (process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:8000')).replace(/\/$/, ''),
 
   headers: {
     'Content-Type': 'application/json',

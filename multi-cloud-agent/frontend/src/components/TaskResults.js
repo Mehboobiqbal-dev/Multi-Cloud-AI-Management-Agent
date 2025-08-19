@@ -75,14 +75,14 @@ const TaskResults = () => {
       };
 
       // Fetch statistics
-      const statsResponse = await fetch('https://multi-cloud-ai-management-agent.onrender.com/tasks/statistics', { headers });
+      const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}/tasks/statistics`, { headers });
       const statsData = await statsResponse.json();
       if (statsData.success) {
         setStatistics(statsData.statistics);
       }
 
       // Fetch task results
-      const tasksResponse = await fetch(`https://multi-cloud-ai-management-agent.onrender.com/tasks/results?limit=20&offset=${(page - 1) * 20}`, { headers });
+      const tasksResponse = await fetch(`${process.env.REACT_APP_API_URL}/tasks/results?limit=20&offset=${(page - 1) * 20}`, { headers });
       const tasksData = await tasksResponse.json();
       if (tasksData.success) {
         setTasks(tasksData.results);
@@ -90,7 +90,7 @@ const TaskResults = () => {
       }
 
       // Fetch scraping results
-      const scrapingResponse = await fetch('https://multi-cloud-ai-management-agent.onrender.com/tasks/scraping?limit=10', { headers });
+      const scrapingResponse = await fetch(`${process.env.REACT_APP_API_URL}/tasks/scraping?limit=10`, { headers });
       const scrapingData = await scrapingResponse.json();
       if (scrapingData.success) {
         setScrapingResults(scrapingData.results);
@@ -116,7 +116,7 @@ const TaskResults = () => {
   const handleTaskClick = async (taskId) => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`https://multi-cloud-ai-management-agent.onrender.com/tasks/${taskId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/tasks/${taskId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -579,7 +579,35 @@ const TaskResults = () => {
     </TableContainer>
   );
 
-  const TaskDetailDialog = () => (
+  const handleAgentAction = async (action) => {
+  if (!selectedTask) return;
+  try {
+    const token = localStorage.getItem('access_token');
+    const message = `${action} task ${selectedTask.task_id}`;
+    await fetch(`${process.env.REACT_APP_API_URL}/chat/message`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message })
+    });
+    console.log(`Agent ${action} requested`);
+    if (action === 'download') {
+      // Handle download response if needed
+    }
+    fetchData(); // Refresh tasks after action
+  } catch (err) {
+    console.error(`Failed to request agent ${action}:`, err);
+    setError(`Failed to request agent ${action}`);
+  }
+};
+const handleAgentAssist = () => handleAgentAction('assist with');
+const handleDownload = () => handleAgentAction('download');
+const handleDelete = () => handleAgentAction('delete');
+const handleRetry = () => handleAgentAction('retry');
+
+const TaskDetailDialog = () => (
     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -669,12 +697,34 @@ const TaskResults = () => {
           AI Chat
         </Button>
         <Button
+          startIcon={<Chat />}
+          onClick={handleAgentAssist}
+          variant="outlined"
+          color="primary"
+        >
+          Ask Agent
+        </Button>
+        <Button
           startIcon={<Download />}
-          onClick={() => setShowDownloadManager(true)}
+          onClick={handleDownload}
           variant="outlined"
           color="secondary"
         >
-          Download
+          Download via Agent
+        </Button>
+        <Button
+          onClick={handleDelete}
+          variant="outlined"
+          color="error"
+        >
+          Delete via Agent
+        </Button>
+        <Button
+          onClick={handleRetry}
+          variant="outlined"
+          color="primary"
+        >
+          Retry via Agent
         </Button>
         <Button onClick={() => setDialogOpen(false)}>Close</Button>
       </DialogActions>

@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import styles from './LoginForm.module.css';
 
 const LoginForm = () => {
-  const { login, signup } = useAuth();
+  const { login, signup, googleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -11,6 +11,34 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleGoogleCallback = (response) => {
+    googleLogin(response.credential)
+      .catch(err => setError(err.message));
+  };
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+  
+    script.onload = () => {
+      window.google.accounts.id.initialize({
+        client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+        callback: handleGoogleCallback,
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById('googleSignInButton'),
+        { theme: 'outline', size: 'large' }
+      );
+    };
+  
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -92,6 +120,9 @@ const LoginForm = () => {
       >
         {isSignup ? '👈 Already have an account? Login' : '✨ Need an account? Sign Up'}
       </button>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <div id="googleSignInButton"></div>
+      </div>
     </div>
   );
 };

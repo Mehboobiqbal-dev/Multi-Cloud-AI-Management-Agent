@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://multi-cloud-ai-management-agent.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 export async function login({ email, password }) {
   const response = await fetch(`${API_BASE_URL}/token`, {

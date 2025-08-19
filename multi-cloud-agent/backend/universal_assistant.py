@@ -29,13 +29,24 @@ def handle_prompt(request: PromptRequest, db: Session = Depends(get_db)):
                 break
 
             step = plan.pop(0)
-            result, error = execute_step(step, kb, tool_manager)
+            try:
+                result, error = execute_step(step, kb, tool_manager)
+            except Exception as step_error:
+                logging.error(f"Error in step {i+1}: {str(step_error)}")
+                result = None
+                error = str(step_error)
 
             executed_steps.append({"step": step, "result": result, "error": error})
 
             if error:
-                plan = generate_plan(intents, kb, tool_manager, executed_steps, error)
-            elif not plan:
+                # Attempt to recover by regenerating plan
+                try:
+                    plan = generate_plan(intents, kb, tool_manager, executed_steps, error)
+                except Exception as plan_error:
+                    logging.error(f"Failed to regenerate plan: {str(plan_error)}")
+                    # Continue with remaining plan or break
+                    continue
+            if not plan:
                 break
 
         # learn_from_execution(executed_steps, kb)

@@ -136,22 +136,43 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     initializeSpeechRecognition();
     
     // Subscribe to agent updates for real-time logs
-    const unsubscribeAgent = websocketService.subscribe('agent_updates', (data) => {
-      if (data.status) {
-        setAgentStatus(data.status);
-      }
-      if (data.log) {
-        setAgentLogs(prev => [...prev, {
-          id: Date.now() + Math.random(),
-          message: data.log,
-          timestamp: new Date().toISOString()
-        }]);
-      }
-    });
+const unsubscribeAgent = websocketService.subscribe('agent_updates', (data) => {
+  if (data.status) {
+    setAgentStatus(data.status);
+  }
+  if (data.log) {
+    setAgentLogs(prev => [...prev, {
+      id: Date.now() + Math.random(),
+      message: data.log,
+      timestamp: new Date().toISOString()
+    }]);
+  }
+});
+
+// Subscribe to chat messages for real-time messaging
+const unsubscribeChat = websocketService.subscribe('chat', (data) => {
+  let content = data.message;
+  let additionalMetadata = {};
+  if (typeof data.message === 'object' && data.message !== null) {
+    content = data.message.message || JSON.stringify(data.message);
+    if (data.message.conversation_id) {
+      additionalMetadata.conversation_id = data.message.conversation_id;
+    }
+  }
+  const newMessage = {
+    id: Date.now() + Math.random(),
+    type: data.sender === 'user' ? 'user' : 'assistant',
+    content,
+    timestamp: new Date().toISOString(),
+    metadata: { ...data.metadata || {}, ...additionalMetadata }
+  };
+  setMessages(prev => [...prev, newMessage]);
+});
     
-    return () => {
-      unsubscribeAgent();
-    };
+return () => {
+  unsubscribeAgent();
+  unsubscribeChat();
+};
   }, []);
 
   useEffect(() => {

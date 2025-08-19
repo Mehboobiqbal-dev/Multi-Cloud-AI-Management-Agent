@@ -1,0 +1,205 @@
+Backend Features Documentation for Frontend Implementation
+This document provides a comprehensive overview of all backend features available in the Multi-Cloud AI Management Agent system that need to be integrated with the frontend.
+
+1. Authentication System
+Features
+User registration/signup
+Login with email/password
+Google OAuth integration
+Session management with JWT tokens
+User profile management
+API Endpoints
+POST /signup: Create new user account
+POST /login: Authenticate user and receive token
+GET /users/me: Get current user information
+POST /auth/google: Google OAuth login
+Implementation Notes
+JWT tokens are used for authentication
+Token expiration and refresh mechanisms are implemented
+User sessions are tracked in the database
+2. Cloud Credential Management
+Features
+Store and manage credentials for multiple cloud providers (AWS, Azure, GCP)
+Encrypt sensitive credential data
+Test cloud provider connections
+Associate credentials with specific users
+API Endpoints
+GET /credentials: Retrieve user's cloud credentials
+POST /credentials: Save new cloud credentials
+POST /test_credentials: Test if credentials are valid
+Data Models
+Provider types: "aws", "azure", "gcp"
+Provider-specific fields:
+AWS: access_key_id, secret_access_key, region
+Azure: tenant_id, client_id, client_secret, subscription_id
+GCP: service_account_key, project_id
+Security
+All sensitive credential data is encrypted at rest
+Credentials are associated with specific user accounts
+3. AI Agent System
+Features
+Run AI agent with specific goals
+Track agent execution status and history
+Pause/resume agent execution
+Provide assistance when agent requires human input
+API Endpoints
+POST /agent/run: Start or resume an agent run
+GET /agent/status/{run_id}: Check status of an agent run
+POST /agent/stop/{run_id}: Stop an agent run
+POST /agent/assist/{run_id}: Provide assistance to agent
+WebSocket Integration
+Real-time updates via WebSocket at /ws/agent/{run_id}
+Agent logs and status updates
+Structured message format for different update types
+4. Chat System
+Features
+Real-time chat with AI agent
+Chat history storage and retrieval
+Support for different message types (text, command, assistance)
+Association of messages with specific agent runs
+API Endpoints
+GET /chat/history: Retrieve chat history
+POST /chat/message: Send a new chat message
+WebSocket Integration
+Real-time chat via WebSocket at /ws/chat
+Message format includes sender, message content, message type, and agent_run_id
+5. Form Automation
+Features
+Automated form filling on websites
+Support for various input types (text fields, dropdowns, checkboxes, file uploads)
+Resilient form filling with retry mechanisms
+Website type detection
+Tool Integration
+Form automation tools are available through the /call_tool endpoint
+Available tools: fill_form, fill_multiple_fields, select_dropdown_option, upload_file, check_checkbox, wait_for_element
+6. Task Management
+Features
+Track and manage agent tasks
+View task history and results
+Download task details in different formats
+Get task statistics
+API Endpoints
+GET /api/tasks/results: Get task results with pagination and filtering
+GET /api/tasks/statistics: Get task statistics over a time period
+GET /api/tasks/{task_id}/download: Download task details in JSON or TXT format
+DELETE /api/tasks/{task_id}: Delete a task result
+POST /tasks/{task_id}/chat: Chat with AI about scraped content
+Data Models
+Task status types: "running", "paused", "completed", "failed"
+Task result includes goal, status, creation time, update time, and execution history
+7. Multi-Cloud Management
+Features
+Unified interface for AWS, Azure, and GCP operations
+VM management (list, create, delete)
+Storage management (buckets, blobs)
+Network resource management
+Cloud Providers
+AWS: Uses boto3 for AWS API integration
+Azure: Uses azure-identity and azure-mgmt packages
+GCP: Uses google-cloud packages
+Implementation Notes
+Provider-specific implementations are abstracted behind common interfaces
+Error handling for cloud provider API failures
+8. Intent Extraction
+Features
+Extract structured intents from natural language prompts
+Convert user requests into actionable steps
+Support for multi-cloud operations
+Integration
+Used internally by the agent system
+Powered by Gemini AI model
+9. Feedback System
+Features
+Collect user feedback on agent performance
+Store feedback for model improvement
+Associate feedback with specific plans and executions
+API Endpoints
+POST /feedback: Submit feedback for a specific plan
+Data Models
+Feedback types: "success", "failure"
+Optional correction text for failed executions
+10. WebSocket Communication
+Features
+Real-time updates for agent runs
+Chat message delivery
+Status notifications
+WebSocket Endpoints
+/ws/chat: Chat messages
+/ws/agent/{run_id}: Agent run updates
+Message Format
+Topic-based message structure
+Structured payloads for different message types
+Support for status updates, logs, and notifications
+11. Account Creation Tools
+Features
+Universal account creation on websites
+Temporary email generation
+Smart account creation for popular websites
+Tool Integration
+Available through the /call_tool endpoint
+Tools: create_account_universal, create_tempmail_account, create_account_smart
+12. Web Scraping and Analysis
+Features
+Comprehensive website scraping
+Content extraction and analysis
+Structured data extraction
+API Endpoints
+POST /tasks/{task_id}/chat: Chat with AI about scraped content
+Tool Integration
+Available through the /call_tool endpoint
+Tool: scrape_website_comprehensive
+13. Multilingual Support
+Features
+Language detection
+Text translation
+Integration
+Used internally by the agent system
+Powered by Gemini AI model
+14. Memory System
+Features
+Long-term memory for agent interactions
+Storage of past interactions and outcomes
+Learning from previous executions
+Implementation Notes
+Memory is persisted in a JSON file and/or database
+Used to improve agent performance over time
+
+Authentication Flow
+1.
+Implement login/signup forms in the frontend
+2.
+Store JWT token securely (e.g., in HttpOnly cookies or secure storage)
+3.
+Include token in Authorization header for API requests
+4.
+Implement token refresh mechanism
+Real-time Communication
+1.
+Establish WebSocket connections for chat and agent updates
+2.
+Implement message handlers for different message types
+3.
+Provide UI feedback for connection status
+Error Handling
+1.
+Implement consistent error handling for API responses
+2.
+Display appropriate user feedback for different error types
+3.
+Provide retry mechanisms for transient failures
+Security Considerations
+1.
+Never store unencrypted credentials in frontend state
+2.
+Implement proper input validation
+3.
+Use HTTPS for all API communications
+4.
+Implement proper CORS configuration
+Performance Optimization
+1.
+Implement pagination for large result sets
+2.
+Use WebSockets for real-time updates instead of polling
+3.
+Implement caching where appropriate

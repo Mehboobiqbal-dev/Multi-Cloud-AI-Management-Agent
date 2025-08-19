@@ -95,15 +95,39 @@ const mockTools = {
     icon: 'Web'
   },
   'fill_form': {
-    name: 'Fill Form',
-    description: 'Fill out form fields on a web page',
-    category: 'automation',
-    parameters: {
-      browser_id: { type: 'string', description: 'Browser session ID', required: true },
-      form_data: { type: 'object', description: 'Form field data as key-value pairs', required: true }
-    },
-    icon: 'AutoMode'
+  name: 'Fill Form',
+  description: 'Fill out form fields on a web page',
+  category: 'automation',
+  parameters: {
+    browser_id: { type: 'string', description: 'Browser session ID', required: true },
+    form_data: { type: 'object', description: 'Form field data as key-value pairs', required: true }
   },
+  icon: 'AutoMode'
+},
+'upwork_apply': {
+  name: 'Apply to Upwork Job',
+  description: 'Automate Upwork job application',
+  category: 'automation',
+  parameters: {
+    browser_id: { type: 'string', required: true },
+    job_url: { type: 'string', required: true },
+    cover_letter: { type: 'string', required: true },
+    hourly_rate: { type: 'number' }
+  },
+  icon: 'Work'
+},
+'linkedin_apply': {
+  name: 'Apply to LinkedIn Job',
+  description: 'Automate LinkedIn job application',
+  category: 'automation',
+  parameters: {
+    browser_id: { type: 'string', required: true },
+    job_url: { type: 'string', required: true },
+    cover_letter: { type: 'string', required: true },
+    resume_path: { type: 'string' }
+  },
+  icon: 'Business'
+},
   // Data Tools
   'search_web': {
     name: 'Web Search',
@@ -213,23 +237,24 @@ function ToolManager() {
     setExecutionResult(null);
     
     try {
-      const result = await api.callTool(selectedTool.key, parameters);
-      setExecutionResult({
-        success: true,
-        data: result,
-        timestamp: new Date().toISOString()
-      });
-      setMessage({ type: 'success', text: `Tool "${selectedTool.name}" executed successfully!` });
-    } catch (error) {
-      setExecutionResult({
-        success: false,
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
-      setMessage({ type: 'error', text: `Tool execution failed: ${error.message}` });
-    } finally {
-      setExecuting(false);
-    }
+  const chatMessage = `execute tool: ${selectedTool.key} with parameters: ${JSON.stringify(parameters)}`;
+  const result = await api.sendMessage({ message: chatMessage });
+  setExecutionResult({
+    success: true,
+    data: result,
+    timestamp: new Date().toISOString()
+  });
+  setMessage({ type: 'success', text: `Tool "${selectedTool.name}" executed via agent successfully!` });
+} catch (error) {
+  setExecutionResult({
+    success: false,
+    error: error.message,
+    timestamp: new Date().toISOString()
+  });
+  setMessage({ type: 'error', text: `Tool execution via agent failed: ${error.message}` });
+} finally {
+  setExecuting(false);
+}
   };
 
   const renderParameterInput = (paramKey, param) => {

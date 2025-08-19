@@ -90,6 +90,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 import schemas
+from schemas.scraping import ScrapeRequest
 import logging
 from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
@@ -113,19 +114,11 @@ async def lifespan(app: FastAPI):
         logging.info("Database initialization handled by init_db_script.py.")
         load_agent_memory() # Load memory on startup
         app.state.running = True
-        app.state.auto_content_task = None
-        if getattr(settings, 'ENABLE_AUTO_CONTENT', False):
-            app.state.auto_content_task = asyncio.create_task(auto_content_worker(app))
     except Exception as e:
         logging.error(f"Fatal error during database initialization: {e}", exc_info=True)
         raise
     yield
     app.state.running = False
-    task = getattr(app.state, 'auto_content_task', None)
-    if task is not None:
-        task.cancel()
-        with contextlib.suppress(Exception):
-            await task
 
 app = FastAPI(lifespan=lifespan)
 
@@ -235,83 +228,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
     return response
 
-# -------------------- Auto Content Worker and Endpoints --------------------
-async def auto_content_worker(app: FastAPI):
-    kb = knowledge_base.KnowledgeBase()
-    if kb.get('study_materials') is None:
-        kb.add('study_materials', [])
-    if kb.get('exams') is None:
-        kb.add('exams', [])
-    topics = [t.strip() for t in getattr(settings, 'AUTO_CONTENT_TOPICS', '').split(',') if t.strip()]
-    interval_seconds = max(60, int(getattr(settings, 'AUTO_CONTENT_INTERVAL_MINUTES', 360)) * 60)
-    while getattr(app.state, 'running', False):
-        for topic in topics:
-            try:
-                study_prompt = f"Create a comprehensive, well-structured study note about {topic}. Include an outline, key concepts, concise explanations, examples, common pitfalls, and a short practice section."
-                content_text = gemini.generate_text(study_prompt)
-                entry = {'id': int(time.time() * 1000), 'topic': topic, 'content': content_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
-                materials = kb.get('study_materials') or []
-                materials.append(entry)
-                kb.add('study_materials', materials)
-                if getattr(settings, 'AUTO_CONTENT_GENERATE_EXAMS', False):
-                    quiz_prompt = f"Create a 10-question multiple-choice quiz for {topic}. Return clearly labeled questions with options A-D and the correct answer indicated for each."
-                    quiz_text = gemini.generate_text(quiz_prompt)
-                    quiz_entry = {'id': int(time.time() * 1000), 'topic': topic, 'quiz': quiz_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
-                    exams = kb.get('exams') or []
-                    exams.append(quiz_entry)
-                    kb.add('exams', exams)
-                logging.info(f"Auto content generated for topic: {topic}")
-            except Exception as e:
-                logging.warning(f"Auto content generation failed for topic '{topic}': {e}")
-                continue
-        await asyncio.sleep(interval_seconds)
 
-@app.get('/content/materials', tags=["content"])
-async def get_study_materials(user: schemas.User = Depends(get_current_user)):
-    kb = knowledge_base.KnowledgeBase()
-    return kb.get('study_materials') or []
 
-@app.get('/content/exams', tags=["content"])
-async def get_exams(user: schemas.User = Depends(get_current_user)):
-    kb = knowledge_base.KnowledgeBase()
-    return kb.get('exams') or []
 
-from fastapi import Body
-
-@app.post('/content/generate', tags=["content"])
-async def generate_content_now(payload: Dict[str, Any] = Body(default={}), user: schemas.User = Depends(get_current_user)):
-    kb = knowledge_base.KnowledgeBase()
-    topics_input = payload.get('topics')
-    if not topics_input:
-        topics = [t.strip() for t in getattr(settings, 'AUTO_CONTENT_TOPICS', '').split(',') if t.strip()]
-    elif isinstance(topics_input, str):
-        topics = [t.strip() for t in topics_input.split(',') if t.strip()]
-    elif isinstance(topics_input, list):
-        topics = [str(t).strip() for t in topics_input if str(t).strip()]
-    else:
-        raise HTTPException(status_code=400, detail='Invalid topics format')
-    generated: Dict[str, Any] = {"materials": [], "exams": []}
-    for topic in topics:
-        try:
-            study_prompt = f"Create a comprehensive, well-structured study note about {topic}. Include an outline, key concepts, concise explanations, examples, common pitfalls, and a short practice section."
-            content_text = gemini.generate_text(study_prompt)
-            entry = {'id': int(time.time() * 1000), 'topic': topic, 'content': content_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
-            materials = kb.get('study_materials') or []
-            materials.append(entry)
-            kb.add('study_materials', materials)
-            generated['materials'].append(entry)
-            if payload.get('generate_exams', getattr(settings, 'AUTO_CONTENT_GENERATE_EXAMS', False)):
-                quiz_prompt = f"Create a 10-question multiple-choice quiz for {topic}. Return clearly labeled questions with options A-D and the correct answer indicated for each."
-                quiz_text = gemini.generate_text(quiz_prompt)
-                quiz_entry = {'id': int(time.time() * 1000), 'topic': topic, 'quiz': quiz_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
-                exams = kb.get('exams') or []
-                exams.append(quiz_entry)
-                kb.add('exams', exams)
-                generated['exams'].append(quiz_entry)
-        except Exception as e:
-            logging.warning(f"On-demand content generation failed for topic '{topic}': {e}")
-            continue
-    return generated
 
 @app.get('/login/{provider}')
 async def login(request: Request, provider: str):
@@ -428,6 +347,15 @@ async def save_credentials(cred_data: schemas.CloudCredentialCreate, user: schem
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.post('/scrape')
+async def scrape_website(scrape_req: ScrapeRequest, user: schemas.User = Depends(get_current_user)):
+    from scraping_analysis import scrape_website_comprehensive
+    try:
+        result = scrape_website_comprehensive(scrape_req.url)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post('/prompt')
 @circuit_breaker(

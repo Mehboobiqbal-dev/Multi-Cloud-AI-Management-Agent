@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { login as authLogin, signup as authSignup } from '../auth';
+import apiClient from '../services/api';
 
 const AuthContext = createContext();
 
@@ -18,21 +19,16 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('access_token');
         console.log("AuthContext: Token found:", token ? 'Yes' : 'No');
         if (token) {
-          // For now, assume if token exists, user is logged in. 
-          // In a real app, you'd validate the token with the backend.
-          console.log("AuthContext: Token exists, setting placeholder user.");
-          setUser({ email: 'authenticated_user' }); // Placeholder user
-        
+          const response = await apiClient.get('/users/me');
+          setUser(response.data);
         } else {
-          console.log("AuthContext: No token, setting user to null.");
           setUser(null);
         }
       } catch (error) {
         console.error('AuthContext: Auth check failed:', error);
         setUser(null);
-        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
       } finally {
-        console.log("AuthContext: Finished checking user, setting loading to false.");
         setLoading(false);
       }
     };
@@ -84,6 +80,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const googleLogin = async (credential) => {
+    try {
+      const response = await apiClient.post('/auth/google', { credential });
+      if (response.data.access_token) {
+        localStorage.setItem('access_token', response.data.access_token);
+        const userResponse = await apiClient.get('/users/me');
+        setUser(userResponse.data);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const signup = async (userData) => {
     console.log("AuthContext: Attempting signup...");
     setLoading(true);
@@ -131,6 +140,7 @@ export function AuthProvider({ children }) {
     user,
     login,
     signup,
+    googleLogin,
     logout,
     loading,
   };

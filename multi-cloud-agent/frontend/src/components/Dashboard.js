@@ -99,9 +99,8 @@ function Dashboard({ navigate }) {
     setLogs([]);
 
     try {
-      const result = await api.executeAgent({ prompt });
-      setCurrentRunId(result.run_id);
-      setResponse(result.message || 'Agent started successfully');
+      await api.post('/chat/message', { message: `run agent with prompt: ${prompt}` });
+      setResponse('Agent run command sent through chat.');
     } catch (error) {
       setResponse(`Error: ${error.message}`);
       setLoading(false);

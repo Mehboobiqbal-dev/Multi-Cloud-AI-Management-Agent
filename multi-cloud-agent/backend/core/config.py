@@ -123,10 +123,7 @@ if settings.ENVIRONMENT == "production":
         ("SESSION_SECRET", settings.SESSION_SECRET),
     ]
     
-    # Check for Gemini API keys (either individual key or list)
-    if not settings.GEMINI_API_KEY and not settings.GEMINI_API_KEYS_LIST:
-        raise ValueError("Missing required environment variable in production: GEMINI_API_KEY or GEMINI_API_KEYS")
-    
+    # Gemini API keys are optional
     for var_name, var_value in required_vars:
         if not var_value or var_value == "your-secret-key-change-in-production":
             raise ValueError(f"Missing or default value for required environment variable in production: {var_name}")
