@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     WORKERS: int = int(os.environ.get("WORKERS", 1))
     
     # CORS settings
-    ALLOWED_ORIGINS: List[str] = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+    ALLOWED_ORIGINS: str = os.environ.get("ALLOWED_ORIGINS", "*")
     ALLOWED_METHODS: List[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     ALLOWED_HEADERS: List[str] = ["*"]
     
@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     GEMINI_API_KEYS_LIST: List[str] = [k.strip() for k in GEMINI_API_KEYS.split(",") if k.strip()]
     GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY", "")
     GEMINI_MODEL_NAME: str = os.environ.get("GEMINI_MODEL_NAME", "gemini-1.5-pro")
+    
+    # Auto content generation settings
+    ENABLE_AUTO_CONTENT: bool = os.environ.get("ENABLE_AUTO_CONTENT", "True").lower() == "true"
+    AUTO_CONTENT_INTERVAL_MINUTES: int = int(os.environ.get("AUTO_CONTENT_INTERVAL_MINUTES", 360))
+    AUTO_CONTENT_TOPICS: str = os.environ.get("AUTO_CONTENT_TOPICS", "python,data structures,algorithms,system design,cloud computing,devops,ai ml")
+    AUTO_CONTENT_GENERATE_EXAMS: bool = os.environ.get("AUTO_CONTENT_GENERATE_EXAMS", "True").lower() == "true"
     
     # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = int(os.environ.get("RATE_LIMIT_PER_MINUTE", 60))
