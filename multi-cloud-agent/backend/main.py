@@ -58,6 +58,8 @@ from task_data_manager import task_manager
 from response_formatter import ResponseFormatter
 import json
 import re
+import asyncio
+import contextlib
 
 MEMORY_FILE = "./agent_memory.json"
 
@@ -110,27 +112,39 @@ async def lifespan(app: FastAPI):
     try:
         logging.info("Database initialization handled by init_db_script.py.")
         load_agent_memory() # Load memory on startup
+        app.state.running = True
+        app.state.auto_content_task = None
+        if getattr(settings, 'ENABLE_AUTO_CONTENT', False):
+            app.state.auto_content_task = asyncio.create_task(auto_content_worker(app))
     except Exception as e:
         logging.error(f"Fatal error during database initialization: {e}", exc_info=True)
         raise
     yield
+    app.state.running = False
+    task = getattr(app.state, 'auto_content_task', None)
+    if task is not None:
+        task.cancel()
+        with contextlib.suppress(Exception):
+            await task
 
 app = FastAPI(lifespan=lifespan)
 
 active_connections: Dict[int, WebSocket] = {}
 
 # Add CORS middleware first
-# Build allowed origins from settings with sensible defaults
-configured_origins = [o.strip() for o in getattr(settings, 'ALLOWED_ORIGINS', ["*"]) if o and o.strip()]
+# Build allowed origins from settings robustly
+origins_raw = getattr(settings, 'ALLOWED_ORIGINS', "*")
 use_origin_regex = False
 origin_regex = None
-
-# If wildcard or empty, allow any http/https origin via regex (works with allow_credentials=True)
-if not configured_origins or (len(configured_origins) == 1 and configured_origins[0] in ("*", ".*")):
-    use_origin_regex = True
-    origin_regex = r"https?://.*"
-    configured_origins = []
-
+configured_origins: List[str] = []
+if isinstance(origins_raw, str):
+    if origins_raw.strip() in ("", "*", ".*"):
+        use_origin_regex = True
+        origin_regex = r"https?://.*"
+    else:
+        configured_origins = [o.strip() for o in origins_raw.split(',') if o and o.strip()]
+elif isinstance(origins_raw, (list, tuple, set)):
+    configured_origins = [str(o).strip() for o in origins_raw if str(o).strip()]
 if use_origin_regex:
     app.add_middleware(
         CORSMiddleware,
@@ -142,7 +156,7 @@ if use_origin_regex:
 else:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=configured_origins,
+        allow_origins=configured_origins or ["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -220,6 +234,84 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     
     response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
     return response
+
+# -------------------- Auto Content Worker and Endpoints --------------------
+async def auto_content_worker(app: FastAPI):
+    kb = knowledge_base.KnowledgeBase()
+    if kb.get('study_materials') is None:
+        kb.add('study_materials', [])
+    if kb.get('exams') is None:
+        kb.add('exams', [])
+    topics = [t.strip() for t in getattr(settings, 'AUTO_CONTENT_TOPICS', '').split(',') if t.strip()]
+    interval_seconds = max(60, int(getattr(settings, 'AUTO_CONTENT_INTERVAL_MINUTES', 360)) * 60)
+    while getattr(app.state, 'running', False):
+        for topic in topics:
+            try:
+                study_prompt = f"Create a comprehensive, well-structured study note about {topic}. Include an outline, key concepts, concise explanations, examples, common pitfalls, and a short practice section."
+                content_text = gemini.generate_text(study_prompt)
+                entry = {'id': int(time.time() * 1000), 'topic': topic, 'content': content_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
+                materials = kb.get('study_materials') or []
+                materials.append(entry)
+                kb.add('study_materials', materials)
+                if getattr(settings, 'AUTO_CONTENT_GENERATE_EXAMS', False):
+                    quiz_prompt = f"Create a 10-question multiple-choice quiz for {topic}. Return clearly labeled questions with options A-D and the correct answer indicated for each."
+                    quiz_text = gemini.generate_text(quiz_prompt)
+                    quiz_entry = {'id': int(time.time() * 1000), 'topic': topic, 'quiz': quiz_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
+                    exams = kb.get('exams') or []
+                    exams.append(quiz_entry)
+                    kb.add('exams', exams)
+                logging.info(f"Auto content generated for topic: {topic}")
+            except Exception as e:
+                logging.warning(f"Auto content generation failed for topic '{topic}': {e}")
+                continue
+        await asyncio.sleep(interval_seconds)
+
+@app.get('/content/materials', tags=["content"])
+async def get_study_materials(user: schemas.User = Depends(get_current_user)):
+    kb = knowledge_base.KnowledgeBase()
+    return kb.get('study_materials') or []
+
+@app.get('/content/exams', tags=["content"])
+async def get_exams(user: schemas.User = Depends(get_current_user)):
+    kb = knowledge_base.KnowledgeBase()
+    return kb.get('exams') or []
+
+from fastapi import Body
+
+@app.post('/content/generate', tags=["content"])
+async def generate_content_now(payload: Dict[str, Any] = Body(default={}), user: schemas.User = Depends(get_current_user)):
+    kb = knowledge_base.KnowledgeBase()
+    topics_input = payload.get('topics')
+    if not topics_input:
+        topics = [t.strip() for t in getattr(settings, 'AUTO_CONTENT_TOPICS', '').split(',') if t.strip()]
+    elif isinstance(topics_input, str):
+        topics = [t.strip() for t in topics_input.split(',') if t.strip()]
+    elif isinstance(topics_input, list):
+        topics = [str(t).strip() for t in topics_input if str(t).strip()]
+    else:
+        raise HTTPException(status_code=400, detail='Invalid topics format')
+    generated: Dict[str, Any] = {"materials": [], "exams": []}
+    for topic in topics:
+        try:
+            study_prompt = f"Create a comprehensive, well-structured study note about {topic}. Include an outline, key concepts, concise explanations, examples, common pitfalls, and a short practice section."
+            content_text = gemini.generate_text(study_prompt)
+            entry = {'id': int(time.time() * 1000), 'topic': topic, 'content': content_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
+            materials = kb.get('study_materials') or []
+            materials.append(entry)
+            kb.add('study_materials', materials)
+            generated['materials'].append(entry)
+            if payload.get('generate_exams', getattr(settings, 'AUTO_CONTENT_GENERATE_EXAMS', False)):
+                quiz_prompt = f"Create a 10-question multiple-choice quiz for {topic}. Return clearly labeled questions with options A-D and the correct answer indicated for each."
+                quiz_text = gemini.generate_text(quiz_prompt)
+                quiz_entry = {'id': int(time.time() * 1000), 'topic': topic, 'quiz': quiz_text, 'created_at': datetime.utcnow().isoformat() + 'Z'}
+                exams = kb.get('exams') or []
+                exams.append(quiz_entry)
+                kb.add('exams', exams)
+                generated['exams'].append(quiz_entry)
+        except Exception as e:
+            logging.warning(f"On-demand content generation failed for topic '{topic}': {e}")
+            continue
+    return generated
 
 @app.get('/login/{provider}')
 async def login(request: Request, provider: str):
