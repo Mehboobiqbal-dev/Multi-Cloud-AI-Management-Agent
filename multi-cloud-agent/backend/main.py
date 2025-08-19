@@ -120,26 +120,33 @@ app = FastAPI(lifespan=lifespan)
 active_connections: Dict[int, WebSocket] = {}
 
 # Add CORS middleware first
-# Get the Railway app URL from environment variables
-railway_app_url = os.getenv("RAILWAY_APP_URL")
+# Build allowed origins from settings with sensible defaults
+configured_origins = [o.strip() for o in getattr(settings, 'ALLOWED_ORIGINS', ["*"]) if o and o.strip()]
+use_origin_regex = False
+origin_regex = None
 
-# Define allowed origins
-allowed_origins = [
-    "http://localhost:52828",
-    "https://multi-cloud-ai-management-agent.onrender.com"
-]
+# If wildcard or empty, allow any http/https origin via regex (works with allow_credentials=True)
+if not configured_origins or (len(configured_origins) == 1 and configured_origins[0] in ("*", ".*")):
+    use_origin_regex = True
+    origin_regex = r"https?://.*"
+    configured_origins = []
 
-# Add the Railway app URL to the allowed origins if it exists
-if railway_app_url:
-    allowed_origins.append(f"https://{railway_app_url}")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if use_origin_regex:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=origin_regex,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=configured_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
