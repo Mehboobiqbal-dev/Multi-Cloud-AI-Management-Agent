@@ -81,7 +81,7 @@ class Settings(BaseSettings):
     # Memory and embedding settings
     EMBEDDING_BATCH_SIZE: int = int(os.environ.get("EMBEDDING_BATCH_SIZE", 10))
     MEMORY_CACHE_SIZE: int = int(os.environ.get("MEMORY_CACHE_SIZE", 1000))
-    ENABLE_LOCAL_EMBEDDINGS: bool = os.environ.get("ENABLE_LOCAL_EMBEDDINGS", "False").lower() == "true"
+    ENABLE_LOCAL_EMBEDDINGS: bool = os.environ.get("ENABLE_LOCAL_EMBEDDINGS", "False").lower() == "false"
     LOCAL_EMBEDDING_MODEL: str = os.environ.get("LOCAL_EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
     
     # Self-learning settings
