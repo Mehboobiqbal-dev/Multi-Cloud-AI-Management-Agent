@@ -22,6 +22,42 @@
     "{\"timestamp\": \"2025-08-19 23:21:04.146078\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"scrape https://en.wikipedia.org/wiki/Nagorno-Karabakh_conflict\"}}}",
     "{\"timestamp\": \"2025-08-19 23:34:39.953638\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"scrape https://en.wikipedia.org/wiki/Nagorno-Karabakh_conflict\"}}}",
     "{\"timestamp\": \"2025-08-19 23:39:09.936553\", \"type\": \"action\", \"content\": {\"action\": \"agent_run\", \"details\": {\"user_input\": \"scrape https://en.wikipedia.org/wiki/Nagorno-Karabakh_conflict\"}}}",
-    "{\"type\": \"user_goal\", \"content\": \"scrape all of https://en.wikipedia.org/wiki/Assassination_of_Miguel_Uribe_Turbay\", \"timestamp\": \"2025-08-20T20:39:41.753111\"}"
+    "{\"type\": \"user_goal\", \"content\": \"scrape all of https://en.wikipedia.org/wiki/Assassination_of_Miguel_Uribe_Turbay\", \"timestamp\": \"2025-08-20T20:39:41.753111\"}",
+    {
+      "timestamp": "2025-08-20 22:41:34.431429",
+      "type": "action",
+      "content": {
+        "action": "agent_run",
+        "details": {
+          "user_input": "scrape https://en.wikipedia.org/wiki/Bogot%C3%A1"
+        }
+      }
+    },
+    {
+      "timestamp": "2025-08-20 22:52:00.550293",
+      "type": "action",
+      "content": {
+        "action": "agent_run",
+        "details": {
+          "user_input": "scrape https://en.wikipedia.org/wiki/Bogot%C3%A1"
+        }
+      }
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-08-20 22:44:07.297285",
+      "error": "500: Gemini text generation failed for all 14 keys: 400 API key not valid. Please pass a valid API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key not valid. Please pass a valid API key.\"\n]",
+      "context": {
+        "goal": "scrape https://en.wikipedia.org/wiki/Bogot%C3%A1"
+      }
+    },
+    {
+      "timestamp": "2025-08-20 22:53:55.786104",
+      "error": "500: Gemini text generation failed for all 14 keys: 400 API key not valid. Please pass a valid API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key not valid. Please pass a valid API key.\"\n]",
+      "context": {
+        "goal": "scrape https://en.wikipedia.org/wiki/Bogot%C3%A1"
+      }
+    }
   ]
 }

@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Apply memory optimizations early before importing heavy modules
+from core.memory_optimization import apply_memory_optimizations
+apply_memory_optimizations()
+
 from core.config import settings
 from core.structured_logging import structured_logger, LogContext, operation_context
 from core.circuit_breaker import circuit_breaker, CircuitBreakerConfig, CircuitBreakerManager

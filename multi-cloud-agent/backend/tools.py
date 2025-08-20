@@ -1,42 +1,85 @@
 import re
 from typing import Dict, Any, Callable, List
 from cloud_handlers import handle_clouds
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 import requests
 import os
 import json
 import time
-import tweepy
-from googleapiclient.discovery import build
-import openai
-from gtts import gTTS
-import io
-import requests
-import base64
-from bs4 import BeautifulSoup
 from gemini import generate_text as gemini_generate
 from cryptography.fernet import Fernet
 import pickle
-import browsing
-from browsing import (
-    browsers as shared_browsers,
-    open_browser as browsing_open_browser,
-    get_page_content as browsing_get_page_content,
-    close_browser as browsing_close_browser,
-)
-from browsing import submit_form as browsing_submit_form
-from form_automation import (
-    wait_for_element as fa_wait_for_element,
-    select_dropdown_option as fa_select_dropdown_option,
-    upload_file as fa_upload_file,
-    check_checkbox as fa_check_checkbox,
-)
 from code_editor import code_editor
+
+# Import core modules for memory optimization
+from core.config import settings
+from core.lazy_imports import lazy_import, conditional_import
+
+# Conditional imports based on HIGH_MEMORY_MODE
+def _should_use_lazy_imports():
+    """Check if we should use lazy imports based on memory settings."""
+    return not getattr(settings, 'HIGH_MEMORY_MODE', False)
+
+# Lazy imports for heavy dependencies when memory optimization is enabled
+if _should_use_lazy_imports():
+    # Use lazy imports for memory optimization
+    selenium_webdriver = lazy_import('selenium.webdriver')
+    selenium_by = lazy_import('selenium.webdriver.common.by', 'By')
+    selenium_wait = lazy_import('selenium.webdriver.support.ui', 'WebDriverWait')
+    selenium_ec = lazy_import('selenium.webdriver.support', 'expected_conditions')
+    selenium_exceptions = lazy_import('selenium.common.exceptions')
+    bs4_soup = lazy_import('bs4', 'BeautifulSoup')
+    tweepy_module = lazy_import('tweepy')
+    googleapi_build = lazy_import('googleapiclient.discovery', 'build')
+    openai_module = lazy_import('openai')
+    gtts_module = lazy_import('gtts', 'gTTS')
+    
+    # Import browsing and form_automation normally to ensure functionality
+    import browsing
+    from browsing import (
+        browsers as shared_browsers,
+        open_browser as browsing_open_browser,
+        get_page_content as browsing_get_page_content,
+        close_browser as browsing_close_browser,
+    )
+    from browsing import submit_form as browsing_submit_form
+    from form_automation import (
+        wait_for_element as fa_wait_for_element,
+        select_dropdown_option as fa_select_dropdown_option,
+        upload_file as fa_upload_file,
+        check_checkbox as fa_check_checkbox,
+    )
+else:
+    # Standard imports when HIGH_MEMORY_MODE=true
+    from selenium import webdriver as selenium_webdriver
+    from selenium.webdriver.common.by import By as selenium_by
+    from selenium.webdriver.remote.webdriver import WebDriver
+    from selenium.webdriver.support.ui import WebDriverWait as selenium_wait
+    from selenium.webdriver.support import expected_conditions as selenium_ec
+    from selenium.common.exceptions import TimeoutException
+    from bs4 import BeautifulSoup as bs4_soup
+    import tweepy as tweepy_module
+    from googleapiclient.discovery import build as googleapi_build
+    import openai as openai_module
+    from gtts import gTTS as gtts_module
+    
+    import browsing
+    from browsing import (
+        browsers as shared_browsers,
+        open_browser as browsing_open_browser,
+        get_page_content as browsing_get_page_content,
+        close_browser as browsing_close_browser,
+    )
+    from browsing import submit_form as browsing_submit_form
+    from form_automation import (
+        wait_for_element as fa_wait_for_element,
+        select_dropdown_option as fa_select_dropdown_option,
+        upload_file as fa_upload_file,
+        check_checkbox as fa_check_checkbox,
+    )
+
+# Additional standard imports
+import io
+import base64
 
 def search_web(query: str, engine: str = 'duckduckgo') -> str:
     """Searches the web using DuckDuckGo or Google through browser automation."""
@@ -71,7 +114,8 @@ def check_checkbox(browser_id: str, selector: str, check: bool = True) -> str:
 # --- Browser Tools ---
 
 # Alias to shared browser dict so all browser operations use the same sessions
-browsers: Dict[str, WebDriver] = shared_browsers
+# Use dynamic typing to avoid import issues with WebDriver
+browsers = shared_browsers
 
 def open_browser(url: str) -> str:
     """Opens a new browser window and navigates to the URL."""
@@ -87,6 +131,16 @@ def fill_form(browser_id: str, selector: str, value: str, wait_timeout: int = 15
         raise Exception(f"Browser with ID '{browser_id}' not found.")
     
     driver = browsers[browser_id]
+    
+    # Get the appropriate imports based on memory mode
+    if _should_use_lazy_imports():
+        WebDriverWait = selenium_wait
+        EC = selenium_ec
+        By = selenium_by
+    else:
+        WebDriverWait = selenium_wait
+        EC = selenium_ec
+        By = selenium_by
     
     # Multiple selector strategies to try
     # Precompute normalized selector parts to avoid f-string backslash issues
@@ -186,14 +240,22 @@ def fill_multiple_fields(browser_id: str, fields: Any, retry_failed: bool = True
             except Exception as e:
                 results.append(f"Page analysis failed: {e}")
     
-    # Wait for page to be fully loaded
-    try:
-        WebDriverWait(driver, 5).until(  # Reduced from 10
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
-        time.sleep(1)  # Reduced from 2 for dynamic content
-    except:
-        pass
+        # Get the appropriate imports based on memory mode
+        if _should_use_lazy_imports():
+            WebDriverWait = selenium_wait
+            By = selenium_by
+        else:
+            WebDriverWait = selenium_wait
+            By = selenium_by
+    
+        # Wait for page to be fully loaded
+        try:
+            WebDriverWait(driver, 5).until(  # Reduced from 10
+                lambda d: d.execute_script("return document.readyState") == "complete"
+            )
+            time.sleep(1)  # Reduced from 2 for dynamic content
+        except:
+            pass
     
     # First pass: try to fill all fields
     for selector, value in fields.items():
@@ -305,6 +367,17 @@ def click_button(browser_id: str, selector: str) -> str:
         raise Exception(f"Browser with ID '{browser_id}' not found.")
     try:
         driver = browsers[browser_id]
+        
+        # Get the appropriate imports based on memory mode
+        if _should_use_lazy_imports():
+            WebDriverWait = selenium_wait
+            EC = selenium_ec
+            By = selenium_by
+        else:
+            WebDriverWait = selenium_wait
+            EC = selenium_ec
+            By = selenium_by
+        
         element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
         element.click()
         return f"Clicked button with selector '{selector}' successfully. Current URL is now {driver.current_url}"
