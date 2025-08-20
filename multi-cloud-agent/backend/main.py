@@ -125,20 +125,12 @@ app = FastAPI(lifespan=lifespan)
 active_connections: Dict[int, WebSocket] = {}
 
 # Add CORS middleware first
-origins = [
-    "https://multi-cloud-ai-management-agent-8s1.vercel.app",
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://localhost:8000",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,  # Allow cookies and credentials
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"],  # Allow all headers
 )
 
 @app.exception_handler(Exception)
