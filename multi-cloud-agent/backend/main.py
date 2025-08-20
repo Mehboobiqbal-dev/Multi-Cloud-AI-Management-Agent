@@ -125,35 +125,21 @@ app = FastAPI(lifespan=lifespan)
 active_connections: Dict[int, WebSocket] = {}
 
 # Add CORS middleware first
-# Build allowed origins from settings robustly
-origins_raw = getattr(settings, 'ALLOWED_ORIGINS', "*")
-use_origin_regex = False
-origin_regex = None
-configured_origins: List[str] = []
-if isinstance(origins_raw, str):
-    if origins_raw.strip() in ("", "*", ".*"):
-        use_origin_regex = True
-        origin_regex = r"https?://.*"
-    else:
-        configured_origins = [o.strip() for o in origins_raw.split(',') if o and o.strip()]
-elif isinstance(origins_raw, (list, tuple, set)):
-    configured_origins = [str(o).strip() for o in origins_raw if str(o).strip()]
-if use_origin_regex:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origin_regex=origin_regex,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-else:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=configured_origins or ["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+origins = [
+    "https://multi-cloud-ai-management-agent-8s1.vercel.app",
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
