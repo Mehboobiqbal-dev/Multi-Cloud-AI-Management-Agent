@@ -35,7 +35,7 @@ const DownloadManager = ({ taskId, onClose, taskData }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/tasks/${taskId}/download?format=${selectedFormat}`, {
         method: 'GET',
         headers: {

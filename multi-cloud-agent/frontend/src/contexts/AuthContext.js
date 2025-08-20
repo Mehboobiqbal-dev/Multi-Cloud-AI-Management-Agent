@@ -71,7 +71,7 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error('AuthContext: Login failed:', error);
-      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
       setUser(null);
       throw error;
     } finally {
@@ -132,7 +132,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
+    localStorage.removeItem('token');
     setUser(null);
   };
 

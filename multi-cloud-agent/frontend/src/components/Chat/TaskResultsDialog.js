@@ -106,7 +106,7 @@ const TaskResultsDialog = ({ open, onClose, onRefresh }) => {
   const fetchTaskResults = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/tasks/results', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -128,7 +128,7 @@ const TaskResultsDialog = ({ open, onClose, onRefresh }) => {
 
   const fetchStatistics = async () => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/tasks/statistics', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -196,7 +196,7 @@ const TaskResultsDialog = ({ open, onClose, onRefresh }) => {
   };
 
   const downloadResults = (taskId, format = 'json') => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token');
     const url = `/api/tasks/${taskId}/download?format=${format}`;
     
     // Create a temporary link to download the file

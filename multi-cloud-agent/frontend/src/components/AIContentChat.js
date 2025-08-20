@@ -23,7 +23,7 @@ const AIContentChat = ({ taskId, onClose }) => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/tasks/${taskId}/chat`, {
         method: 'POST',
         headers: {
