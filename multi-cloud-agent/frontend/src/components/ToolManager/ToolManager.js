@@ -189,27 +189,24 @@ function ToolManager() {
   const categories = ['all', ...new Set(Object.values(tools).map(tool => tool.category))];
 
   // Remove unused setTools
-  // Fix useEffect dependency warning
-  useEffect(() => {
-    filterTools();
-  }, [searchQuery, selectedCategory, tools, filterTools]);
-
-  const filterTools = () => {
+  // Fix filterTools definition and useEffect dependency
+  const filterTools = useCallback(() => {
     let filtered = Object.entries(tools);
-    
     if (searchQuery) {
       filtered = filtered.filter(([key, tool]) => 
         tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(([key, tool]) => tool.category === selectedCategory);
     }
-    
     setFilteredTools(Object.fromEntries(filtered));
-  };
+  }, [searchQuery, selectedCategory, tools]);
+
+  useEffect(() => {
+    filterTools();
+  }, [filterTools]);
 
   const handleToolSelect = (toolKey) => {
     const tool = tools[toolKey];
