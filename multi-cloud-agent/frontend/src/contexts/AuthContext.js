@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { login as authLogin, signup as authSignup } from '../auth';
-import apiClient from '../services/api';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -19,8 +19,8 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('access_token');
         console.log("AuthContext: Token found:", token ? 'Yes' : 'No');
         if (token) {
-          const response = await apiClient.get('/users/me');
-          setUser(response.data);
+          const userData = await api.getCurrentUser();
+          setUser(userData);
         } else {
           setUser(null);
         }
@@ -61,10 +61,9 @@ export function AuthProvider({ children }) {
         localStorage.setItem('access_token', response.access_token);
         // In a real application, you might decode the token or make another API call to get user details
         // For now, we'll just set a placeholder user or use info from the login response if available
-        setUser({ email: credentials.email }); // Placeholder user
-        // const currentUser = await api.getMe(); // If you have a getMe endpoint
-        // console.log("AuthContext: User data fetched:", currentUser);
-        // setUser(currentUser);
+        const currentUser = await api.getCurrentUser();
+        console.log("AuthContext: User data fetched:", currentUser);
+        setUser(currentUser);
 
       } else {
         throw new Error('Login failed: Invalid response from server');
@@ -82,11 +81,11 @@ export function AuthProvider({ children }) {
 
   const googleLogin = async (credential) => {
     try {
-      const response = await apiClient.post('/auth/google', { credential });
-      if (response.data.access_token) {
-        localStorage.setItem('access_token', response.data.access_token);
-        const userResponse = await apiClient.get('/users/me');
-        setUser(userResponse.data);
+      const response = await api.post('/auth/google', { credential });
+      if (response.access_token) {
+        localStorage.setItem('access_token', response.access_token);
+        const userData = await api.getCurrentUser();
+        setUser(userData);
       }
     } catch (error) {
       throw error;
@@ -132,7 +131,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
     setUser(null);
   };
 
