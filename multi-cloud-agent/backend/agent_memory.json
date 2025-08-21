@@ -42,6 +42,16 @@
           "user_input": "scrape https://en.wikipedia.org/wiki/Bogot%C3%A1"
         }
       }
+    },
+    {
+      "timestamp": "2025-08-21 19:45:12.320169",
+      "type": "action",
+      "content": {
+        "action": "agent_run",
+        "details": {
+          "user_input": "scrape https://en.wikipedia.org/wiki/Russian_strikes_against_Ukrainian_infrastructure_(2022%E2%80%93present)"
+        }
+      }
     }
   ],
   "errors": [
@@ -57,6 +67,13 @@
       "error": "500: Gemini text generation failed for all 14 keys: 400 API key not valid. Please pass a valid API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key not valid. Please pass a valid API key.\"\n]",
       "context": {
         "goal": "scrape https://en.wikipedia.org/wiki/Bogot%C3%A1"
+      }
+    },
+    {
+      "timestamp": "2025-08-21 19:49:47.416143",
+      "error": "429: Multiple Gemini API keys have exceeded quota after 42 attempts. Please try again later.",
+      "context": {
+        "goal": "scrape https://en.wikipedia.org/wiki/Russian_strikes_against_Ukrainian_infrastructure_(2022%E2%80%93present)"
       }
     }
   ]

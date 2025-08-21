@@ -11,14 +11,15 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements-render.txt requirements.txt .
+# Copy only requirements for dependency install
+COPY requirements-render.txt requirements.txt
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
+# Copy only necessary source code (exclude tests, docs, venv, .git, etc.)
 COPY . .
+RUN rm -rf tests docs venv .git
 
 # Runtime stage
 FROM python:3.11-slim
