@@ -207,30 +207,25 @@ export const getTaskStatistics = () => apiClient.get('/tasks/statistics');
 export const getScrapingResults = () => apiClient.get('/tasks/scraping');
 export const getTaskDetails = (taskId) => apiClient.get(`/tasks/${taskId}`);
 
-export default {
+const exportedApi = {
   // Auth
   signup: api.signup,
   login: api.login,
   getCurrentUser: api.getMe,
-  
   // Credentials
   getCredentials: api.getCredentials,
   saveCredentials: api.saveCredentials,
   testCredentials,
-  
   // Agent
   runAgent: api.runAgent,
   getAgentStatus,
   stopAgent,
-  
   // Chat
   getChatHistory: api.getChatHistory,
   sendChatMessage: api.sendChatMessage,
-  
   // Tools
   getAvailableTools,
   callTool: api.callTool,
-  
   // Form automation
   applyJobUpwork: api.applyJobUpwork,
   applyJobFiverr: api.applyJobFiverr,
@@ -238,14 +233,13 @@ export default {
   batchApplyJobs: api.batchApplyJobs,
   automateRegistration: api.registrationAutomation,
   automateLogin: api.loginAutomation,
-  
   // Tasks
   getHistory: api.getHistory,
   getTaskResults,
   getTaskStatistics,
   getScrapingResults,
   getTaskDetails,
-  
   // Health
   healthCheck
 };
+export default exportedApi;

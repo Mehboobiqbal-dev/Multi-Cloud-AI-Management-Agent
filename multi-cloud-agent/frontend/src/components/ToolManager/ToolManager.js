@@ -188,9 +188,11 @@ function ToolManager() {
 
   const categories = ['all', ...new Set(Object.values(tools).map(tool => tool.category))];
 
+  // Remove unused setTools
+  // Fix useEffect dependency warning
   useEffect(() => {
     filterTools();
-  }, [searchQuery, selectedCategory, tools]);
+  }, [searchQuery, selectedCategory, tools, filterTools]);
 
   const filterTools = () => {
     let filtered = Object.entries(tools);
