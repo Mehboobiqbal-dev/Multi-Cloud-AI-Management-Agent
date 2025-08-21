@@ -142,69 +142,60 @@ def apply_memory_optimizations():
         logger.info("Memory optimizations disabled by configuration")
         return {"applied": False, "reason": "disabled_by_config"}
     
-    # Check HIGH_MEMORY_MODE flag - when false, apply aggressive memory optimizations
-    high_memory_mode = getattr(settings, 'HIGH_MEMORY_MODE', False)
+    # Always apply ultra-aggressive optimizations for 512MB Render.com limit
+    logger.info("Applying ultra-aggressive memory optimizations for 512MB limit")
     
-    if not high_memory_mode:
-        logger.info("HIGH_MEMORY_MODE is false - applying aggressive memory optimizations for 512MB limit")
-        
-        # Apply Python memory optimizations first
-        python_opts = optimize_python_memory()
-        results["python_optimizations"] = python_opts
-        
-        # Apply PyTorch optimizations
-        results["torch_optimized"] = optimize_torch_memory()
-        
-        # Ultra-aggressive batch size reduction for 512MB limit
-        if hasattr(settings, 'EMBEDDING_BATCH_SIZE'):
-            if settings.EMBEDDING_BATCH_SIZE > 2:  # Ultra-low for 512MB limit
-                logger.info(f"Reducing embedding batch size from {settings.EMBEDDING_BATCH_SIZE} to 2 for 512MB limit")
-                settings.EMBEDDING_BATCH_SIZE = 2
-                results["reduced_batch_size"] = True
-        
-        # Ultra-aggressive memory cache reduction
-        if hasattr(settings, 'MEMORY_CACHE_SIZE'):
-            if settings.MEMORY_CACHE_SIZE > 200:  # Very small cache for 512MB limit
-                logger.info(f"Reducing memory cache size from {settings.MEMORY_CACHE_SIZE} to 200 for 512MB limit")
-                settings.MEMORY_CACHE_SIZE = 200
-                results["reduced_cache_size"] = True
-        
-        # Ensure local embeddings are disabled
-        if getattr(settings, 'ENABLE_LOCAL_EMBEDDINGS', False):
-            logger.info("Disabling local embeddings for memory optimization")
-            settings.ENABLE_LOCAL_EMBEDDINGS = False
-            results["disabled_local_embeddings"] = True
-        
-        # Set environment variables for memory efficiency
-        os.environ['PYTHONHASHSEED'] = '0'  # Consistent hashing
-        os.environ['MALLOC_TRIM_THRESHOLD_'] = '100000'  # Aggressive malloc trimming
-        
-        results["aggressive_mode"] = True
-        results["render_optimized"] = True
-        
-    else:
-        logger.info("HIGH_MEMORY_MODE is true - applying standard memory optimizations")
-        
-        # Apply Python memory optimizations
-        python_opts = optimize_python_memory()
-        results["python_optimizations"] = python_opts
-        
-        # Apply PyTorch optimizations
-        results["torch_optimized"] = optimize_torch_memory()
-        
-        # Set lower batch sizes for memory-intensive operations
-        if hasattr(settings, 'EMBEDDING_BATCH_SIZE'):
-            if settings.EMBEDDING_BATCH_SIZE > 8:
-                logger.info(f"Reducing embedding batch size from {settings.EMBEDDING_BATCH_SIZE} to 8")
-                settings.EMBEDDING_BATCH_SIZE = 8
-                results["reduced_batch_size"] = True
-        
-        # Warn about local embeddings if they're still enabled
-        if getattr(settings, 'ENABLE_LOCAL_EMBEDDINGS', False):
-            logger.warning("Local embeddings are enabled but may cause memory issues")
-            results["local_embeddings_warning"] = True
-        
-        results["standard_mode"] = True
+    # Apply Python memory optimizations first
+    python_opts = optimize_python_memory()
+    results["python_optimizations"] = python_opts
+    
+    # Apply PyTorch optimizations
+    results["torch_optimized"] = optimize_torch_memory()
+    
+    # Ultra-aggressive batch size reduction for 512MB limit
+    if hasattr(settings, 'EMBEDDING_BATCH_SIZE'):
+        if settings.EMBEDDING_BATCH_SIZE > 1:  # Minimum possible batch size
+            logger.info(f"Reducing embedding batch size from {settings.EMBEDDING_BATCH_SIZE} to 1 for 512MB limit")
+            settings.EMBEDDING_BATCH_SIZE = 1
+            results["reduced_batch_size"] = True
+    
+    # Ultra-aggressive memory cache reduction
+    if hasattr(settings, 'MEMORY_CACHE_SIZE'):
+        if settings.MEMORY_CACHE_SIZE > 50:  # Minimal cache for 512MB limit
+            logger.info(f"Reducing memory cache size from {settings.MEMORY_CACHE_SIZE} to 50 for 512MB limit")
+            settings.MEMORY_CACHE_SIZE = 50
+            results["reduced_cache_size"] = True
+    
+    # Ensure local embeddings are disabled
+    if getattr(settings, 'ENABLE_LOCAL_EMBEDDINGS', False):
+        logger.info("Disabling local embeddings for memory optimization")
+        settings.ENABLE_LOCAL_EMBEDDINGS = False
+        results["disabled_local_embeddings"] = True
+    
+    # Set environment variables for ultra-aggressive memory efficiency
+    os.environ['PYTHONHASHSEED'] = '0'  # Consistent hashing
+    os.environ['MALLOC_TRIM_THRESHOLD_'] = '50000'  # Very aggressive malloc trimming
+    os.environ['MALLOC_MMAP_THRESHOLD_'] = '65536'  # Use mmap for large allocations
+    os.environ['PYTHONOPTIMIZE'] = '2'  # Remove docstrings and assertions
+    os.environ['PYTHONDONTWRITEBYTECODE'] = '1'  # Don't write .pyc files
+    
+    # Force aggressive garbage collection every 30 seconds
+    import threading
+    import time
+    
+    def periodic_gc():
+        while True:
+            time.sleep(30)
+            collected = force_garbage_collection()
+            if collected > 0:
+                logger.debug(f"Periodic GC collected {collected} objects")
+    
+    gc_thread = threading.Thread(target=periodic_gc, daemon=True)
+    gc_thread.start()
+    results["periodic_gc_enabled"] = True
+    
+    results["ultra_aggressive_mode"] = True
+    results["render_optimized"] = True
     
     # Final memory check
     final_memory = get_memory_usage()
@@ -212,9 +203,15 @@ def apply_memory_optimizations():
     
     # Memory usage warning for Render.com 512MB limit
     current_mb = final_memory.get('rss_mb', 0)
-    if current_mb > 400:  # Warn at 400MB (78% of 512MB limit)
+    if current_mb > 350:  # Warn at 350MB (68% of 512MB limit)
         logger.warning(f"Memory usage is {current_mb:.1f}MB, approaching 512MB limit on Render.com")
         results["memory_warning"] = True
+    elif current_mb > 450:  # Critical warning at 450MB (88% of limit)
+        logger.critical(f"Memory usage is {current_mb:.1f}MB, critically close to 512MB limit!")
+        results["memory_critical"] = True
+        # Force emergency garbage collection
+        emergency_collected = force_garbage_collection()
+        logger.info(f"Emergency GC collected {emergency_collected} objects")
     
     # Log memory optimization results
     optimizations_applied = any(results.values())

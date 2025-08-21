@@ -10,13 +10,12 @@ python-jose[cryptography]==3.3.0
 cryptography==41.0.7
 bcrypt==4.0.1
 slowapi==0.1.9
-# GitPython==3.1.40  # Temporarily disabled for deployment
 
-# Database
+# Database - lightweight
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 
-# HTTP and networking
+# HTTP and networking - minimal
 httpx==0.25.2
 requests==2.31.0
 python-dotenv==1.0.0
@@ -29,16 +28,13 @@ pydantic==2.5.0
 email-validator==2.1.0
 pydantic-settings==2.1.0
 
-# AI and ML services (lightweight)
+# AI and ML services (lightweight versions only)
 google-generativeai==0.3.2
 google-auth==2.25.2
 google-search-results==2.4.2
 openai==1.3.7
 
-# Optional ML dependencies - only installed if needed
-sentence-transformers==2.2.2 ; python_version >= "3.8" and platform_system != "Darwin"
-
-# Essential utilities
+# Essential utilities - minimal versions
 beautifulsoup4==4.12.2
 lxml==4.9.3
 faker==20.1.0
@@ -48,21 +44,12 @@ Pillow==10.1.0
 boto3==1.34.0
 azure-identity==1.15.0
 
-# Enhanced logging
-structlog==23.2.0
-rich==13.7.0
-
-# Performance and caching
-cachetools==5.3.2
-
-# Production essentials
-starlette==0.27.0
-aiofiles==23.2.1
-webdriver-manager==4.0.1
-fastapi-limiter==0.1.5
-
-# Web scraping (lightweight)
-selenium==4.15.2
-
-# System monitoring (lightweight)
+# Memory monitoring
 psutil==5.9.6
+
+# Remove heavy ML dependencies to save memory:
+# - sentence-transformers (200MB+)
+# - torch (500MB+)
+# - transformers (300MB+)
+# - numpy/scipy/scikit-learn (100MB+)
+# These will be loaded only if absolutely needed via lazy imports

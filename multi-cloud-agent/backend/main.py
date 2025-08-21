@@ -6,11 +6,14 @@ load_dotenv()
 
 # Apply memory optimizations early before importing heavy modules
 from core.memory_optimization import apply_memory_optimizations
+from core.memory_monitor import start_memory_monitoring, get_memory_stats
+from core.memory_efficient_cache import get_data_manager, get_cache_stats, optimize_memory
 apply_memory_optimizations()
 
 from core.config import settings
 from core.structured_logging import structured_logger, LogContext, operation_context
 from core.circuit_breaker import circuit_breaker, CircuitBreakerConfig, CircuitBreakerManager
+from core.lazy_imports import lazy_import_decorator, get_lazy_import
 
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -117,6 +120,11 @@ async def lifespan(app: FastAPI):
     try:
         logging.info("Database initialization handled by init_db_script.py.")
         load_agent_memory() # Load memory on startup
+        
+        # Start memory monitoring for 512MB limit
+        start_memory_monitoring()
+        logging.info("Memory monitoring started for 512MB limit")
+        
         app.state.running = True
     except Exception as e:
         logging.error(f"Fatal error during database initialization: {e}", exc_info=True)
@@ -610,16 +618,43 @@ def healthz():
             name: str(cb.state) for name, cb in circuit_breaker_manager.circuit_breakers.items()
         }
         
+        # Get memory statistics
+        memory_stats = get_memory_stats()
+        
         return {
             "status": "ok",
             "timestamp": datetime.now().isoformat(),
             "circuit_breakers": circuit_breaker_status,
-            "performance_monitoring": getattr(settings, 'ENABLE_PERFORMANCE_MONITORING', False)
+            "performance_monitoring": getattr(settings, 'ENABLE_PERFORMANCE_MONITORING', False),
+            "memory": memory_stats
         }
     except Exception as e:
         logging.error(f"Health check failed: {str(e)}")
         return {
             "status": "degraded",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        }
+
+@app.get('/memory/stats')
+async def get_memory_statistics():
+    """Get detailed memory usage statistics and monitoring data."""
+    try:
+        memory_stats = get_memory_stats()
+        cache_stats = get_cache_stats()
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.now().isoformat(),
+            "data": {
+                "memory": memory_stats,
+                "caches": cache_stats
+            }
+        }
+    except Exception as e:
+        logging.error(f"Failed to get memory stats: {e}")
+        return {
+            "status": "error",
             "timestamp": datetime.now().isoformat(),
             "error": str(e)
         }
