@@ -131,10 +131,10 @@ active_connections: Dict[int, WebSocket] = {}
 # Add CORS middleware first
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,  # Allow cookies and credentials
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, OPTIONS, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=settings.ALLOWED_ORIGINS.split(",") if settings.ALLOWED_ORIGINS != "*" else ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.exception_handler(Exception)
