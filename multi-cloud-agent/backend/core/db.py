@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import QueuePool
 from urllib.parse import urlparse
 import logging
 from typing import Generator
@@ -19,14 +19,24 @@ if parsed_url.scheme.startswith("sqlite"):
     # SQLite-specific configuration
     engine = create_engine(
         settings.DATABASE_URL,
-        poolclass=NullPool,
+        poolclass=QueuePool,
+        pool_size=5,
+        max_overflow=5,
+        pool_timeout=30,
+        pool_recycle=3600,
+        pool_pre_ping=True,
         connect_args={"check_same_thread": False},
     )
 else:
     # Configuration for other database types (PostgreSQL, MySQL, etc.)
     engine = create_engine(
         settings.DATABASE_URL,
-        poolclass=NullPool,
+        poolclass=QueuePool,
+        pool_size=5,
+        max_overflow=5,
+        pool_timeout=30,
+        pool_recycle=3600,
+        pool_pre_ping=True,
         connect_args={
             "connect_timeout": 10,
             "keepalives": 1,
