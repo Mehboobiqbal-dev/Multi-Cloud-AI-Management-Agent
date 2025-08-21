@@ -99,3 +99,19 @@ Setting `HIGH_MEMORY_MODE=false` may result in:
 - Improved system stability on low-memory systems
 
 The performance impact is typically minimal compared to the stability benefits on memory-constrained systems.
+
+
+### Render.com Specific Optimizations
+
+For Render.com deployments, especially on free tier with 512MB RAM limit:
+
+- Set `HIGH_MEMORY_MODE=false` in your service environment variables
+- Ensure `ENABLE_LOCAL_EMBEDDINGS=false` to avoid loading heavy models
+- Use the optimized start command: `./start-render-optimized.sh`
+- Monitor build and deploy times; if timeouts occur, optimize dependencies in `requirements-render.txt`
+- Add resource limits in `render.yaml`:
+  plan: free
+  numInstances: 1
+- If deployment times out, check startup logs for memory issues and reduce initial load operations
+
+For troubleshooting timeouts, refer to Render's documentation.
