@@ -87,10 +87,14 @@ def load_agent_memory():
         print("Agent memory file not found. Starting with empty memory.")
 
 def save_agent_memory():
-    with open(MEMORY_FILE, 'w') as f:
-        # Assuming documents are stored as a list of dictionaries
-        json.dump({"knowledge": memory.memory_instance.documents}, f, indent=2)
-    print("Agent memory saved successfully.")
+    # Only save agent memory if NO_MEMORY is not set to true
+    if not os.getenv('NO_MEMORY', 'false').lower() == 'true':
+        with open(MEMORY_FILE, 'w') as f:
+            # Assuming documents are stored as a list of dictionaries
+            json.dump({"knowledge": memory.memory_instance.documents}, f, indent=2)
+        print("Agent memory saved successfully.")
+    else:
+        print("Agent memory saving disabled via NO_MEMORY environment variable")
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -119,7 +123,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 async def lifespan(app: FastAPI):
     try:
         logging.info("Database initialization handled by init_db_script.py.")
-        load_agent_memory() # Load memory on startup
+        
+        # Only load agent memory if NO_MEMORY is not set to true
+        if not os.getenv('NO_MEMORY', 'false').lower() == 'true':
+            load_agent_memory() # Load memory on startup
+            logging.info("Agent memory loaded")
+        else:
+            logging.info("Agent memory loading disabled via NO_MEMORY environment variable")
         
         # Start memory monitoring for 512MB limit
         start_memory_monitoring()

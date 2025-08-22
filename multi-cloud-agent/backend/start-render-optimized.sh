@@ -4,6 +4,7 @@
 export ENABLE_LOCAL_EMBEDDINGS=false
 export ENABLE_MEMORY_OPTIMIZATIONS=true
 export HIGH_MEMORY_MODE=false
+export NO_MEMORY=true
 
 # Python memory optimization flags
 export PYTHONMALLOC=malloc
