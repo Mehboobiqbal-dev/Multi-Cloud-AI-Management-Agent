@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './LoginForm.module.css';
 
@@ -11,10 +11,10 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleCallback = (response) => {
+  const handleGoogleCallback = useCallback((response) => {
     googleLogin(response.credential)
       .catch(err => setError(err.message));
-  };
+  }, [googleLogin, setError]);
 
   useEffect(() => {
     const script = document.createElement('script');
