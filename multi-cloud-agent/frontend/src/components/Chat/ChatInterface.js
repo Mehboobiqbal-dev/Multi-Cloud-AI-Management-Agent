@@ -101,7 +101,9 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const [historyDialog, setHistoryDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [taskResultsDialog, setTaskResultsDialog] = useState(false);
-
+  const [taskResults, setTaskResults] = useState([]);
+  const [taskStatistics, setTaskStatistics] = useState(null);
+  const [loadingTasks, setLoadingTasks] = useState(false);
   const [settings, setSettings] = useState({
     autoScroll: true,
     soundEnabled: false,
@@ -110,7 +112,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     fontSize: 'medium'
   });
 
-
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [agentLogs, setAgentLogs] = useState([]);
