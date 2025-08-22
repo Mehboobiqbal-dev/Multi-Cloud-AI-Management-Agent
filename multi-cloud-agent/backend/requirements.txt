@@ -2,7 +2,7 @@
 fastapi
 uvicorn[standard]
 gunicorn
-
+click
 # Authentication and security
 authlib
 passlib[bcrypt]
