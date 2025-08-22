@@ -37,7 +37,7 @@ const LoginForm = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [handleGoogleCallback]);
   
   const handleSubmit = async (e) => {
     e.preventDefault();
