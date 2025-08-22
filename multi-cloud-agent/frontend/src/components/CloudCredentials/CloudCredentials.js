@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -32,7 +32,6 @@ import {
   Visibility,
   VisibilityOff,
   CheckCircle,
-  Error,
   Info,
   ExpandMore,
   Security,
@@ -91,11 +90,7 @@ function CloudCredentials() {
   const providers = Object.keys(providerConfigs);
   const currentProvider = providers[activeTab];
 
-  useEffect(() => {
-    loadCredentials();
-  }, [loadCredentials]);
-
-  const loadCredentials = async () => {
+  const loadCredentials = useCallback(async () => {
     setLoading(true);
     try {
       const data = await api.getCredentials();
@@ -119,7 +114,11 @@ function CloudCredentials() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [providers]);
+
+  useEffect(() => {
+    loadCredentials();
+  }, [loadCredentials]);
 
   const handleInputChange = (provider, field, value) => {
     setFormData(prev => ({

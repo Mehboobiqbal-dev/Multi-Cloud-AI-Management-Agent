@@ -164,18 +164,17 @@ function FormAutomation() {
   const handleSingleApplication = async (platform) => {
     setExecuting(true);
     try {
-      let result;
       const data = formData[platform] || {};
       
       switch (platform) {
         case 'upwork':
-          result = await api.applyJobUpwork(data);
+          await api.applyJobUpwork(data);
           break;
         case 'fiverr':
-          result = await api.applyJobFiverr(data);
+          await api.applyJobFiverr(data);
           break;
         case 'linkedin':
-          result = await api.applyJobLinkedin(data);
+          await api.applyJobLinkedin(data);
           break;
         default:
           throw new Error('Unsupported platform');

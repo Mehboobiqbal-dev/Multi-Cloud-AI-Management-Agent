@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -30,14 +30,9 @@ import {
   Construction as BuildIcon,
   Search as SearchIcon,
   PlayArrow as PlayIcon,
-  Code as CodeIcon,
-  Description as DescIcon,
-  Settings as SettingsIcon,
   ExpandMore,
   CheckCircle,
   Error,
-  Warning,
-  Info,
   CloudQueue,
   Web,
   Storage,
@@ -175,7 +170,7 @@ const categoryColors = {
 };
 
 function ToolManager() {
-  const [tools, setTools] = useState(mockTools);
+  const [tools] = useState(mockTools);
   const [filteredTools, setFilteredTools] = useState(mockTools);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');

@@ -33,7 +33,7 @@ function Dashboard({ navigate }) {
   const [response, setResponse] = useState('');
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentRunId, setCurrentRunId] = useState(null);
+  const [currentRunId] = useState(null);
   const [activeView, setActiveView] = useState('chat');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [websocketConnected, setWebsocketConnected] = useState(false);
