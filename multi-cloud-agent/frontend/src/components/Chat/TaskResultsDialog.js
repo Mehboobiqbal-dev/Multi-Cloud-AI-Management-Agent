@@ -15,7 +15,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Alert,
   LinearProgress,
   Table,
@@ -27,9 +26,6 @@ import {
   Paper,
   IconButton,
   Tooltip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Tab,
   Tabs,
   CircularProgress
@@ -43,9 +39,7 @@ import {
   Timeline as TimelineIcon,
   Assessment as AssessmentIcon,
   Download as DownloadIcon,
-  Share as ShareIcon,
-  Refresh as RefreshIcon,
-  ExpandMore as ExpandMoreIcon
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 // Note: You may need to install date-fns: npm install date-fns
 // For now, we'll use a simple date formatter

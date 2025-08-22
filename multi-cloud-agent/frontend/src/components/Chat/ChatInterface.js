@@ -47,22 +47,13 @@ import {
   ContentCopy as CopyIcon,
   Mic as MicIcon,
   MicOff as MicOffIcon,
-  Assignment as TaskIcon,
-  Visibility as ViewIcon,
-  GetApp as DownloadTaskIcon
+  Assignment as TaskIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import api from '../../services/api';
 import websocketService from '../../services/websocket';
 
-const messageTypes = {
-  text: { icon: PersonIcon, color: '#1976d2' },
-  code: { icon: CodeIcon, color: '#2e7d32' },
-  command: { icon: TerminalIcon, color: '#ed6c02' },
-  automation: { icon: AutoModeIcon, color: '#9c27b0' },
-  cloud: { icon: CloudIcon, color: '#0288d1' },
-  job: { icon: WorkIcon, color: '#d32f2f' }
-};
+
 
 const quickActions = [
   {
@@ -110,9 +101,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const [historyDialog, setHistoryDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [taskResultsDialog, setTaskResultsDialog] = useState(false);
-  const [taskResults, setTaskResults] = useState([]);
-  const [taskStatistics, setTaskStatistics] = useState(null);
-  const [loadingTasks, setLoadingTasks] = useState(false);
+
   const [settings, setSettings] = useState({
     autoScroll: true,
     soundEnabled: false,
@@ -121,7 +110,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     fontSize: 'medium'
   });
 
-  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [agentLogs, setAgentLogs] = useState([]);
@@ -250,24 +239,7 @@ return () => {
     loadTaskResults();
   };
 
-  const handleTaskAction = (taskId, action) => {
-    if (action === 'view') {
-      // Open task details in a new message
-      const taskMessage = {
-        id: Date.now(),
-        type: 'assistant',
-        content: `📋 **Task Results Loaded**\n\nTask ID: ${taskId}\n\nYou can now ask me questions about this task or request specific details. For example:\n- "Show me the details of this task"\n- "What was the result?"\n- "Download the task data"`,
-        timestamp: new Date().toISOString(),
-        metadata: { taskId, source: 'task_viewer' }
-      };
-      setMessages(prev => [...prev, taskMessage]);
-      setTaskResultsDialog(false);
-    } else if (action === 'chat') {
-      setInputValue(`Tell me about task ${taskId} and its results`);
-      setTaskResultsDialog(false);
-      inputRef.current?.focus();
-    }
-  };
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
