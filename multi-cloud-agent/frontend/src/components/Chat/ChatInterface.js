@@ -28,8 +28,6 @@ import {
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
-import StructuredMessageRenderer from './StructuredMessageRenderer';
-import TaskResultsDialog from './TaskResultsDialog';
 import {
   Send as SendIcon,
   Person as PersonIcon,
@@ -46,8 +44,7 @@ import {
   ExpandMore,
   ContentCopy as CopyIcon,
   Mic as MicIcon,
-  MicOff as MicOffIcon,
-  Assignment as TaskIcon
+  MicOff as MicOffIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import api from '../../services/api';
@@ -98,10 +95,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const [chatHistory, setChatHistory] = useState([]);
   const [historyDialog, setHistoryDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
-  const [taskResultsDialog, setTaskResultsDialog] = useState(false);
-  const [taskResults, setTaskResults] = useState([]);
-  const [taskStatistics, setTaskStatistics] = useState(null);
-  const [loadingTasks, setLoadingTasks] = useState(false);
   const [settings, setSettings] = useState({
     autoScroll: true,
     soundEnabled: false,
@@ -113,7 +106,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const [recognition, setRecognition] = useState(null);
   const [agentLogs, setAgentLogs] = useState([]);
   const [agentStatus, setAgentStatus] = useState('idle');
-  
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -121,8 +114,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   useEffect(() => {
     loadChatHistory();
     initializeSpeechRecognition();
-    
-    // Subscribe to agent updates for real-time logs
+
     const unsubscribeAgent = websocketService.subscribe('agent_updates', (data) => {
       if (data.status) {
         setAgentStatus(data.status);
@@ -136,7 +128,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
       }
     });
 
-    // Subscribe to chat messages for real-time messaging
     const unsubscribeChat = websocketService.subscribe('chat', (data) => {
       let content = data.message;
       let additionalMetadata = {};
@@ -155,7 +146,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
       };
       setMessages(prev => [...prev, newMessage]);
     });
-    
+
     return () => {
       unsubscribeAgent();
       unsubscribeChat();
@@ -198,7 +189,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const loadChatHistory = async () => {
     try {
       const history = await api.getChatHistory();
-      console.log('API response for chat history:', history);
       const chatHistoryArray = Array.isArray(history) ? history : history?.data || [];
       setChatHistory(chatHistoryArray);
       
@@ -210,33 +200,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
       console.error('Failed to load chat history:', error);
       setChatHistory([]);
     }
-  };
-
-  const loadTaskResults = async () => {
-    setLoadingTasks(true);
-    try {
-      const [resultsResponse, statsResponse] = await Promise.all([
-        api.getTaskResults(),
-        api.getTaskStatistics()
-      ]);
-      
-      if (resultsResponse.success) {
-        setTaskResults(resultsResponse.results || []);
-      }
-      
-      if (statsResponse.success) {
-        setTaskStatistics(statsResponse.statistics || {});
-      }
-    } catch (error) {
-      console.error('Failed to load task results:', error);
-    } finally {
-      setLoadingTasks(false);
-    }
-  };
-
-  const handleViewTaskResults = () => {
-    setTaskResultsDialog(true);
-    loadTaskResults();
   };
 
   const scrollToBottom = () => {
@@ -256,17 +219,15 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
-    setAgentLogs([]); // Clear previous logs
+    setAgentLogs([]);
     setAgentStatus('processing');
 
     try {
-      // Send message to backend
       await api.sendChatMessage({
         message: inputValue,
         conversation_id: currentRunId
       });
 
-      // Trigger agent execution with the user input
       const agentResponse = await api.runAgent({
         user_input: inputValue,
         run_id: currentRunId || Date.now().toString()
@@ -282,39 +243,33 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
 
       setMessages(prev => [...prev, botMessage]);
 
-      // Handle tool calls if present
       if (agentResponse.tool_calls && onToolCall) {
         agentResponse.tool_calls.forEach(toolCall => {
           onToolCall(toolCall);
         });
       }
 
-      // Play sound notification if enabled
       if (settings.soundEnabled) {
         playNotificationSound();
       }
 
-      // Speak response if voice is enabled
       if (settings.voiceEnabled) {
         speakText(botMessage.content);
       }
 
-      // Check for task completion and show notification
       if (agentResponse.task_completed || 
           (agentResponse.metadata && agentResponse.metadata.task_status === 'completed') ||
           botMessage.content.toLowerCase().includes('task completed') ||
           botMessage.content.toLowerCase().includes('successfully completed')) {
         
-        // Add task completion notification message
         setTimeout(() => {
           const taskNotificationMessage = {
             id: Date.now() + 2,
             type: 'assistant',
-            content: `🎉 **Task Completed Successfully!**\n\nYour task has been completed. You can now:\n\n📋 **View Task Results** - Click the task icon in the header to see all your completed tasks\n💬 **Ask Questions** - Ask me about the task details or results\n📥 **Download Data** - Get any files or data generated during the task\n\nWould you like to view your task results now?`,
+            content: `🎉 **Task Completed Successfully!**\n\nYour task has been completed. You can now:\n\n📋 **Ask Questions** - Ask me about the task details or results\n📥 **Download Data** - Get any files or data generated during the task`,
             timestamp: new Date().toISOString(),
             metadata: { 
               type: 'task_completion_notification',
-              showTaskButton: true,
               taskId: agentResponse.task_id || currentRunId
             }
           };
@@ -393,57 +348,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const renderMessage = (message) => {
     const isUser = message.type === 'user';
     const isError = message.type === 'error';
-    const isAssistant = message.type === 'assistant' || (!isUser && !isError);
-    
-    if (isAssistant) {
-      return (
-        <Box
-          key={message.id}
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            mb: 2
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              maxWidth: '95%',
-              width: '100%'
-            }}
-          >
-            <Avatar
-              sx={{
-                bgcolor: isError ? 'error.main' : 'secondary.main',
-                mr: 2,
-                width: 40,
-                height: 40,
-                mt: 1
-              }}
-            >
-              <BotIcon />
-            </Avatar>
-            
-            <Box sx={{ flex: 1 }}>
-              <StructuredMessageRenderer 
-                message={message} 
-                onAction={(action) => {
-                  if (action.type === 'view_task_results') {
-                    handleViewTaskResults();
-                  } else if (action.type === 'ask_about_task') {
-                    setInputValue('Tell me more about the completed task and its results');
-                    inputRef.current?.focus();
-                  } else if (action.type === 'copy_message') {
-                    copyMessage(message.content);
-                  }
-                }}
-              />
-            </Box>
-          </Box>
-        </Box>
-      );
-    }
     
     return (
       <Box
@@ -479,8 +383,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
               p: 2,
               bgcolor: isUser ? 'primary.main' : isError ? 'error.light' : 'background.paper',
               color: isUser ? 'primary.contrastText' : 'text.primary',
-              borderRadius: 2,
-              position: 'relative'
+              borderRadius: 2
             }}
           >
             <Typography
@@ -564,7 +467,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
       <Paper elevation={1} sx={{ p: 2, borderRadius: 0 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -581,11 +483,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
           </Box>
           
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="View Task Results">
-              <IconButton onClick={handleViewTaskResults}>
-                <TaskIcon />
-              </IconButton>
-            </Tooltip>
             <Tooltip title="Chat History">
               <IconButton onClick={() => setHistoryDialog(true)}>
                 <HistoryIcon />
@@ -610,7 +507,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
         </Box>
       </Paper>
 
-      {/* Messages Area */}
       <Box
         ref={chatContainerRef}
         sx={{
@@ -679,7 +575,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
         <div ref={messagesEndRef} />
       </Box>
 
-      {/* Input Area */}
       <Paper elevation={3} sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TextField
@@ -726,7 +621,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
         </Box>
       </Paper>
 
-      {/* Chat History Dialog */}
       <Dialog open={historyDialog} onClose={() => setHistoryDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>Chat History</DialogTitle>
         <DialogContent>
@@ -755,7 +649,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
         </DialogActions>
       </Dialog>
 
-      {/* Settings Dialog */}
       <Dialog open={settingsDialog} onClose={() => setSettingsDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Chat Settings</DialogTitle>
         <DialogContent>
@@ -808,13 +701,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
           <Button onClick={() => setSettingsDialog(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-
-      {/* Task Results Dialog */}
-      <TaskResultsDialog 
-        open={taskResultsDialog} 
-        onClose={() => setTaskResultsDialog(false)}
-        onRefresh={loadTaskResults}
-      />
     </Box>
   );
 }
