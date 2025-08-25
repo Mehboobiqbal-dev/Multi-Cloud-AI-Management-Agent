@@ -64,7 +64,14 @@ const api = {
     return apiClient.post('/signup', userData);
   },
   login(credentials) {
-    return apiClient.post('/token', credentials);
+    const form_data = new URLSearchParams();
+    form_data.append('username', credentials.email);
+    form_data.append('password', credentials.password);
+    return apiClient.post('/token', form_data, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
   },
   getMe() {
     return apiClient.get('/me');

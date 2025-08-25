@@ -53,8 +53,6 @@ import { format } from 'date-fns';
 import api from '../../services/api';
 import websocketService from '../../services/websocket';
 
-
-
 const quickActions = [
   {
     id: 'deploy_app',
@@ -101,9 +99,9 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
   const [historyDialog, setHistoryDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [taskResultsDialog, setTaskResultsDialog] = useState(false);
-  const [, setTaskResults] = useState([]);
-  const [, setTaskStatistics] = useState(null);
-  const [, setLoadingTasks] = useState(false);
+  const [taskResults, setTaskResults] = useState([]);
+  const [taskStatistics, setTaskStatistics] = useState(null);
+  const [loadingTasks, setLoadingTasks] = useState(false);
   const [settings, setSettings] = useState({
     autoScroll: true,
     soundEnabled: false,
@@ -111,8 +109,6 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     theme: 'light',
     fontSize: 'medium'
   });
-
-  const [, setQuickActionsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [agentLogs, setAgentLogs] = useState([]);
@@ -127,43 +123,43 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     initializeSpeechRecognition();
     
     // Subscribe to agent updates for real-time logs
-const unsubscribeAgent = websocketService.subscribe('agent_updates', (data) => {
-  if (data.status) {
-    setAgentStatus(data.status);
-  }
-  if (data.log) {
-    setAgentLogs(prev => [...prev, {
-      id: Date.now() + Math.random(),
-      message: data.log,
-      timestamp: new Date().toISOString()
-    }]);
-  }
-});
+    const unsubscribeAgent = websocketService.subscribe('agent_updates', (data) => {
+      if (data.status) {
+        setAgentStatus(data.status);
+      }
+      if (data.log) {
+        setAgentLogs(prev => [...prev, {
+          id: Date.now() + Math.random(),
+          message: data.log,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+    });
 
-// Subscribe to chat messages for real-time messaging
-const unsubscribeChat = websocketService.subscribe('chat', (data) => {
-  let content = data.message;
-  let additionalMetadata = {};
-  if (typeof data.message === 'object' && data.message !== null) {
-    content = data.message.message || JSON.stringify(data.message);
-    if (data.message.conversation_id) {
-      additionalMetadata.conversation_id = data.message.conversation_id;
-    }
-  }
-  const newMessage = {
-    id: Date.now() + Math.random(),
-    type: data.sender === 'user' ? 'user' : 'assistant',
-    content,
-    timestamp: new Date().toISOString(),
-    metadata: { ...data.metadata || {}, ...additionalMetadata }
-  };
-  setMessages(prev => [...prev, newMessage]);
-});
+    // Subscribe to chat messages for real-time messaging
+    const unsubscribeChat = websocketService.subscribe('chat', (data) => {
+      let content = data.message;
+      let additionalMetadata = {};
+      if (typeof data.message === 'object' && data.message !== null) {
+        content = data.message.message || JSON.stringify(data.message);
+        if (data.message.conversation_id) {
+          additionalMetadata.conversation_id = data.message.conversation_id;
+        }
+      }
+      const newMessage = {
+        id: Date.now() + Math.random(),
+        type: data.sender === 'user' ? 'user' : 'assistant',
+        content,
+        timestamp: new Date().toISOString(),
+        metadata: { ...data.metadata || {}, ...additionalMetadata }
+      };
+      setMessages(prev => [...prev, newMessage]);
+    });
     
-return () => {
-  unsubscribeAgent();
-  unsubscribeChat();
-};
+    return () => {
+      unsubscribeAgent();
+      unsubscribeChat();
+    };
   }, []);
 
   useEffect(() => {
@@ -202,15 +198,17 @@ return () => {
   const loadChatHistory = async () => {
     try {
       const history = await api.getChatHistory();
-      setChatHistory(history);
+      console.log('API response for chat history:', history);
+      const chatHistoryArray = Array.isArray(history) ? history : history?.data || [];
+      setChatHistory(chatHistoryArray);
       
-      // Load the most recent conversation if available
-      if (history.length > 0) {
-        const recentChat = history[0];
-        setMessages(recentChat.messages || []);
+      if (chatHistoryArray.length > 0) {
+        const recentChat = chatHistoryArray[0];
+        setMessages(Array.isArray(recentChat.messages) ? recentChat.messages : []);
       }
     } catch (error) {
       console.error('Failed to load chat history:', error);
+      setChatHistory([]);
     }
   };
 
@@ -240,8 +238,6 @@ return () => {
     setTaskResultsDialog(true);
     loadTaskResults();
   };
-
-
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -342,7 +338,6 @@ return () => {
 
   const handleQuickAction = (action) => {
     setInputValue(action.prompt);
-    setQuickActionsOpen(false);
     inputRef.current?.focus();
   };
 
@@ -400,7 +395,6 @@ return () => {
     const isError = message.type === 'error';
     const isAssistant = message.type === 'assistant' || (!isUser && !isError);
     
-    // Use structured renderer for assistant messages
     if (isAssistant) {
       return (
         <Box
@@ -435,7 +429,6 @@ return () => {
               <StructuredMessageRenderer 
                 message={message} 
                 onAction={(action) => {
-                  // Handle structured message actions
                   if (action.type === 'view_task_results') {
                     handleViewTaskResults();
                   } else if (action.type === 'ask_about_task') {
@@ -452,7 +445,6 @@ return () => {
       );
     }
     
-    // Original rendering for user messages
     return (
       <Box
         key={message.id}
@@ -739,23 +731,24 @@ return () => {
         <DialogTitle>Chat History</DialogTitle>
         <DialogContent>
           <List>
-            {chatHistory.map((chat, index) => (
-              <ListItem key={index} button>
-                <ListItemIcon>
-                  <HistoryIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary={`Conversation ${index + 1}`}
-                  secondary={format(new Date(chat.timestamp), 'PPpp')}
-                />
-              </ListItem>
-            ))}
+            {Array.isArray(chatHistory) && chatHistory.length > 0 ? (
+              chatHistory.map((chat, index) => (
+                <ListItem key={index} button>
+                  <ListItemIcon>
+                    <HistoryIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`Conversation ${index + 1}`}
+                    secondary={format(new Date(chat.timestamp), 'PPpp')}
+                  />
+                </ListItem>
+              ))
+            ) : (
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                No chat history available
+              </Typography>
+            )}
           </List>
-          {chatHistory.length === 0 && (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              No chat history available
-            </Typography>
-          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setHistoryDialog(false)}>Close</Button>
