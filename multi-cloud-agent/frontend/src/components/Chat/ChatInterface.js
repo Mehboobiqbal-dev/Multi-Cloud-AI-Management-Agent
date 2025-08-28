@@ -223,10 +223,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
     setAgentStatus('processing');
 
     try {
-      await api.sendChatMessage({
-        message: inputValue,
-        conversation_id: currentRunId
-      });
+      await api.sendChatMessage(inputValue, 'text', currentRunId);
 
       const agentResponse = await api.runAgent({
         user_input: inputValue,
@@ -236,7 +233,7 @@ function ChatInterface({ onToolCall, websocketConnected, currentRunId }) {
       const botMessage = {
         id: Date.now() + 1,
         type: 'assistant',
-        content: agentResponse.response || agentResponse.message || 'Agent is processing your request...',
+        content: agentResponse.final_result || agentResponse.message || agentResponse.response || 'Agent is processing your request...',
         timestamp: new Date().toISOString(),
         metadata: agentResponse.metadata || {}
       };

@@ -780,19 +780,138 @@ async def call_tool(tool_req: schemas.ToolCallRequest, user: schemas.User = Depe
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error executing tool: {str(e)}")
 
-def generate_text(prompt: str) -> str:
+@app.get('/api/status/gemini', tags=["Monitoring"])
+async def get_gemini_status(user: schemas.User = Depends(get_current_user)):
     """
-    Generate text using Gemini API with built-in failover across multiple API keys.
+    Get the status of Gemini API keys and rate limiting.
     """
     try:
+        from gemini import get_api_status
+        from rate_limiter import rate_limiter
+        
+        gemini_status = get_api_status()
+        
+        # Get overall rate limiter status
+        rate_limiter_status = {
+            "gemini_overall": rate_limiter.get_circuit_breaker_status("gemini"),
+            "gemini_vision_overall": rate_limiter.get_circuit_breaker_status("gemini_vision")
+        }
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.now().isoformat(),
+            "gemini_api": gemini_status,
+            "rate_limiting": rate_limiter_status,
+            "recommendations": _get_api_recommendations(gemini_status, rate_limiter_status)
+        }
+    except Exception as e:
+        logging.error(f"Error getting Gemini status: {e}")
+        return {
+            "status": "error",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        }
+
+def _get_api_recommendations(gemini_status: dict, rate_limiter_status: dict) -> List[str]:
+    """Generate recommendations based on API status."""
+    recommendations = []
+    
+    # Check API key availability
+    if gemini_status.get("available_keys", 0) == 0:
+        recommendations.append("⚠️ All API keys are currently unavailable. Consider adding more API keys or waiting for quota reset.")
+    elif gemini_status.get("available_keys", 0) < gemini_status.get("total_keys", 0) / 2:
+        recommendations.append("⚠️ More than half of API keys are unavailable. Consider rotating keys or reducing request frequency.")
+    
+    # Check circuit breaker status
+    for provider, status in rate_limiter_status.items():
+        if status.get("state") == "OPEN":
+            recommendations.append(f"🚨 {provider} circuit breaker is OPEN. Service is temporarily disabled due to repeated failures.")
+        elif status.get("state") == "HALF_OPEN":
+            recommendations.append(f"🟡 {provider} circuit breaker is HALF_OPEN. Service is testing recovery.")
+    
+    # Check backoff multipliers
+    for key_prefix, key_status in gemini_status.get("key_status", {}).items():
+        backoff = key_status.get("rate_limit_status", {}).get("backoff_multiplier", 1.0)
+        if backoff > 3.0:
+            recommendations.append(f"📈 {key_prefix} has high backoff multiplier ({backoff:.1f}x). Consider reducing request frequency.")
+    
+    if not recommendations:
+        recommendations.append("✅ API status is healthy. All systems operating normally.")
+    
+    return recommendations
+
+@app.post('/api/reset/gemini', tags=["Monitoring"])
+async def reset_gemini_circuit_breakers(user: schemas.User = Depends(get_current_user)):
+    """
+    Reset Gemini circuit breakers to allow retrying failed APIs.
+    """
+    try:
+        from rate_limiter import rate_limiter
+        from gemini import api_key_manager
+        
+        # Reset circuit breakers
+        rate_limiter.reset_circuit_breaker("gemini")
+        rate_limiter.reset_circuit_breaker("gemini_vision")
+        
+        # Reset API key failure counts
+        for key in api_key_manager.api_keys:
+            api_key_manager.key_failures[key] = 0
+            api_key_manager.key_failures[f"{key}_last_failure"] = 0
+        
+        logging.info("Gemini circuit breakers and API key failures reset successfully")
+        
+        return {
+            "status": "success",
+            "timestamp": datetime.now().isoformat(),
+            "message": "Gemini circuit breakers and API key failures have been reset successfully."
+        }
+    except Exception as e:
+        logging.error(f"Error resetting Gemini circuit breakers: {e}")
+        return {
+            "status": "error",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e)
+        }
+
+def generate_text(prompt: str) -> str:
+    """
+    Generate text using enhanced Gemini API with intelligent fallback mechanisms.
+    """
+    from fallback_responses import generate_fallback_response
+    
+    try:
+        # Try Gemini API first
         return gemini.generate_text(prompt)
     except HTTPException as e:
-        # Re-raise the HTTPException with appropriate error details
-        logging.error(f"Gemini generation failed: {getattr(e, 'detail', str(e))}")
+        error_detail = getattr(e, 'detail', str(e))
+        logging.error(f"Gemini generation failed: {error_detail}")
+        
+        # Check if it's a 429 error (rate limit/quota exceeded)
+        if e.status_code == 429 or "quota" in error_detail.lower() or "429" in error_detail:
+            logging.warning("Gemini API quota exceeded, using intelligent fallback response")
+            try:
+                # Generate intelligent fallback response
+                fallback_response = generate_fallback_response(prompt)
+                logging.info("Successfully generated fallback response")
+                return fallback_response
+            except Exception as fallback_error:
+                logging.error(f"Fallback response generation failed: {fallback_error}")
+                # Return a basic fallback message
+                return f"I understand you need help with: {prompt[:100]}...\n\nI'm currently experiencing high API usage limits, but I'm ready to assist you with this task. Please try again in a few minutes for full AI-powered responses, or let me know if you'd like to proceed with basic assistance."
+        
+        # For other HTTP errors, re-raise
         raise e
     except Exception as e:
         logging.error(f"An unexpected error occurred with Gemini: {e}")
-        raise HTTPException(status_code=500, detail=f"LLM generation failed: {str(e)}")
+        
+        # Try fallback for any unexpected errors
+        try:
+            logging.info("Attempting fallback response due to unexpected error")
+            fallback_response = generate_fallback_response(prompt)
+            return fallback_response
+        except Exception as fallback_error:
+            logging.error(f"Fallback response generation failed: {fallback_error}")
+            return f"I'm experiencing technical difficulties but I'm here to help with: {prompt[:100]}...\n\nPlease try again in a moment for full AI-powered assistance."
 
 @app.post('/agent/run', response_model=schemas.AgentRunResponse, tags=["Agent"])
 @limiter.limit("5/minute")

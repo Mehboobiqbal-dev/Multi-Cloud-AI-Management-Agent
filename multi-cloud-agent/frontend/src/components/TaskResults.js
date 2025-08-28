@@ -75,19 +75,15 @@ const TaskResults = () => {
       };
 
       // Fetch statistics
-      const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}/tasks/statistics`, { headers });
+      const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/tasks/statistics?days=30`, { headers });
       const statsData = await statsResponse.json();
-      if (statsData.success) {
-        setStatistics(statsData.statistics);
-      }
+      setStatistics(statsData);
 
       // Fetch task results
-      const tasksResponse = await fetch(`${process.env.REACT_APP_API_URL}/tasks/results?limit=20&offset=${(page - 1) * 20}`, { headers });
+      const tasksResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/tasks/results?limit=20&offset=${(page - 1) * 20}`, { headers });
       const tasksData = await tasksResponse.json();
-      if (tasksData.success) {
-        setTasks(tasksData.results);
-        setTotalPages(Math.ceil(tasksData.total / 20) || 1);
-      }
+      setTasks(tasksData.results || []);
+      setTotalPages(Math.ceil((tasksData.total || 0) / 20) || 1);
 
       // Fetch scraping results
       const scrapingResponse = await fetch(`${process.env.REACT_APP_API_URL}/tasks/scraping?limit=10`, { headers });

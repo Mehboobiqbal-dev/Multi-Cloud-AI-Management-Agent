@@ -22,7 +22,7 @@ apiClient.interceptors.response.use(
     return response.data;
   },
   error => {
-    // Handle network errors gracefullyS
+    // Handle network errors gracefully
     if (!error.response) {
       console.error('Network error:', error.message);
       return Promise.reject(new Error('Network error: Please check your connection'));
@@ -93,7 +93,7 @@ const api = {
     return apiClient.post('/agent/run', { user_input, run_id });
   },
   getHistory() {
-    return apiClient.get('/history');
+    return apiClient.get('/chat/history');
   },
   // Form automation methods
   applyJobUpwork(data) {
@@ -109,10 +109,10 @@ const api = {
     return apiClient.post('/form/batch_apply_jobs', data);
   },
   loginAutomation(data) {
-    return apiClient.post('/form/login_automation', data);
+    return apiClient.post('/form/automate_login', data);
   },
   registrationAutomation(data) {
-    return apiClient.post('/form/registration_automation', data);
+    return apiClient.post('/form/automate_registration', data);
   },
   // Chat methods
   getChatHistory() {
@@ -132,53 +132,11 @@ const api = {
   callTool(toolName, params) {
     return apiClient.post('/call_tool', { tool_name: toolName, params });
   },
-  // WebSocket connection handler with error handling
-  createWebSocketConnection(url) {
-    try {
-      // Try to determine if we need to use a fallback URL
-      if (!url) {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const apiHost = (process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000').replace(/^https?:\/\//, '');
-        url = `${protocol}//${apiHost}/ws`;
-      }
-      
-      let socket;
-      
-      try {
-        socket = new WebSocket(url);
-      } catch (wsError) {
-        // If the initial connection fails, try a fallback port
-        if (url.includes(':8000')) {
-          const fallbackUrl = url.replace(':8000', ':52828');
-          console.log('Attempting fallback WebSocket connection to:', fallbackUrl);
-          socket = new WebSocket(fallbackUrl);
-        } else {
-          throw wsError;
-        }
-      }
-      
-      // Add error handling but suppress console errors
-      socket.onerror = (error) => {
-        // Silently handle the error to avoid console errors
-        // console.warn('WebSocket error:', error);
-      };
-      
-      socket.onclose = (event) => {
-        if (!event.wasClean) {
-          // Silently handle the error to avoid console errors
-          // console.warn('WebSocket connection closed unexpectedly');
-        }
-      };
-      
-      return socket;
-    } catch (error) {
-      // Silently handle the error to avoid console errors
-      // console.error('Failed to create WebSocket connection:', error);
-      return null;
-    }
-  }
+  // The redundant WebSocket connection handler has been removed.
+  // The application should use the singleton WebSocketService instead.
 };
 
+// ... (rest of the exported functions remain the same)
 // Form automation endpoints
 export const applyJobUpwork = (data) => api.post('/form/apply_job_upwork', data);
 export const applyJobFiverr = (data) => api.post('/form/apply_job_fiverr', data);
@@ -209,8 +167,14 @@ export const stopAgent = (runId) => api.post(`/agent/stop/${runId}`);
 export const healthCheck = () => api.get('/healthz');
 
 // Additional function exports
-export const getTaskResults = () => apiClient.get('/tasks/results');
-export const getTaskStatistics = () => apiClient.get('/tasks/statistics');
+export const getTaskResults = (params = { limit: 50, offset: 0, status: undefined }) => {
+  const search = new URLSearchParams();
+  if (params.limit != null) search.set('limit', String(params.limit));
+  if (params.offset != null) search.set('offset', String(params.offset));
+  if (params.status) search.set('status', params.status);
+  return apiClient.get(`/api/tasks/results?${search.toString()}`);
+};
+export const getTaskStatistics = (days = 30) => apiClient.get(`/api/tasks/statistics?days=${days}`);
 export const getScrapingResults = () => apiClient.get('/tasks/scraping');
 export const getTaskDetails = (taskId) => apiClient.get(`/tasks/${taskId}`);
 

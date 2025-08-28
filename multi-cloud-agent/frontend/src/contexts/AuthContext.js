@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login as authLogin, signup as authSignup } from '../auth';
-import api from '../services/api';
+import api from '../services/api'; // Make sure this points to your api.js file
 
 const AuthContext = createContext();
 
@@ -12,136 +11,107 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Effect to check for an existing token from localStorage or URL on initial load
   useEffect(() => {
     const checkUser = async () => {
-      console.log("AuthContext: Checking user...");
-      try {
-        const token = localStorage.getItem('access_token');
-        console.log("AuthContext: Token found:", token ? 'Yes' : 'No');
-        if (token) {
+      // First, check for a token in the URL (from OAuth redirect)
+      const queryParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = queryParams.get('token');
+      
+      let token = null;
+
+      if (tokenFromUrl) {
+        console.log("AuthContext: Token found in URL from OAuth redirect.");
+        localStorage.setItem('access_token', tokenFromUrl);
+        token = tokenFromUrl;
+        // Clean the URL to remove the token for security
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        // Fallback to checking localStorage
+        token = localStorage.getItem('access_token');
+      }
+
+      if (token) {
+        try {
+          console.log("AuthContext: Token found, fetching user data...");
           const userData = await api.getCurrentUser();
           setUser(userData);
-        } else {
+        } catch (error) {
+          console.error('AuthContext: Failed to fetch user with token, removing token.', error);
+          localStorage.removeItem('access_token');
           setUser(null);
         }
-      } catch (error) {
-        console.error('AuthContext: Auth check failed:', error);
-        setUser(null);
-        localStorage.removeItem('access_token');
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
     checkUser();
   }, []);
 
   const login = async (credentials) => {
-    console.log("AuthContext: Attempting login...");
     setLoading(true);
+    console.log("AuthContext: Attempting login with credentials:", { email: credentials.email });
+
     try {
-      // Validate input before sending to API
-      if (!credentials.email || !credentials.email.includes('@')) {
-        throw new Error('Please enter a valid email address');
-      }
-      
-      if (!credentials.password || credentials.password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
-      }
-      
-      const loginData = {
-        email: credentials.email,
-        password: credentials.password,
-      };
-      
-      console.log("AuthContext: Sending login request...");
-      const response = await authLogin(loginData);
+      const response = await api.login(credentials);
       
       if (response.access_token) {
         console.log("AuthContext: Login successful, token received.");
         localStorage.setItem('access_token', response.access_token);
-        // In a real application, you might decode the token or make another API call to get user details
-        // For now, we'll just set a placeholder user or use info from the login response if available
         const currentUser = await api.getCurrentUser();
         console.log("AuthContext: User data fetched:", currentUser);
         setUser(currentUser);
-
       } else {
         throw new Error('Login failed: Invalid response from server');
       }
     } catch (error) {
-      console.error('AuthContext: Login failed:', error);
-      localStorage.removeItem('token');
-      setUser(null);
-      throw error;
+      console.error('AuthContext: Login failed.', error);
+      // This makes the original error available to the component for display
+      throw error; 
     } finally {
-      console.log("AuthContext: Login process finished, setting loading to false.");
       setLoading(false);
     }
   };
-
-  const googleLogin = async (credential) => {
-    try {
-      const response = await api.post('/auth/google', { credential });
-      if (response.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        const userData = await api.getCurrentUser();
-        setUser(userData);
-      }
-    } catch (error) {
-      throw error;
-    }
+  
+  /**
+   * This function correctly handles the server-side redirect flow.
+   * It redirects the user to your backend, which then redirects to Google.
+   */
+  const googleLogin = () => {
+    // The base URL of your backend API
+    const apiUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+    // Redirect the user's browser to the backend endpoint that starts the Google OAuth flow
+    window.location.href = `${apiUrl}/login/google`;
   };
 
   const signup = async (userData) => {
-    console.log("AuthContext: Attempting signup...");
     setLoading(true);
     try {
-      // Validate input before sending to API
-      if (!userData.email || !userData.email.includes('@')) {
-        throw new Error('Please enter a valid email address');
-      }
-      
-      if (!userData.password || userData.password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
-      }
-      
-      if (!userData.name || userData.name.trim() === '') {
-        throw new Error('Please enter your name');
-      }
-      
-      console.log("AuthContext: Sending signup request...");
-      await authSignup(userData);
-      console.log("AuthContext: Signup successful, now logging in...");
-      
-      try {
-        await login({ email: userData.email, password: userData.password });
-      } catch (loginError) {
-        // If login fails after successful signup, we still consider signup successful
-        // but inform the user they need to login manually
-        console.warn('AuthContext: Auto-login after signup failed:', loginError);
-        throw new Error('Account created successfully! Please login with your credentials.');
-      }
+      console.log("AuthContext: Attempting signup for:", { email: userData.email });
+      await api.signup(userData);
+      console.log("AuthContext: Signup successful. Now logging in...");
+      // After a successful signup, automatically log the user in
+      await login({ email: userData.email, password: userData.password });
     } catch (error) {
       console.error('AuthContext: Signup failed:', error);
       throw error;
     } finally {
-      console.log("AuthContext: Signup process finished, setting loading to false.");
       setLoading(false);
     }
   };
 
   const logout = () => {
+    console.log("AuthContext: Logging out.");
     localStorage.removeItem('access_token');
     setUser(null);
   };
 
   const value = {
     user,
-    login,
-    signup,
-    googleLogin,
-    logout,
     loading,
+    login,
+    googleLogin,
+    signup,
+    logout,
   };
 
   return (

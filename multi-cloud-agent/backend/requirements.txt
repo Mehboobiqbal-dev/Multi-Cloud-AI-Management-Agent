@@ -64,6 +64,7 @@ beautifulsoup4
 lxml
 faker
 playwright
+SpeechRecognition
 
 # Enhanced logging and monitoring
 structlog>=22.0.0

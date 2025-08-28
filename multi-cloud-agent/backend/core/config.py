@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEYS: str = os.environ.get("GEMINI_API_KEYS", "")
     GEMINI_API_KEYS_LIST: List[str] = [k.strip() for k in GEMINI_API_KEYS.split(",") if k.strip()]
     GEMINI_API_KEY: Optional[str] = os.environ.get("GEMINI_API_KEY", "")
-    GEMINI_MODEL_NAME: str = os.environ.get("GEMINI_MODEL_NAME", "gemini-1.5-pro")
+    GEMINI_MODEL_NAME: str = os.environ.get("GEMINI_MODEL_NAME", "gemini-2.5-pro")
     
     # Auto content generation settings
     ENABLE_AUTO_CONTENT: bool = os.environ.get("ENABLE_AUTO_CONTENT", "True").lower() == "true"
